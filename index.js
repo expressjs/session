@@ -289,6 +289,17 @@ function session(options){
 
       var val = 's:' + signature.sign(req.sessionID, secret);
       val = cookie.serialize(key, val);
+
+      // supports multiple 'res.cookie' calls by getting previous value
+      var prev = res.getHeader('Set-Cookie');
+      if (prev) {
+        if (Array.isArray(prev)) {
+          val = prev.concat(val);
+        } else {
+          val = [prev, val];
+        }
+      }
+
       debug('set-cookie %s', val);
       res.setHeader('Set-Cookie', val);
       writeHead.apply(res, arguments);
