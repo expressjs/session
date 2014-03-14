@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "mocha": "~1.17.0",
-    "connect": "2.13.0",
+    "express": "4.0.0-rc3",
     "supertest": "0.9.0",
     "should": "3.1.2",
     "cookie-parser": "1.0.0"
