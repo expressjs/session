@@ -5,6 +5,7 @@ var express = require('express')
   , should = require('should')
   , cookieParser = require('cookie-parser')
   , session = require('../')
+  , Cookie = require('../session/cookie')
 
 var min = 60 * 1000;
 
@@ -391,6 +392,30 @@ describe('session()', function(){
             cookie.should.not.include('Secure');
             cookie.should.include('Path=/admin');
             cookie.should.include('Expires');
+            done();
+          });
+        })
+
+        it('should preserve cookies set before writeHead is called', function(done){
+          function getPreviousCookie(res) {
+            var val = res.headers['set-cookie'];
+            if (!val) return '';
+            return /previous=([^;]+);/.exec(val[0])[1];
+          }
+
+          var app = express()
+            .use(cookieParser('keyboard cat'))
+            .use(session())
+            .use(function(req, res, next){
+              var cookie = new Cookie();
+              res.setHeader('Set-Cookie', cookie.serialize('previous', 'cookieValue'));
+              res.end();
+            });
+
+          request(app)
+          .get('/')
+          .end(function(err, res){
+            getPreviousCookie(res).should.equal('cookieValue');
             done();
           });
         })
