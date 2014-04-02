@@ -1,3 +1,6 @@
+
+THIS REPOSITORY NEEDS A MAINTAINER. IF YOU'RE INTERESTED IN MAINTAINING THIS REPOSITORY, PLEASE LET US KNOW!
+
 # express-session
 
 Setup session store with the given `options`.
