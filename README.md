@@ -1,4 +1,3 @@
-
 THIS REPOSITORY NEEDS A MAINTAINER. IF YOU'RE INTERESTED IN MAINTAINING THIS REPOSITORY, PLEASE LET US KNOW!
 
 # express-session
@@ -13,7 +12,7 @@ middleware _before_ `session()`.
 
 ```js
  app.use(connect.cookieParser())
- app.use(connect.session({ secret: 'keyboard cat', key: 'sid', cookie: { secure: true }}))
+ app.use(connect.session({ secret: 'keyboard cat', key: 'sid' }))
 ```
 
 **Options**
@@ -21,7 +20,7 @@ middleware _before_ `session()`.
   - `key` cookie name defaulting to `connect.sid`
   - `store` session store instance
   - `secret` session cookie is signed with this secret to prevent tampering
-  - `cookie` session cookie settings, defaulting to `{ path: '/', httpOnly: true, maxAge: null }`
+  - `cookie` session cookie settings, defaulting to `{ path: '/', httpOnly: true, secure: false, maxAge: null }`
   - `proxy` trust the reverse proxy when setting secure cookies (via "x-forwarded-proto")
 
 **Cookie options**
