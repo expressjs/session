@@ -12,8 +12,11 @@ middleware _before_ `session()`.
 ## Example
 
 ```js
- app.use(connect.cookieParser())
- app.use(connect.session({ secret: 'keyboard cat', key: 'sid', cookie: { secure: true }}))
+var cookieParser = require('cookie-parser');
+var session = require('session');
+
+app.use(cookieParser())
+app.use(session({ secret: 'keyboard cat', key: 'sid', cookie: { secure: true }}))
 ```
 
 **Options**
