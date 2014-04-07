@@ -1,10 +1,11 @@
 
-var connect = require('connect')
+var express = require('express')
   , assert = require('assert')
   , request = require('supertest')
   , should = require('should')
   , cookieParser = require('cookie-parser')
   , session = require('../')
+  , Cookie = require('../session/cookie')
 
 var min = 60 * 1000;
 
@@ -22,7 +23,7 @@ function expires(res) {
   return res.headers['set-cookie'][0].match(/Expires=([^;]+)/)[1];
 }
 
-var app = connect()
+var app = express()
   .use(cookieParser())
   .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
   .use(respond);
@@ -37,7 +38,7 @@ describe('session()', function(){
   describe('proxy option', function(){
     describe('when enabled', function(){
       it('should trust X-Forwarded-Proto when string', function(done){
-        var app = connect()
+        var app = express()
           .use(cookieParser())
           .use(session({ secret: 'keyboard cat', proxy: true, cookie: { secure: true, maxAge: 5 }}))
           .use(respond);
@@ -52,7 +53,7 @@ describe('session()', function(){
       })
 
       it('should trust X-Forwarded-Proto when comma-separated list', function(done){
-        var app = connect()
+        var app = express()
           .use(cookieParser())
           .use(session({ secret: 'keyboard cat', proxy: true, cookie: { secure: true, maxAge: 5 }}))
           .use(respond);
@@ -69,7 +70,7 @@ describe('session()', function(){
 
     describe('when disabled', function(){
       it('should not trust X-Forwarded-Proto', function(done){
-        var app = connect()
+        var app = express()
           .use(cookieParser())
           .use(session({ secret: 'keyboard cat', cookie: { secure: true, maxAge: min }}))
           .use(respond);
@@ -97,7 +98,7 @@ describe('session()', function(){
     })
 
     it('should allow overriding', function(done){
-      var app = connect()
+      var app = express()
         .use(cookieParser())
         .use(session({ secret: 'keyboard cat', key: 'sid', cookie: { maxAge: min }}))
         .use(respond);
@@ -115,7 +116,7 @@ describe('session()', function(){
   it('should retain the sid', function(done){
     var n = 0;
 
-    var app = connect()
+    var app = express()
       .use(cookieParser())
       .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
       .use(function(req, res){
@@ -153,7 +154,7 @@ describe('session()', function(){
   it('should issue separate sids', function(done){
     var n = 0;
 
-    var app = connect()
+    var app = express()
       .use(cookieParser())
       .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
       .use(function(req, res){
@@ -184,7 +185,7 @@ describe('session()', function(){
 
   describe('req.session', function(){
     it('should persist', function(done){
-      var app = connect()
+      var app = express()
         .use(cookieParser())
         .use(session({ secret: 'keyboard cat', cookie: { maxAge: min, httpOnly: false }}))
         .use(function(req, res, next){
@@ -214,7 +215,7 @@ describe('session()', function(){
     it('should only set-cookie when modified', function(done){
       var modify = true;
 
-      var app = connect()
+      var app = express()
         .use(cookieParser())
         .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
         .use(function(req, res, next){
@@ -261,7 +262,7 @@ describe('session()', function(){
 
     describe('.destroy()', function(){
       it('should destroy the previous session', function(done){
-        var app = connect()
+        var app = express()
           .use(cookieParser())
           .use(session({ secret: 'keyboard cat' }))
           .use(function(req, res, next){
@@ -283,7 +284,7 @@ describe('session()', function(){
 
     describe('.regenerate()', function(){
       it('should destroy/replace the previous session', function(done){
-        var app = connect()
+        var app = express()
           .use(cookieParser())
           .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
           .use(function(req, res, next){
@@ -315,7 +316,7 @@ describe('session()', function(){
     describe('.cookie', function(){
       describe('.*', function(){
         it('should serialize as parameters', function(done){
-          var app = connect()
+          var app = express()
             .use(cookieParser())
             .use(session({ secret: 'keyboard cat', proxy: true, cookie: { maxAge: min }}))
             .use(function(req, res, next){
@@ -335,7 +336,7 @@ describe('session()', function(){
         })
 
         it('should default to a browser-session length cookie', function(done){
-          var app = connect()
+          var app = express()
             .use(cookieParser())
             .use(session({ secret: 'keyboard cat', cookie: { path: '/admin' }}))
             .use(function(req, res, next){
@@ -352,7 +353,7 @@ describe('session()', function(){
         })
 
         it('should Set-Cookie only once for browser-session cookies', function(done){
-          var app = connect()
+          var app = express()
             .use(cookieParser())
             .use(session({ secret: 'keyboard cat', cookie: { path: '/admin' }}))
             .use(function(req, res, next){
@@ -375,7 +376,7 @@ describe('session()', function(){
         })
 
         it('should override defaults', function(done){
-          var app = connect()
+          var app = express()
             .use(cookieParser())
             .use(session({ secret: 'keyboard cat', cookie: { path: '/admin', httpOnly: false, secure: true, maxAge: 5000 }}))
             .use(function(req, res, next){
@@ -394,11 +395,35 @@ describe('session()', function(){
             done();
           });
         })
+
+        it('should preserve cookies set before writeHead is called', function(done){
+          function getPreviousCookie(res) {
+            var val = res.headers['set-cookie'];
+            if (!val) return '';
+            return /previous=([^;]+);/.exec(val[0])[1];
+          }
+
+          var app = express()
+            .use(cookieParser('keyboard cat'))
+            .use(session())
+            .use(function(req, res, next){
+              var cookie = new Cookie();
+              res.setHeader('Set-Cookie', cookie.serialize('previous', 'cookieValue'));
+              res.end();
+            });
+
+          request(app)
+          .get('/')
+          .end(function(err, res){
+            getPreviousCookie(res).should.equal('cookieValue');
+            done();
+          });
+        })
       })
 
       describe('.secure', function(){
         it('should not set-cookie when insecure', function(done){
-          var app = connect()
+          var app = express()
             .use(cookieParser())
             .use(session({ secret: 'keyboard cat' }))
             .use(function(req, res, next){
@@ -417,7 +442,7 @@ describe('session()', function(){
 
       describe('when the pathname does not match cookie.path', function(){
         it('should not set-cookie', function(done){
-          var app = connect()
+          var app = express()
             .use(cookieParser())
             .use(session({ secret: 'keyboard cat', cookie: { path: '/foo/bar' }}))
             .use(function(req, res, next){
@@ -438,7 +463,7 @@ describe('session()', function(){
         })
 
         it('should not set-cookie even for FQDN', function(done){
-          var app = connect()
+          var app = express()
             .use(cookieParser())
             .use(session({ secret: 'keyboard cat', cookie: { path: '/foo/bar' }}))
             .use(function(req, res, next){
@@ -463,7 +488,7 @@ describe('session()', function(){
 
       describe('when the pathname does match cookie.path', function(){
         it('should set-cookie', function(done){
-          var app = connect()
+          var app = express()
             .use(cookieParser())
             .use(session({ secret: 'keyboard cat', cookie: { path: '/foo/bar' }}))
             .use(function(req, res, next){
@@ -480,7 +505,7 @@ describe('session()', function(){
         })
 
         it('should set-cookie even for FQDN', function(done){
-          var app = connect()
+          var app = express()
             .use(cookieParser())
             .use(session({ secret: 'keyboard cat', cookie: { path: '/foo/bar' }}))
             .use(function(req, res, next){
@@ -501,7 +526,7 @@ describe('session()', function(){
 
       describe('.maxAge', function(){
         var id;
-        var app = connect()
+        var app = express()
           .use(cookieParser())
           .use(session({ secret: 'keyboard cat', cookie: { maxAge: 2000 }}))
           .use(function(req, res, next){
@@ -573,7 +598,7 @@ describe('session()', function(){
       describe('.expires', function(){
         describe('when given a Date', function(){
           it('should set absolute', function(done){
-            var app = connect()
+            var app = express()
               .use(cookieParser())
               .use(session({ secret: 'keyboard cat' }))
               .use(function(req, res, next){
@@ -592,7 +617,7 @@ describe('session()', function(){
 
         describe('when null', function(){
           it('should be a browser-session cookie', function(done){
-            var app = connect()
+            var app = express()
               .use(cookieParser())
               .use(session({ secret: 'keyboard cat' }))
               .use(function(req, res, next){
@@ -612,7 +637,7 @@ describe('session()', function(){
     })
 
     it('should support req.signedCookies', function(done){
-      var app = connect()
+      var app = express()
         .use(cookieParser('keyboard cat'))
         .use(session())
         .use(function(req, res, next){
