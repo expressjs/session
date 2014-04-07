@@ -1,4 +1,3 @@
-
 THIS REPOSITORY NEEDS A MAINTAINER. IF YOU'RE INTERESTED IN MAINTAINING THIS REPOSITORY, PLEASE LET US KNOW!
 
 # express-session
@@ -13,7 +12,7 @@ middleware _before_ `session()`.
 
 ```js
 var cookieParser = require('cookie-parser');
-var session = require('session');
+var session = require('express-session');
 
 app.use(cookieParser())
 app.use(session({ secret: 'keyboard cat', key: 'sid', cookie: { secure: true }}))
