@@ -288,9 +288,8 @@ function session(options){
       }
 
       var val = 's:' + signature.sign(req.sessionID, secret);
-      val = cookie.serialize(key, val);
       debug('set-cookie %s', val);
-      res.setHeader('Set-Cookie', val);
+      res.cookie(key, val, cookie.data);
       writeHead.apply(res, arguments);
     };
 
