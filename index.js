@@ -14,6 +14,7 @@ var uid = require('uid2')
   , parse = require('url').parse
   , signature = require('cookie-signature')
   , debug = require('debug')('session')
+  , CookieParser = require('./lib/cookie-parser')  
 
 var Session = require('./session/session')
   , MemoryStore = require('./session/memory')
@@ -232,8 +233,25 @@ function session(options){
     var originalHash
       , originalId;
 
-    // expose store
-    req.sessionStore = store;
+    // expose store and secret
+    req.sessionStore = store; 
+    req.secret = secret;
+    
+    // if user has cookies parse them to cookies and signedCookies
+    // else just create an empty object
+    if (req.headers.cookie) {
+      try {
+        var cookieParser = new CookieParser(req.headers.cookie);
+        req.signedCookies = cookieParser.signed(secret);
+        req.cookies = cookieParser.parsed;
+      } catch (err) {
+        err.status = 400;
+        return next(err);
+      }
+    } else {
+      req.cookies = {};
+      req.signedCookies = {};
+    }
 
     // grab the session cookie value and check the signature
     var rawCookie = req.cookies[key];
