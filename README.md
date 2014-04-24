@@ -5,7 +5,7 @@ THIS REPOSITORY NEEDS A MAINTAINER. IF YOU'RE INTERESTED IN MAINTAINING THIS REP
 Setup session store with the given `options`.
 
 Session data is _not_ saved in the cookie itself, however
-cookies are used, so we must use the [cookieParser()](cookieParser.html)
+cookies are used, so we must use the [cookieParser()](https://github.com/expressjs/cookie-parser)
 middleware _before_ `session()`.
 
 ## Example
