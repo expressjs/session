@@ -40,7 +40,6 @@ If for development or other reasons security is not a concern, just use:
 ```
 app.use(connect.cookieParser())
 app.use(connect.session({ secret: 'keyboard cat', key: 'sid' }))
-
 ```
 
 By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
