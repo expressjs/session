@@ -25,5 +25,8 @@
   "scripts": {
     "test": "mocha --bail --ui bdd --reporter list -- test/*.js"
   },
+  "engines": {
+    "node": ">= 0.10.0"
+  },
   "license": "MIT"
 }
