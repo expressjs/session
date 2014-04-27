@@ -14,6 +14,7 @@ app.use(cookieParser()) // required before session.
 app.use(session({ secret: 'keyboard cat', key: 'sid', cookie: { secure: true }}))
 ```
 
+
 ### session(options)
 
 Setup session store with the given `options`.
@@ -28,9 +29,19 @@ middleware _before_ `session()`.
   - `store` - session store instance.
   - `secret` - session cookie is signed with this secret to prevent tampering.
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto").
-  - - `cookie` - session cookie settings, defaulting to `{ path: '/', httpOnly: true, maxAge: null }`.
+  - `cookie` - session cookie settings, defaulting to `{ path: '/', httpOnly: true, secure: false, maxAge: null }`
+
 
 #### Cookie options
+
+Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
+If for development or other reasons security is not a concern, just use:
+
+```
+app.use(connect.cookieParser())
+app.use(connect.session({ secret: 'keyboard cat', key: 'sid' }))
+
+```
 
 By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
 so the cookie becomes a browser-session cookie. When the user closes the
