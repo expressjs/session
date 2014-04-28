@@ -1,4 +1,3 @@
-
 /*!
  * Connect - session - MemoryStore
  * Copyright(c) 2010 Sencha Inc.
