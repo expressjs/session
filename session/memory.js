@@ -38,7 +38,7 @@ MemoryStore.prototype.__proto__ = Store.prototype;
 
 MemoryStore.prototype.get = function(sid, fn){
   var self = this;
-  setImmediate(function(){
+  process.nextTick(function(){
     var expires
       , sess = self.sessions[sid];
     if (sess) {
@@ -68,7 +68,7 @@ MemoryStore.prototype.get = function(sid, fn){
 
 MemoryStore.prototype.set = function(sid, sess, fn){
   var self = this;
-  setImmediate(function(){
+  process.nextTick(function(){
     self.sessions[sid] = JSON.stringify(sess);
     fn && fn();
   });
@@ -83,7 +83,7 @@ MemoryStore.prototype.set = function(sid, sess, fn){
 
 MemoryStore.prototype.destroy = function(sid, fn){
   var self = this;
-  setImmediate(function(){
+  process.nextTick(function(){
     delete self.sessions[sid];
     fn && fn();
   });
