@@ -186,6 +186,11 @@ function session(options){
     // generate the session
     function generate() {
       store.generate(req);
+
+      // store User-Agent and IP-address of client creating this session
+      // need it to prevent theft of session ID
+      req.session['__ip-address'] = req.ip;
+      req.session['__user-agent'] = req.headers['user-agent'];
     }
 
     // get the sessionID from the cookie
@@ -219,10 +224,22 @@ function session(options){
       // populate req.session
       } else {
         debug('session found');
-        store.createSession(req, sess);
-        originalId = req.sessionID;
-        originalHash = hash(sess);
-        next();
+
+        // check if session ID is not stolen - IP and User-Agent of originating
+        // client should be the same as those of current client
+        if (
+               (sess['__ip-address'] !== req.ip)
+            || (sess['__user-agent'] !== req.headers['user-agent'])
+        ) {
+          debug('stolen session ID, generate new');
+          generate();
+          next();
+        } else {
+          store.createSession(req, sess);
+          originalId = req.sessionID;
+          originalHash = hash(sess);
+          next();
+        }
       }
     });
   };
