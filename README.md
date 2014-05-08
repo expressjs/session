@@ -1,14 +1,15 @@
 THIS REPOSITORY NEEDS A MAINTAINER. IF YOU'RE INTERESTED IN MAINTAINING THIS REPOSITORY, PLEASE LET US KNOW!
 
-# express-session [![Build Status](https://travis-ci.org/expressjs/session.svg)](https://travis-ci.org/expressjs/session) [![NPM version](https://badge.fury.io/js/session.svg)](http://badge.fury.io/js/session)
+# express-session [![Build Status](https://travis-ci.org/expressjs/session.svg?branch=master)](https://travis-ci.org/expressjs/session) [![NPM Version](https://badge.fury.io/js/express-session.svg)](https://badge.fury.io/js/express-session)
 
 ## API
 
 ```js
 var express      = require('express')
-  , cookieParser = require('cookie-parser')
-  , session      = require('express-session')
-  , app = express()
+var cookieParser = require('cookie-parser')
+var session      = require('express-session')
+
+var app = express()
 
 app.use(cookieParser()) // required before session.
 app.use(session({ secret: 'keyboard cat', key: 'sid', cookie: { secure: true }}))
@@ -25,11 +26,13 @@ middleware _before_ `session()`.
 
 #### Options
 
-  - `key` - cookie name defaulting to `connect.sid`.
+  - `key` - cookie name. (default: `connect.sid`)
   - `store` - session store instance.
   - `secret` - session cookie is signed with this secret to prevent tampering.
-  - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto").
-  - `cookie` - session cookie settings, defaulting to `{ path: '/', httpOnly: true, secure: false, maxAge: null }`
+  - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto"). (default: `false`)
+  - `cookie` - session cookie settings. 
+    - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
+  - `rolling` - forces a cookie reset on response. The reset affects the expiration date. (default: `false`)
 
 
 #### Cookie options
@@ -37,9 +40,13 @@ middleware _before_ `session()`.
 Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
 If for development or other reasons security is not a concern, just use:
 
-```
+```js
 app.use(connect.cookieParser())
-app.use(connect.session({ secret: 'keyboard cat', key: 'sid' }))
+app.use(connect.session({ 
+    secret: 'keyboard cat'
+  , key: 'sid' 
+  , proxy: true // if you do SSL outside of node.
+}))
 ```
 
 By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
