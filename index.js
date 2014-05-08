@@ -66,7 +66,7 @@ function session(options){
     , key = options.key || 'connect.sid'
     , store = options.store || new MemoryStore
     , cookie = options.cookie || {}
-    , trustProxy = options.proxy
+    , trustProxy = options.proxy || false
     , storeReady = true
     , rollingSessions = options.rolling || false;
 
