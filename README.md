@@ -30,7 +30,7 @@ middleware _before_ `session()`.
   - `store` - session store instance.
   - `secret` - session cookie is signed with this secret to prevent tampering.
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto"). (default: `false`)
-  - `cookie` - session cookie settings. 
+  - `cookie` - session cookie settings.
     - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
   - `rolling` - forces a cookie reset on response. The reset affects the expiration date. (default: `false`)
 
@@ -42,9 +42,9 @@ If for development or other reasons security is not a concern, just use:
 
 ```js
 app.use(connect.cookieParser())
-app.use(connect.session({ 
+app.use(connect.session({
     secret: 'keyboard cat'
-  , key: 'sid' 
+  , key: 'sid'
   , proxy: true // if you do SSL outside of node.
 }))
 ```
