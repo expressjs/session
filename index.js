@@ -63,7 +63,8 @@ var warning = 'Warning: connect.session() MemoryStore is not\n'
 
 function session(options){
   var options = options || {}
-    , key = options.key || 'connect.sid'
+  //  name - previously "options.key"
+    , name = options.name || options.key || 'connect.sid'
     , store = options.store || new MemoryStore
     , cookie = options.cookie || {}
     , trustProxy = options.proxy || false
@@ -112,10 +113,10 @@ function session(options){
     req.sessionStore = store;
 
     // grab the session cookie value and check the signature
-    var rawCookie = req.cookies[key];
+    var rawCookie = req.cookies[name];
 
     // get signedCookies for backwards compat with signed cookies
-    var unsignedCookie = req.signedCookies[key];
+    var unsignedCookie = req.signedCookies[name];
 
     if (!unsignedCookie && rawCookie) {
       unsignedCookie = (0 == rawCookie.indexOf('s:'))
@@ -165,7 +166,7 @@ function session(options){
 
       var val = 's:' + signature.sign(req.sessionID, secret);
       debug('set-cookie %s', val);
-      res.cookie(key, val, cookie.data);
+      res.cookie(name, val, cookie.data);
       writeHead.apply(res, arguments);
     };
 

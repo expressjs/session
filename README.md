@@ -26,7 +26,7 @@ middleware _before_ `session()`.
 
 #### Options
 
-  - `key` - cookie name. (default: `connect.sid`)
+  - `name` - cookie name. (default: `connect.sid`)
   - `store` - session store instance.
   - `secret` - session cookie is signed with this secret to prevent tampering.
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto"). (default: `false`)
