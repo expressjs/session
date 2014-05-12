@@ -1,7 +1,6 @@
 1.0.4 / 2014-04-27
 ==================
 
-  * only version compatible with node.js 0.8
   * deps: debug@0.8.1
 
 1.0.3 / 2014-04-19
