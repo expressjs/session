@@ -1,3 +1,9 @@
+1.1.0 / 2014-05-12
+==================
+
+  * Add `name` option; replacement for `key` option
+  * Use `setImmediate` in MemoryStore for node.js >= 0.10
+
 1.0.4 / 2014-04-27
 ==================
 
