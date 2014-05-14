@@ -23,7 +23,7 @@
     "cookie-parser": "1.0.1"
   },
   "scripts": {
-    "test": "mocha --bail --ui bdd --reporter list -- test/*.js"
+    "test": "mocha --bail --ui bdd --reporter spec -- test/*.js"
   },
   "engines": {
     "node": ">= 0.8.0"
