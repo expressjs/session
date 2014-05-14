@@ -41,8 +41,8 @@ Please note that `secure: true` is a **recommended** option. However, it require
 If for development or other reasons security is not a concern, just use:
 
 ```js
-app.use(connect.cookieParser())
-app.use(connect.session({
+app.use(cookieParser())
+app.use(session({
     secret: 'keyboard cat'
   , key: 'sid'
   , proxy: true // if you do SSL outside of node.
