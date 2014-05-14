@@ -11,6 +11,7 @@
     "utils-merge": "1.0.0",
     "cookie": "0.1.2",
     "cookie-signature": "1.0.3",
+    "on-headers": "0.0.0",
     "uid2": "0.0.3",
     "buffer-crc32": "0.2.1",
     "debug": "0.8.1"

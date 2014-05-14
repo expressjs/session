@@ -10,6 +10,7 @@
  */
 
 var uid = require('uid2')
+  , onHeaders = require('on-headers')
   , crc32 = require('buffer-crc32')
   , parse = require('url').parse
   , signature = require('cookie-signature')
@@ -125,11 +126,9 @@ function session(options){
     }
 
     // set-cookie
-    var writeHead = res.writeHead;
-    res.writeHead = function(){
+    onHeaders(res, function(){
       if (!req.session) {
         debug('no session');
-        writeHead.apply(res, arguments);
         return;
       }
 
@@ -141,7 +140,6 @@ function session(options){
       // only send secure cookies via https
       if (cookie.secure && !tls) {
         debug('not secured');
-        writeHead.apply(res, arguments);
         return;
       }
 
@@ -152,13 +150,11 @@ function session(options){
         if (null == cookie.expires) {
           if (!isNew) {
             debug('already set browser-session cookie');
-            writeHead.apply(res, arguments);
             return
           }
         // compare hashes and ids
         } else if (originalHash == hash(req.session) && originalId == req.session.id) {
           debug('unmodified session');
-          writeHead.apply(res, arguments);
           return
         }
 
@@ -167,8 +163,7 @@ function session(options){
       var val = 's:' + signature.sign(req.sessionID, secret);
       debug('set-cookie %s', val);
       res.cookie(name, val, cookie.data);
-      writeHead.apply(res, arguments);
-    };
+    });
 
     // proxy end() to commit the session
     var end = res.end;
