@@ -12,7 +12,7 @@ var session      = require('express-session')
 var app = express()
 
 app.use(cookieParser()) // required before session.
-app.use(session({ secret: 'keyboard cat', key: 'sid', cookie: { secure: true }}))
+app.use(session({ secret: 'keyboard cat', name: 'sid', cookie: { secure: true }}))
 ```
 
 
@@ -26,7 +26,7 @@ middleware _before_ `session()`.
 
 #### Options
 
-  - `name` - cookie name. (default: `connect.sid`)
+  - `name` - cookie name (formerly known as `key`). (default: `connect.sid`)
   - `store` - session store instance.
   - `secret` - session cookie is signed with this secret to prevent tampering.
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto"). (default: `false`)
@@ -44,7 +44,7 @@ If for development or other reasons security is not a concern, just use:
 app.use(cookieParser())
 app.use(session({
     secret: 'keyboard cat'
-  , key: 'sid'
+  , name: 'sid'
   , proxy: true // if you do SSL outside of node.
 }))
 ```
