@@ -33,6 +33,7 @@ middleware _before_ `session()`.
   - `cookie` - session cookie settings.
     - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
   - `rolling` - forces a cookie reset on response. The reset affects the expiration date. (default: `false`)
+  - `resave` - forces session to be saved even when unmodified. (default: `true`)
 
 
 #### Cookie options
