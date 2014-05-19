@@ -1,5 +1,5 @@
-unreleased
-==========
+1.2.0 / 2014-05-19
+==================
 
   * Add `resave` option to control saving unmodified sessions
 
