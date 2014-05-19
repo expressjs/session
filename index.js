@@ -70,7 +70,8 @@ function session(options){
     , cookie = options.cookie || {}
     , trustProxy = options.proxy || false
     , storeReady = true
-    , rollingSessions = options.rolling || false;
+    , rollingSessions = options.rolling || false
+    , dirtyWrites = options.dirtyWrites || false;
 
   // notify user that this store is not
   // meant for a production environment
@@ -171,7 +172,7 @@ function session(options){
       res.end = end;
       if (!req.session) return res.end(data, encoding);
       req.session.resetMaxAge();
-      if (isModified(req.session)) {
+      if (!dirtyWrites || isModified(req.session)) {
         debug('saving');
         return req.session.save(function(err){
           if (err) console.error(err.stack);
