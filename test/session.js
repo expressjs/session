@@ -260,6 +260,54 @@ describe('session()', function(){
       });
     })
 
+    it('should only call save if modified', function(done){
+      var modify, count;
+
+      var app = express()
+        .use(cookieParser())
+        .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
+        .use(function(req, res, next){
+          // spy on Session#save
+          var save = req.session.save;
+          req.session.count = req.session.count || 0;
+          req.session.modify = modify;
+
+          req.session.save = function(fn){
+            count = ++req.session.count;
+            req.session.save = save;
+            req.session.save(fn);
+          };
+
+          res.end();
+        });
+
+      request(app)
+      .get('/')
+      .end(function(err, res){
+        var id = sid(res)
+        // saves the session initially
+        count.should.equal(1);
+        
+        request(app)
+        .get('/')
+        .set('Cookie', 'connect.sid=' + id)
+        .end(function(err, res){
+          // doesn't save if not modified
+          count.should.equal(1);
+          modify = true;
+          
+          request(app)
+          .get('/')
+          .set('Cookie', 'connect.sid=' + id)
+          .end(function(err, res){
+            // saves if modified
+            count.should.equal(2);
+            done();
+          });
+        });
+      });
+    })
+
     describe('.destroy()', function(){
       it('should destroy the previous session', function(done){
         var app = express()
