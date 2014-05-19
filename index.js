@@ -70,7 +70,8 @@ function session(options){
     , cookie = options.cookie || {}
     , trustProxy = options.proxy || false
     , storeReady = true
-    , rollingSessions = options.rolling || false;
+    , rollingSessions = options.rolling || false
+    , dirtyWrites = options.dirtyWrites || false;
 
   // notify user that this store is not
   // meant for a production environment
@@ -153,7 +154,7 @@ function session(options){
             return
           }
         // compare hashes and ids
-        } else if (originalHash == hash(req.session) && originalId == req.session.id) {
+        } else if (!isModified(req.session)) {
           debug('unmodified session');
           return
         }
@@ -170,18 +171,26 @@ function session(options){
     res.end = function(data, encoding){
       res.end = end;
       if (!req.session) return res.end(data, encoding);
-      debug('saving');
       req.session.resetMaxAge();
-      req.session.save(function(err){
-        if (err) console.error(err.stack);
-        debug('saved');
-        res.end(data, encoding);
-      });
+      if (!dirtyWrites || isModified(req.session)) {
+        debug('saving');
+        return req.session.save(function(err){
+          if (err) console.error(err.stack);
+          debug('saved');
+          res.end(data, encoding);
+        });
+      }
+      res.end(data, encoding);
     };
 
     // generate the session
     function generate() {
       store.generate(req);
+    }
+
+    // check if session has been modified
+    function isModified(sess) {
+      return originalHash != hash(sess) || originalId != sess.id;
     }
 
     // get the sessionID from the cookie
