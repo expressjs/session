@@ -200,7 +200,7 @@ function session(options){
     }
 
     // get the sessionID from the cookie
-    req.sessionID = unsignedCookie;
+    req.sessionID = ( options.getSessionID ? options.getSessionID(req) : null ) || unsignedCookie;
 
     // generate a session if the browser doesn't send a sessionID
     if (!req.sessionID) {
