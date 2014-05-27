@@ -37,6 +37,8 @@ middleware _before_ `session()`.
     - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
   - `rolling` - forces a cookie set on every response. This resets the expiration date. (default: `false`)
   - `resave` - forces session to be saved even when unmodified. (default: `true`)
+  - `getSessionId` - a function that takes the incoming request as an argument and returns the session id.  If it returns null or undefined it still falls back to using the cookie.
+    - Example: `function(req) { return req.query.session_id }`.
 
 
 #### Cookie options
