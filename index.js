@@ -73,7 +73,7 @@ function session(options){
     , rollingSessions = options.rolling || false;
 
   // TODO: switch default to false on next major
-  var resaveSession = options.resave === undefined
+  var resaveSession = (options.resave === undefined || options.resave)
     ? true
     : options.resave;
 
