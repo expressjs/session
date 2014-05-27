@@ -1,5 +1,5 @@
-unreleased
-==========
+1.2.1 / 2014-05-27
+==================
 
   * Fix `resave` such that `resave: true` works
 
