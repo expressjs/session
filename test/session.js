@@ -114,6 +114,35 @@ describe('session()', function(){
   })
 
   describe('resave option', function(){
+    it('should allow setting to true', function(done){
+      var count = 0;
+      var app = express();
+      app.use(cookieParser());
+      app.use(session({ resave: true, secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        res.setHeader('x-count', count);
+        req.session.user = 'bob';
+        req.session.save = function(fn){
+          res.setHeader('x-count', ++count);
+          return save.call(this, fn);
+        };
+        res.end();
+      });
+
+      request(app)
+      .get('/')
+      .expect('x-count', '1')
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        request(app)
+        .get('/')
+        .set('Cookie', 'connect.sid=' + sid(res))
+        .expect('x-count', '2')
+        .expect(200, done);
+      });
+    });
+
     it('should default to true', function(done){
       var count = 0;
       var app = express();
