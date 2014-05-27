@@ -77,6 +77,10 @@ function session(options){
     ? true
     : options.resave;
 
+  var alwaysGenerateSession = options.generate === undefined
+    ? true
+    : options.generate;
+
   // notify user that this store is not
   // meant for a production environment
   if ('production' == env && store instanceof MemoryStore) {
@@ -176,7 +180,8 @@ function session(options){
       if (!req.session) return res.end(data, encoding);
       req.session.resetMaxAge();
 
-      if (resaveSession || isModified(req.session)) {
+      var isNew = unsignedCookie != req.sessionID;
+      if ((resaveSession && !isNew) || isModified(req.session)) {
         debug('saving');
         return req.session.save(function(err){
           if (err) console.error(err.stack);
@@ -191,6 +196,11 @@ function session(options){
     // generate the session
     function generate() {
       store.generate(req);
+      // only consider session as modified if it changes after generation
+      if (!alwaysGenerateSession) {
+        originalId = req.sessionID;
+        originalHash = hash(req.session);
+      }
     }
 
     // check if session has been modified

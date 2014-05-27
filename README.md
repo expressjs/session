@@ -37,6 +37,7 @@ middleware _before_ `session()`.
   - `rolling` - forces a cookie set on every response. This resets the expiration date. (default: `false`)
   - `resave` - forces session to be saved even when unmodified. (default: `true`)
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto" header). When set to `true`, the "x-forwarded-proto" header will be used. When set to `false`, all headers are ignored. When left unset, will use the "trust proxy" setting from express. (default: `undefined`)
+  - `generate` - forces creation of session even when empty. (default: `true`)
 
 
 #### Cookie options
@@ -75,6 +76,10 @@ app.use(session(sess))
 By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
 so the cookie becomes a browser-session cookie. When the user closes the
 browser the cookie (and session) will be removed.
+
+#### Generate option
+
+If `generate: false` is specified, and the `req.session` object is not modified, nothing will be saved to your store and no `Set-Cookie` header will be sent.  This can be useful for implementing login sessions, or complying with EU cookie laws
 
 ### req.session
 
