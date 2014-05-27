@@ -34,8 +34,7 @@ middleware _before_ `session()`.
   - `secret` - session cookie is signed with this secret to prevent tampering.
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto"). (default: `false`)
   - `cookie` - session cookie settings.
-    - (default: `{ path: '/', httpOnly: true, secure: (auto detects https), maxAge: null }`)
-      - `secure` defaults to `true` if the connection is using https.
+    - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
   - `rolling` - forces a cookie set on every response. This resets the expiration date. (default: `false`)
   - `resave` - forces session to be saved even when unmodified. (default: `true`)
 
@@ -43,14 +42,14 @@ middleware _before_ `session()`.
 #### Cookie options
 
 Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
-If `secure` is not set, `session` will default to it when using https.
-For development, or if your SSL is done outside of your node server, use the `proxy` option:
+If `secure` is set, and you access your site over HTTP, the cookie will not be set. If you have your node.js behind a proxy and are using `secure: true`, you need to enable the `proxy` option:
 
 ```js
 app.use(cookieParser())
 app.use(session({
     secret: 'keyboard cat'
   , proxy: true // if you do SSL outside of node.
+  , cookie: { secure: true }
 }))
 ```
 
