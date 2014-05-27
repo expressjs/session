@@ -12,7 +12,10 @@ var session      = require('express-session')
 var app = express()
 
 app.use(cookieParser()) // required before session.
-app.use(session({ secret: 'keyboard cat', name: 'sid', cookie: { secure: true }}))
+app.use(session({
+    secret: 'keyboard cat'
+  , proxy: true // if you do SSL outside of node.
+}))
 ```
 
 
@@ -26,26 +29,27 @@ middleware _before_ `session()`.
 
 #### Options
 
-  - `name` - cookie name (formerly known as `key`). (default: `connect.sid`)
+  - `name` - cookie name (formerly known as `key`). (default: `'connect.sid'`)
   - `store` - session store instance.
   - `secret` - session cookie is signed with this secret to prevent tampering.
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto"). (default: `false`)
   - `cookie` - session cookie settings.
-    - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
-  - `rolling` - forces a cookie reset on response. The reset affects the expiration date. (default: `false`)
+    - (default: `{ path: '/', httpOnly: true, secure: (auto detects https), maxAge: null }`)
+      - `secure` defaults to `true` if the connection is using https.
+  - `rolling` - forces a cookie set on every response. This resets the expiration date. (default: `false`)
   - `resave` - forces session to be saved even when unmodified. (default: `true`)
 
 
 #### Cookie options
 
 Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
-If for development or other reasons security is not a concern, just use:
+If `secure` is not set, `session` will default to it when using https.
+For development, or if your SSL is done outside of your node server, use the `proxy` option:
 
 ```js
 app.use(cookieParser())
 app.use(session({
     secret: 'keyboard cat'
-  , name: 'sid'
   , proxy: true // if you do SSL outside of node.
 }))
 ```
