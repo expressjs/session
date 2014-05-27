@@ -75,7 +75,7 @@ function session(options){
   // TODO: switch default to false on next major
   var resaveSession = options.resave === undefined
     ? true
-    : false;
+    : options.resave;
 
   // notify user that this store is not
   // meant for a production environment
