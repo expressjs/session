@@ -36,8 +36,9 @@ describe('session()', function(){
         request(app)
         .get('/')
         .set('X-Forwarded-Proto', 'https')
-        .end(function(err, res){
-          res.headers.should.have.property('set-cookie');
+        .expect(200, function(err, res){
+          if (err) return done(err);
+          should(cookie(res)).not.be.empty;
           done();
         });
       })
@@ -51,8 +52,24 @@ describe('session()', function(){
         request(app)
         .get('/')
         .set('X-Forwarded-Proto', 'https,http')
-        .end(function(err, res){
-          res.headers.should.have.property('set-cookie');
+        .expect(200, function(err, res){
+          if (err) return done(err);
+          should(cookie(res)).not.be.empty;
+          done();
+        });
+      })
+
+      it('should work when no header', function(done){
+        var app = express()
+          .use(cookieParser())
+          .use(session({ secret: 'keyboard cat', proxy: true, cookie: { secure: true, maxAge: 5 }}))
+          .use(respond);
+
+        request(app)
+        .get('/')
+        .expect(200, function(err, res){
+          if (err) return done(err);
+          should(cookie(res)).be.empty;
           done();
         });
       })
@@ -62,14 +79,67 @@ describe('session()', function(){
       it('should not trust X-Forwarded-Proto', function(done){
         var app = express()
           .use(cookieParser())
+          .use(session({ secret: 'keyboard cat', proxy: false, cookie: { secure: true, maxAge: min }}))
+          .use(respond);
+
+        request(app)
+        .get('/')
+        .set('X-Forwarded-Proto', 'https')
+        .expect(200, function(err, res){
+          if (err) return done(err);
+          should(cookie(res)).be.empty;
+          done();
+        });
+      })
+
+      it('should ignore req.secure from express', function(done){
+        var app = express()
+          .use(cookieParser())
+          .use(session({ secret: 'keyboard cat', proxy: false, cookie: { secure: true, maxAge: min }}))
+          .use(function(req, res) { res.json(req.secure); });
+        app.enable('trust proxy');
+
+        request(app)
+        .get('/')
+        .set('X-Forwarded-Proto', 'https')
+        .expect(200, 'true', function(err, res){
+          if (err) return done(err);
+          should(cookie(res)).be.empty;
+          done();
+        });
+      })
+    })
+
+    describe('when unspecified', function(){
+      it('should not trust X-Forwarded-Proto', function(done){
+        var app = express()
+          .use(cookieParser())
           .use(session({ secret: 'keyboard cat', cookie: { secure: true, maxAge: min }}))
           .use(respond);
 
         request(app)
         .get('/')
         .set('X-Forwarded-Proto', 'https')
-        .end(function(err, res){
-          res.headers.should.not.have.property('set-cookie');
+        .expect(200, function(err, res){
+          if (err) return done(err);
+          should(cookie(res)).be.empty;
+          done();
+        });
+      })
+
+      it('should use req.secure from express', function(done){
+        var app = express()
+          .use(cookieParser())
+          .use(session({ secret: 'keyboard cat', cookie: { secure: true, maxAge: min }}))
+          .use(function(req, res) { res.json(req.secure); });
+        app.enable('trust proxy');
+
+        request(app)
+        .get('/')
+        .set('X-Forwarded-Proto', 'https')
+        .expect(200, 'true', function(err, res){
+          if (err) return done(err);
+          should(cookie(res)).not.be.empty;
           done();
         });
       })

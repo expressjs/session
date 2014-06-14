@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Integrate with express "trust proxy" by default
   * deps: debug@1.0.2
 
 1.2.1 / 2014-05-27

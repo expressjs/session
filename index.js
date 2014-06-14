@@ -68,7 +68,7 @@ function session(options){
     , name = options.name || options.key || 'connect.sid'
     , store = options.store || new MemoryStore
     , cookie = options.cookie || {}
-    , trustProxy = options.proxy || false
+    , trustProxy = options.proxy
     , storeReady = true
     , rollingSessions = options.rolling || false;
 
@@ -137,16 +137,15 @@ function session(options){
         return;
       }
 
-      var cookie = req.session.cookie
-        , proto = (req.headers['x-forwarded-proto'] || '').split(',')[0].toLowerCase().trim()
-        , tls = req.connection.encrypted || (trustProxy && 'https' == proto)
-        , isNew = unsignedCookie != req.sessionID;
+      var cookie = req.session.cookie;
 
       // only send secure cookies via https
-      if (cookie.secure && !tls) {
+      if (cookie.secure && !issecure(req, trustProxy)) {
         debug('not secured');
         return;
       }
+
+      var isNew = unsignedCookie != req.sessionID;
 
       // in case of rolling session, always reset the cookie
       if (!rollingSessions) {
@@ -251,4 +250,42 @@ function hash(sess) {
   return crc32.signed(JSON.stringify(sess, function(key, val){
     if ('cookie' != key) return val;
   }));
+}
+
+/**
+ * Determine if request is secure.
+ *
+ * @param {Object} req
+ * @param {Boolean} [trustProxy]
+ * @return {Boolean}
+ * @api private
+ */
+
+function issecure(req, trustProxy) {
+  // socket is https server
+  if (req.connection && req.connection.encrypted) {
+    return true;
+  }
+
+  // do not trust proxy
+  if (trustProxy === false) {
+    return false;
+  }
+
+  // no explicit trust; try req.secure from express
+  if (trustProxy !== true) {
+    var secure = req.secure;
+    return typeof secure === 'boolean'
+      ? secure
+      : false;
+  }
+
+  // read the proto from x-forwarded-proto header
+  var header = req.headers['x-forwarded-proto'] || '';
+  var index = header.indexOf(',');
+  var proto = index !== -1
+    ? header.substr(0, index).toLowerCase().trim()
+    : header.toLowerCase().trim()
+
+  return proto === 'https';
 }

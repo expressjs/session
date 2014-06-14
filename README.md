@@ -15,10 +15,7 @@ var session      = require('express-session')
 var app = express()
 
 app.use(cookieParser()) // required before session.
-app.use(session({
-    secret: 'keyboard cat'
-  , proxy: true // if you do SSL outside of node.
-}))
+app.use(session({secret: 'keyboard cat'}))
 ```
 
 
@@ -35,25 +32,44 @@ middleware _before_ `session()`.
   - `name` - cookie name (formerly known as `key`). (default: `'connect.sid'`)
   - `store` - session store instance.
   - `secret` - session cookie is signed with this secret to prevent tampering.
-  - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto"). (default: `false`)
   - `cookie` - session cookie settings.
     - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
   - `rolling` - forces a cookie set on every response. This resets the expiration date. (default: `false`)
   - `resave` - forces session to be saved even when unmodified. (default: `true`)
+  - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto" header). When set to `true`, the "x-forwarded-proto" header will be used. When set to `false`, all headers are ignored. When left unset, will use the "trust proxy" setting from express. (default: `undefined`)
 
 
 #### Cookie options
 
 Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
-If `secure` is set, and you access your site over HTTP, the cookie will not be set. If you have your node.js behind a proxy and are using `secure: true`, you need to enable the `proxy` option:
+If `secure` is set, and you access your site over HTTP, the cookie will not be set. If you have your node.js behind a proxy and are using `secure: true`, you need to set "trust proxy" in express:
 
 ```js
+var app = express()
+app.set('trust proxy', 1) // trust first proxy
 app.use(cookieParser())
 app.use(session({
     secret: 'keyboard cat'
-  , proxy: true // if you do SSL outside of node.
   , cookie: { secure: true }
 }))
+```
+
+For using secure cookies in production, but allowing for testing in development, the following is an example of enabling this setup based on `NODE_ENV` in express:
+
+```js
+var app = express()
+var sess = {
+  secret: 'keyboard cat'
+  cookie: {}
+}
+
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  sess.cookie.secure = true // serve secure cookies
+}
+
+app.use(cookieParser())
+app.use(session(sess))
 ```
 
 By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
