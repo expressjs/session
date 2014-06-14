@@ -2,11 +2,8 @@
   "name": "express-session",
   "version": "1.2.1",
   "author": "TJ Holowaychuk <tj@vision-media.ca> (http://tjholowaychuk.com)",
-  "main": "./index.js",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/expressjs/session.git"
-  },
+  "repository": "expressjs/session",
+  "license": "MIT",
   "dependencies": {
     "buffer-crc32": "0.2.1",
     "cookie": "0.1.2",
@@ -23,11 +20,10 @@
     "should": "~4.0.4",
     "supertest": "~0.13.0"
   },
-  "scripts": {
-    "test": "mocha --bail --ui bdd --reporter spec -- test/*.js"
-  },
   "engines": {
     "node": ">= 0.8.0"
   },
-  "license": "MIT"
+  "scripts": {
+    "test": "mocha --bail --ui bdd --reporter spec -- test/*.js"
+  }
 }
