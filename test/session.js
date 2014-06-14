@@ -13,16 +13,6 @@ function respond(req, res) {
   res.end();
 }
 
-function sid(res) {
-  var val = res.headers['set-cookie'];
-  if (!val) return '';
-  return /^connect\.sid=([^;]+);/.exec(val[0])[1];
-}
-
-function expires(res) {
-  return res.headers['set-cookie'][0].match(/Expires=([^;]+)/)[1];
-}
-
 var app = express()
   .use(cookieParser())
   .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
@@ -362,7 +352,7 @@ describe('session()', function(){
           .get('/')
           .set('Cookie', 'connect.sid=' + sid(res))
           .end(function(err, res){
-            sid(res).should.be.empty;
+            should(sid(res)).be.empty;
             res.text.should.equal('2');
             modify = true;
 
@@ -447,9 +437,11 @@ describe('session()', function(){
           request(app)
           .get('/')
           .set('X-Forwarded-Proto', 'https')
-          .end(function(err, res){
-            res.headers['set-cookie'][0].should.not.include('HttpOnly');
-            res.headers['set-cookie'][0].should.include('Secure');
+          .expect(200, function(err, res){
+            if (err) return done(err);
+            var val = cookie(res);
+            should(val).not.containEql('HttpOnly');
+            should(val).containEql('Secure');
             done();
           });
         })
@@ -464,9 +456,10 @@ describe('session()', function(){
 
           request(app)
           .get('/admin')
-          .end(function(err, res){
-            var cookie = res.headers['set-cookie'][0];
-            cookie.should.not.include('Expires');
+          .expect(200, function(err, res){
+            if (err) return done(err);
+            var val = cookie(res);
+            should(val).not.containEql('Expires');
             done();
           });
         })
@@ -505,12 +498,13 @@ describe('session()', function(){
 
           request(app)
           .get('/admin')
-          .end(function(err, res){
-            var cookie = res.headers['set-cookie'][0];
-            cookie.should.not.include('HttpOnly');
-            cookie.should.not.include('Secure');
-            cookie.should.include('Path=/admin');
-            cookie.should.include('Expires');
+          .expect(200, function(err, res){
+            if (err) return done(err);
+            var val = cookie(res);
+            should(val).not.containEql('HttpOnly');
+            should(val).not.containEql('Secure');
+            should(val).containEql('Path=/admin');
+            should(val).containEql('Expires');
             done();
           });
         })
@@ -746,8 +740,10 @@ describe('session()', function(){
 
             request(app)
             .get('/')
-            .end(function(err, res){
-              res.headers['set-cookie'][0].should.not.include('Expires=');
+            .expect(200, function(err, res){
+              if (err) return done(err);
+              var val = cookie(res);
+              should(val).not.containEql('Expires=');
               done();
             });
           })
@@ -779,6 +775,20 @@ describe('session()', function(){
         });
       });
     })
-
   })
 })
+
+function cookie(res) {
+  var setCookie = res.headers['set-cookie'];
+  return (setCookie && setCookie[0]) || undefined;
+}
+
+function expires(res) {
+  var match = /Expires=([^;]+)/.exec(cookie(res));
+  return match ? match[1] : undefined;
+}
+
+function sid(res) {
+  var match = /^connect\.sid=([^;]+);/.exec(cookie(res));
+  return match ? match[1] : undefined;
+}

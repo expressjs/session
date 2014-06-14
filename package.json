@@ -18,9 +18,9 @@
   },
   "devDependencies": {
     "cookie-parser": "1.1.0",
-    "express": "~4.3.0",
-    "mocha": "~1.19.0",
-    "should": "~3.3.1",
+    "express": "~4.4.0",
+    "mocha": "~1.20.1",
+    "should": "~4.0.4",
     "supertest": "~0.13.0"
   },
   "scripts": {
