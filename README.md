@@ -1,6 +1,9 @@
 THIS REPOSITORY NEEDS A MAINTAINER. IF YOU'RE INTERESTED IN MAINTAINING THIS REPOSITORY, PLEASE LET US KNOW!
 
-# express-session [![Build Status](https://travis-ci.org/expressjs/session.svg?branch=master)](https://travis-ci.org/expressjs/session) [![NPM Version](https://badge.fury.io/js/express-session.svg)](https://badge.fury.io/js/express-session)
+# express-session
+
+[![NPM Version](https://badge.fury.io/js/express-session.svg)](https://badge.fury.io/js/express-session)
+[![Build Status](https://travis-ci.org/expressjs/session.svg?branch=master)](https://travis-ci.org/expressjs/session)
 
 ## API
 
