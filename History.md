@@ -1,3 +1,8 @@
+1.3.1 / 2014-06-14
+==================
+
+  * Add description in package for npmjs.org listing
+
 1.3.0 / 2014-06-14
 ==================
 
