@@ -292,6 +292,45 @@ describe('session()', function(){
     });
   });
 
+  describe('generate option', function(){
+    it('should prevent initial save on umodified session', function(done){
+      var count = 0;
+      var app = express();
+      app.use(cookieParser());
+      app.use(session({ generate: false, secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        res.setHeader('x-count', count);
+        req.session.save = function(fn){
+          res.setHeader('x-count', ++count);
+          return save.call(this, fn);
+        };
+        res.end();
+      });
+
+      request(app)
+      .get('/')
+      .expect('x-count', '0')
+      .expect(200, done);
+    });
+
+    it('should prevent Set-Cookie header for unsaved session', function(done){
+      var count = 0;
+      var app = express();
+      app.use(cookieParser());
+      app.use(session({ generate: false, secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(respond);
+
+      request(app)
+      .get('/')
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        res.headers.should.not.have.property('set-cookie');
+        done();
+      });
+    });
+  })
+
   it('should retain the sid', function(done){
     var n = 0;
 
