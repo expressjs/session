@@ -6,7 +6,7 @@
   "repository": "expressjs/session",
   "license": "MIT",
   "dependencies": {
-    "buffer-crc32": "0.2.1",
+    "buffer-crc32": "0.2.3",
     "cookie": "0.1.2",
     "cookie-signature": "1.0.3",
     "debug": "1.0.2",
