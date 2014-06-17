@@ -25,6 +25,46 @@ describe('session()', function(){
     session.MemoryStore.should.be.a.Function;
   })
 
+  it('should do nothing if req.session exists', function(done){
+    var app = express()
+      .use(function(req, res, next){ req.session = {}; next(); })
+      .use(cookieParser())
+      .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
+      .use(respond);
+
+      request(app)
+      .get('/')
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        should(cookie(res)).be.empty;
+        done();
+      });
+  })
+
+  it('should error without secret', function(done){
+    var app = express()
+      .use(cookieParser())
+      .use(session({ cookie: { maxAge: min }}))
+      .use(respond);
+    app.set('env', 'test');
+
+      request(app)
+      .get('/')
+      .expect(500, /secret.*required/, done);
+  })
+
+  it('should reqd secret from req.secret', function(done){
+    var app = express()
+      .use(cookieParser('keyboard cat'))
+      .use(session({ cookie: { maxAge: min }}))
+      .use(respond);
+    app.set('env', 'test');
+
+      request(app)
+      .get('/')
+      .expect(200, done);
+  })
+
   describe('proxy option', function(){
     describe('when enabled', function(){
       it('should trust X-Forwarded-Proto when string', function(done){
