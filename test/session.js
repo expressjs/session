@@ -481,6 +481,103 @@ describe('session()', function(){
     });
   });
 
+  describe('unset option', function () {
+    it('should reject unknown values', function(){
+      session.bind(null, { unset: 'bogus!' }).should.throw(/unset.*must/);
+    });
+
+    it('should default to keep', function(done){
+      var store = new session.MemoryStore();
+      var app = express()
+        .use(cookieParser())
+        .use(session({ store: store, secret: 'keyboard cat' }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0;
+          req.session.count++;
+          if (req.session.count === 2) req.session = null;
+          res.end();
+        });
+
+      request(app)
+      .get('/')
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        store.length(function(err, len){
+          if (err) return done(err);
+          len.should.equal(1);
+          request(app)
+          .get('/')
+          .set('Cookie', 'connect.sid=' + sid(res))
+          .expect(200, function(err, res){
+            if (err) return done(err);
+            store.length(function(err, len){
+              if (err) return done(err);
+              len.should.equal(1);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should allow destroy on req.session = null', function(done){
+      var store = new session.MemoryStore();
+      var app = express()
+        .use(cookieParser())
+        .use(session({ store: store, unset: 'destroy', secret: 'keyboard cat' }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0;
+          req.session.count++;
+          if (req.session.count === 2) req.session = null;
+          res.end();
+        });
+
+      request(app)
+      .get('/')
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        store.length(function(err, len){
+          if (err) return done(err);
+          len.should.equal(1);
+          request(app)
+          .get('/')
+          .set('Cookie', 'connect.sid=' + sid(res))
+          .expect(200, function(err, res){
+            if (err) return done(err);
+            store.length(function(err, len){
+              if (err) return done(err);
+              len.should.equal(0);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should not set cookie if initial session destroyed', function(done){
+      var store = new session.MemoryStore();
+      var app = express()
+        .use(cookieParser())
+        .use(session({ store: store, unset: 'destroy', secret: 'keyboard cat' }))
+        .use(function(req, res, next){
+          req.session = null;
+          res.end();
+        });
+
+      request(app)
+      .get('/')
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        store.length(function(err, len){
+          if (err) return done(err);
+          len.should.equal(0);
+          should(cookie(res)).be.empty;
+          done();
+        });
+      });
+    });
+  });
+
   it('should retain the sid', function(done){
     var n = 0;
 

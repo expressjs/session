@@ -81,6 +81,13 @@ function session(options){
     ? true
     : options.saveUninitialized;
 
+  if (options.unset && options.unset !== 'destroy' && options.unset !== 'keep') {
+    throw new TypeError('unset option must be "destroy" or "keep"');
+  }
+
+  // TODO: switch to "destroy" on next major
+  var unsetDestroy = options.unset === 'destroy';
+
   // notify user that this store is not
   // meant for a production environment
   if ('production' == env && store instanceof MemoryStore) {
@@ -162,7 +169,23 @@ function session(options){
     var end = res.end;
     res.end = function(data, encoding){
       res.end = end;
-      if (!req.session) return res.end(data, encoding);
+
+      if (shouldDestroy(req)) {
+        // destroy session
+        debug('destroying');
+        store.destroy(req.sessionID, function(err){
+          if (err) console.error(err.stack);
+          debug('destroyed');
+          res.end(data, encoding);
+        });
+      }
+
+      // no session to save
+      if (!req.session) {
+        debug('no session');
+        return res.end(data, encoding);
+      }
+
       req.session.resetMaxAge();
 
       if (shouldSave(req)) {
@@ -187,6 +210,11 @@ function session(options){
     // check if session has been modified
     function isModified(sess) {
       return originalHash != hash(sess) || originalId != sess.id;
+    }
+
+    // determine if session should be destroyed
+    function shouldDestroy(req) {
+      return req.sessionID && unsetDestroy && req.session == null;
     }
 
     // determine if session should be saved to store

@@ -38,6 +38,7 @@ middleware _before_ `session()`.
   - `resave` - forces session to be saved even when unmodified. (default: `true`)
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto" header). When set to `true`, the "x-forwarded-proto" header will be used. When set to `false`, all headers are ignored. When left unset, will use the "trust proxy" setting from express. (default: `undefined`)
   - `saveUninitialized` - forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified. This is useful for implementing login sessions, reducing server storage usage, or complying with laws that require permission before setting a cookie. (default: `true`)
+  - `unset` - controls result of unsetting `req.session` (through `delete`, setting to `null`, etc.). This can be "keep" to keep the session in the store but ignore modifications or "destroy" to destroy the stored session. (default: `'keep'`)
 
 
 #### Cookie options
