@@ -70,7 +70,8 @@ function session(options){
     , cookie = options.cookie || {}
     , trustProxy = options.proxy
     , storeReady = true
-    , rollingSessions = options.rolling || false;
+    , rollingSessions = options.rolling || false
+    , nullDestroy = options.nullDestroy || false;
 
   // TODO: switch default to false on next major
   var resaveSession = options.resave === undefined
@@ -173,7 +174,16 @@ function session(options){
     var end = res.end;
     res.end = function(data, encoding){
       res.end = end;
-      if (!req.session) return res.end(data, encoding);
+      if (!req.session) {
+        if (req.sessionID && nullDestroy) {
+          // allow setting req.session to null
+          return store.destroy(req.sessionID, function(err){
+            if (err) console.error(err.stack);
+            res.end(data, encoding);
+          });
+        }
+        return res.end(data, encoding);
+      }
       req.session.resetMaxAge();
 
       if (resaveSession || isModified(req.session)) {
