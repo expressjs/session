@@ -186,6 +186,55 @@ describe('session()', function(){
     })
   })
 
+  describe('genid option', function(){
+    it('should reject non-function values', function(){
+      session.bind(null, { genid: 'bogus!' }).should.throw(/genid.*must/);
+    });
+
+    it('should provide default generator', function(done){
+      request(app)
+      .get('/')
+      .expect('set-cookie', /connect\.sid=s%3A([^\.]{24})\./i)
+      .expect(200, done);
+    });
+
+    it('should allow custom function', function(done){
+      var app = express()
+        .use(cookieParser())
+        .use(session({ genid: function(){ return 'a' }, secret: 'keyboard cat', cookie: { maxAge: min }}))
+        .use(respond);
+
+      request(app)
+      .get('/')
+      .expect('set-cookie', /connect\.sid=s%3Aa\./i)
+      .expect(200, done);
+    });
+
+    it('should encode unsafe chars', function(done){
+      var app = express()
+        .use(cookieParser())
+        .use(session({ genid: function(){ return '%' }, secret: 'keyboard cat', cookie: { maxAge: min }}))
+        .use(respond);
+
+      request(app)
+      .get('/')
+      .expect('set-cookie', /connect\.sid=s%3A%25\./i)
+      .expect(200, done);
+    });
+
+    it('should provide req argument', function(done){
+      var app = express()
+        .use(cookieParser())
+        .use(session({ genid: function(req){ return req.url }, secret: 'keyboard cat', cookie: { maxAge: min }}))
+        .use(respond);
+
+      request(app)
+      .get('/foo')
+      .expect('set-cookie', /connect\.sid=s%3A%2Ffoo\./i)
+      .expect(200, done);
+    });
+  });
+
   describe('key option', function(){
     it('should default to "connect.sid"', function(done){
       request(app)

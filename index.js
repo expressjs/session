@@ -72,6 +72,12 @@ function session(options){
     , storeReady = true
     , rollingSessions = options.rolling || false;
 
+  var generateId = options.genid || generateSessionId;
+
+  if (typeof generateId !== 'function') {
+    throw new TypeError('genid option must be a function');
+  }
+
   // TODO: switch default to false on next major
   var resaveSession = options.resave === undefined
     ? true
@@ -96,7 +102,7 @@ function session(options){
 
   // generates the new session
   store.generate = function(req){
-    req.sessionID = uid(24);
+    req.sessionID = generateId(req);
     req.session = new Session(req);
     req.session.cookie = new Cookie(cookie);
   };
@@ -275,6 +281,17 @@ function session(options){
     });
   };
 };
+
+/**
+ * Generate a session ID for a new session.
+ *
+ * @return {String}
+ * @api private
+ */
+
+function generateSessionId(sess) {
+  return uid(24);
+}
 
 /**
  * Hash the given `sess` object omitting changes to `.cookie`.

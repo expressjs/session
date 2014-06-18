@@ -34,12 +34,27 @@ middleware _before_ `session()`.
   - `secret` - session cookie is signed with this secret to prevent tampering.
   - `cookie` - session cookie settings.
     - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
+  - `genid` - function to call to generate a new session ID. (default: uses `uid2` library)
   - `rolling` - forces a cookie set on every response. This resets the expiration date. (default: `false`)
   - `resave` - forces session to be saved even when unmodified. (default: `true`)
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto" header). When set to `true`, the "x-forwarded-proto" header will be used. When set to `false`, all headers are ignored. When left unset, will use the "trust proxy" setting from express. (default: `undefined`)
   - `saveUninitialized` - forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified. This is useful for implementing login sessions, reducing server storage usage, or complying with laws that require permission before setting a cookie. (default: `true`)
   - `unset` - controls result of unsetting `req.session` (through `delete`, setting to `null`, etc.). This can be "keep" to keep the session in the store but ignore modifications or "destroy" to destroy the stored session. (default: `'keep'`)
 
+#### options.genid
+
+Generate a custom session ID for new sessions. Provide a function that returns a string that will be used as a session ID. The function is given `req` as the first argument if you want to use some value attached to `req` when generating the ID.
+
+**NOTE** be careful you generate unique IDs so your sessions do not conflict.
+
+```js
+app.use(session({
+  genid: function(req) {
+    return genuuid(); // use UUIDs for session IDs
+  },
+  secret: 'keyboard cat'
+}))
+```
 
 #### Cookie options
 

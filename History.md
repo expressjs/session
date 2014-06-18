@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Add `genid` option to generate custom session IDs
   * Add `saveUninitialized` option to control saving uninitialized sessions
   * Add `unset` option to control unsetting `req.session`
   * deps: buffer-crc32@0.2.3
