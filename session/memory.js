@@ -16,9 +16,10 @@ var Store = require('./store');
  * Shim setImmediate for node.js < 0.10
  */
 
-var asyncTick = typeof setImmediate === 'function'
+/* istanbul ignore next */
+var defer = typeof setImmediate === 'function'
   ? setImmediate
-  : process.nextTick;
+  : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
 
 /**
  * Initialize a new `MemoryStore`.
@@ -46,23 +47,25 @@ MemoryStore.prototype.__proto__ = Store.prototype;
 
 MemoryStore.prototype.get = function(sid, fn){
   var self = this;
-  asyncTick(function(){
-    var expires
-      , sess = self.sessions[sid];
-    if (sess) {
-      sess = JSON.parse(sess);
-      expires = 'string' == typeof sess.cookie.expires
-        ? new Date(sess.cookie.expires)
-        : sess.cookie.expires;
-      if (!expires || new Date < expires) {
-        fn(null, sess);
-      } else {
-        self.destroy(sid, fn);
-      }
-    } else {
-      fn();
-    }
-  });
+  var sess = self.sessions[sid];
+
+  if (!sess) {
+    return defer(fn);
+  }
+
+  // parse
+  sess = JSON.parse(sess);
+
+  var expires = typeof sess.cookie.expires === 'string'
+    ? new Date(sess.cookie.expires)
+    : sess.cookie.expires;
+
+  // destroy expired session
+  if (expires && expires <= Date.now()) {
+    return self.destroy(sid, fn);
+  }
+
+  defer(fn, null, sess);
 };
 
 /**
@@ -75,11 +78,8 @@ MemoryStore.prototype.get = function(sid, fn){
  */
 
 MemoryStore.prototype.set = function(sid, sess, fn){
-  var self = this;
-  asyncTick(function(){
-    self.sessions[sid] = JSON.stringify(sess);
-    fn && fn();
-  });
+  this.sessions[sid] = JSON.stringify(sess);
+  fn && defer(fn);
 };
 
 /**
@@ -90,11 +90,8 @@ MemoryStore.prototype.set = function(sid, sess, fn){
  */
 
 MemoryStore.prototype.destroy = function(sid, fn){
-  var self = this;
-  asyncTick(function(){
-    delete self.sessions[sid];
-    fn && fn();
-  });
+  delete this.sessions[sid];
+  fn && defer(fn);
 };
 
 /**
@@ -110,7 +107,7 @@ MemoryStore.prototype.all = function(fn){
   for (var i = 0, len = keys.length; i < len; ++i) {
     arr.push(this.sessions[keys[i]]);
   }
-  fn(null, arr);
+  fn && defer(fn);
 };
 
 /**
@@ -122,7 +119,7 @@ MemoryStore.prototype.all = function(fn){
 
 MemoryStore.prototype.clear = function(fn){
   this.sessions = {};
-  fn && fn();
+  fn && defer(fn);
 };
 
 /**
@@ -133,5 +130,6 @@ MemoryStore.prototype.clear = function(fn){
  */
 
 MemoryStore.prototype.length = function(fn){
-  fn(null, Object.keys(this.sessions).length);
+  var len = Object.keys(this.sessions).length;
+  defer(fn, null, len);
 };
