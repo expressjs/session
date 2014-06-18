@@ -53,7 +53,7 @@ describe('session()', function(){
       .expect(500, /secret.*required/, done);
   })
 
-  it('should reqd secret from req.secret', function(done){
+  it('should get secret from req.secret', function(done){
     var app = express()
       .use(cookieParser('keyboard cat'))
       .use(session({ cookie: { maxAge: min }}))
@@ -212,6 +212,60 @@ describe('session()', function(){
       });
     })
   })
+
+  describe('rolling option', function(){
+    it('should default to false', function(done){
+      var app = express();
+      app.use(cookieParser());
+      app.use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        req.session.user = 'bob';
+        res.end();
+      });
+
+      request(app)
+      .get('/')
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        should(cookie(res)).not.be.empty;
+        request(app)
+        .get('/')
+        .set('Cookie', 'connect.sid=' + sid(res))
+        .expect(200, function(err, res){
+          if (err) return done(err);
+          should(cookie(res)).be.empty;
+          done();
+        });
+      });
+    });
+
+    it('should force cookie on unmodified session', function(done){
+      var app = express();
+      app.use(cookieParser());
+      app.use(session({ rolling: true, secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        req.session.user = 'bob';
+        res.end();
+      });
+
+      request(app)
+      .get('/')
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        should(cookie(res)).not.be.empty;
+        request(app)
+        .get('/')
+        .set('Cookie', 'connect.sid=' + sid(res))
+        .expect(200, function(err, res){
+          if (err) return done(err);
+          should(cookie(res)).not.be.empty;
+          done();
+        });
+      });
+    });
+  });
 
   describe('resave option', function(){
     it('should default to true', function(done){
