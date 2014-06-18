@@ -1,5 +1,5 @@
-unreleased
-==========
+1.4.0 / 2014-06-17
+==================
 
   * Add `genid` option to generate custom session IDs
   * Add `saveUninitialized` option to control saving uninitialized sessions
