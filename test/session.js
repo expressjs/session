@@ -194,7 +194,7 @@ describe('session()', function(){
     it('should provide default generator', function(done){
       request(app)
       .get('/')
-      .expect('set-cookie', /connect\.sid=s%3A([^\.]{24})\./i)
+      .expect('set-cookie', /connect\.sid=s%3A([^\.]+)\./i)
       .expect(200, done);
     });
 

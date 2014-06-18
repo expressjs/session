@@ -4,6 +4,7 @@ unreleased
   * Add `genid` option to generate custom session IDs
   * Add `saveUninitialized` option to control saving uninitialized sessions
   * Add `unset` option to control unsetting `req.session`
+  * Generate session IDs with `rand-token` by default; reduce collisions
   * deps: buffer-crc32@0.2.3
 
 1.3.1 / 2014-06-14

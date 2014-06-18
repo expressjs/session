@@ -9,7 +9,7 @@
  * Module dependencies.
  */
 
-var uid = require('uid2')
+var uid = require('rand-token').suid
   , onHeaders = require('on-headers')
   , crc32 = require('buffer-crc32')
   , parse = require('url').parse
