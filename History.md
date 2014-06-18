@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Add `saveUninitialized` option to control saving uninitialized sessions
   * deps: buffer-crc32@0.2.3
 
 1.3.1 / 2014-06-14

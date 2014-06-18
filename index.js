@@ -77,6 +77,10 @@ function session(options){
     ? true
     : options.resave;
 
+  var saveUninitializedSession = options.saveUninitialized === undefined
+    ? true
+    : options.saveUninitialized;
+
   // notify user that this store is not
   // meant for a production environment
   if ('production' == env && store instanceof MemoryStore) {
@@ -145,23 +149,8 @@ function session(options){
         return;
       }
 
-      var isNew = unsignedCookie != req.sessionID;
-
-      // in case of rolling session, always reset the cookie
-      if (!rollingSessions) {
-
-        // browser-session length cookie
-        if (null == cookie.expires) {
-          if (!isNew) {
-            debug('already set browser-session cookie');
-            return
-          }
-        // compare hashes and ids
-        } else if (!isModified(req.session)) {
-          debug('unmodified session');
-          return
-        }
-
+      if (!shouldSetCookie(req)) {
+        return;
       }
 
       var val = 's:' + signature.sign(req.sessionID, secret);
@@ -176,7 +165,7 @@ function session(options){
       if (!req.session) return res.end(data, encoding);
       req.session.resetMaxAge();
 
-      if (resaveSession || isModified(req.session)) {
+      if (shouldSave(req)) {
         debug('saving');
         return req.session.save(function(err){
           if (err) console.error(err.stack);
@@ -191,11 +180,32 @@ function session(options){
     // generate the session
     function generate() {
       store.generate(req);
+      originalId = req.sessionID;
+      originalHash = hash(req.session);
     }
 
     // check if session has been modified
     function isModified(sess) {
       return originalHash != hash(sess) || originalId != sess.id;
+    }
+
+    // determine if session should be saved to store
+    function shouldSave(req) {
+      return unsignedCookie != req.sessionID
+        ? saveUninitializedSession || isModified(req.session)
+        : resaveSession || isModified(req.session);
+    }
+
+    // determine if cookie should be set on response
+    function shouldSetCookie(req) {
+      // in case of rolling session, always reset the cookie
+      if (rollingSessions) {
+        return true;
+      }
+
+      return unsignedCookie != req.sessionID
+        ? saveUninitializedSession || isModified(req.session)
+        : req.session.cookie.expires != null && isModified(req.session);
     }
 
     // get the sessionID from the cookie
