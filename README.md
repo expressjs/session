@@ -2,6 +2,7 @@
 
 [![NPM Version](https://badge.fury.io/js/express-session.svg)](https://badge.fury.io/js/express-session)
 [![Build Status](https://travis-ci.org/expressjs/session.svg?branch=master)](https://travis-ci.org/expressjs/session)
+[![Coverage Status](https://img.shields.io/coveralls/expressjs/session.svg?branch=master)](https://coveralls.io/r/expressjs/session)
 
 THIS REPOSITORY NEEDS A MAINTAINER. IF YOU'RE INTERESTED IN MAINTAINING THIS REPOSITORY, PLEASE LET US KNOW!
 
