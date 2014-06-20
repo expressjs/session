@@ -1,4 +1,6 @@
 
+process.env.NO_DEPRECATION = 'express-session';
+
 var express = require('express')
   , assert = require('assert')
   , request = require('supertest')

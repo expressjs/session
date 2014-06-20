@@ -10,6 +10,7 @@
  */
 
 var cookie = require('cookie');
+var deprecate = require('depd')('express-session');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
   , crc32 = require('buffer-crc32')
@@ -126,6 +127,10 @@ function session(options){
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
     var secret = options.secret || req.secret;
+
+    if (!options.secret && req.secret) {
+      deprecate('pass secret option; do not use req.secret');
+    }
 
     // ensure secret is available or bail
     if (!secret) throw new Error('`secret` option required for sessions');

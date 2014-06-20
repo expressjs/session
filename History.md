@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Deprecate looking for secret in `req.secret`
   * Directly read cookies; `cookie-parser` no longer required
   * Generate session IDs with `uid-safe`, faster and even less collisions
 
