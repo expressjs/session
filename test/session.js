@@ -1114,6 +1114,32 @@ describe('session()', function(){
 
     it('should support cookieParser()', function(done){
       var app = express()
+        .use(cookieParser())
+        .use(function(req, res, next){ delete req.headers.cookie; next(); })
+        .use(session({ secret: 'keyboard cat' }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0;
+          req.session.count++;
+          res.end(req.session.count.toString());
+        });
+
+      request(app)
+      .get('/')
+      .end(function(err, res){
+        res.text.should.equal('1');
+
+        request(app)
+        .get('/')
+        .set('Cookie', 'connect.sid=' + sid(res))
+        .end(function(err, res){
+          res.text.should.equal('2');
+          done();
+        });
+      });
+    })
+
+    it('should support cookieParser(secret)', function(done){
+      var app = express()
         .use(cookieParser('keyboard cat'))
         .use(function(req, res, next){ delete req.headers.cookie; next(); })
         .use(session())
