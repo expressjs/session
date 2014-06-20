@@ -15,7 +15,7 @@
     "cookie-signature": "1.0.3",
     "debug": "1.0.2",
     "on-headers": "0.0.0",
-    "rand-token": "0.2.1",
+    "uid-safe": "1.0.1",
     "utils-merge": "1.0.0"
   },
   "devDependencies": {
