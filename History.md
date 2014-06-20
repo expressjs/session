@@ -1,5 +1,5 @@
-unreleased
-==========
+1.5.0 / 2014-06-19
+==================
 
   * Debug name is now "express-session"
   * Deprecate integration with `cookie-parser` middleware
