@@ -9,13 +9,11 @@ THIS REPOSITORY NEEDS A MAINTAINER. IF YOU'RE INTERESTED IN MAINTAINING THIS REP
 ## API
 
 ```js
-var express      = require('express')
-var cookieParser = require('cookie-parser')
-var session      = require('express-session')
+var express = require('express')
+var session = require('express-session')
 
 var app = express()
 
-app.use(cookieParser()) // required before session.
 app.use(session({secret: 'keyboard cat'}))
 ```
 
@@ -24,9 +22,7 @@ app.use(session({secret: 'keyboard cat'}))
 
 Setup session store with the given `options`.
 
-Session data is _not_ saved in the cookie itself, however
-cookies are used, so we must use the [cookie-parser](https://github.com/expressjs/cookie-parser)
-middleware _before_ `session()`.
+Session data is _not_ saved in the cookie itself, just the session ID.
 
 #### Options
 
@@ -65,7 +61,6 @@ If `secure` is set, and you access your site over HTTP, the cookie will not be s
 ```js
 var app = express()
 app.set('trust proxy', 1) // trust first proxy
-app.use(cookieParser())
 app.use(session({
     secret: 'keyboard cat'
   , cookie: { secure: true }
@@ -86,7 +81,6 @@ if (app.get('env') === 'production') {
   sess.cookie.secure = true // serve secure cookies
 }
 
-app.use(cookieParser())
 app.use(session(sess))
 ```
 
@@ -101,7 +95,6 @@ which is (generally) serialized as JSON by the store, so nested objects
 are typically fine. For example below is a user-specific view counter:
 
 ```js
-app.use(cookieParser())
 app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
 
 app.use(function(req, res, next) {

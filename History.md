@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Directly read cookies; `cookie-parser` no longer required
   * Generate session IDs with `uid-safe`, faster and even less collisions
 
 1.4.0 / 2014-06-17

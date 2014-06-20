@@ -9,6 +9,7 @@
  * Module dependencies.
  */
 
+var cookie = require('cookie');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
   , crc32 = require('buffer-crc32')
@@ -135,17 +136,8 @@ function session(options){
     // expose store
     req.sessionStore = store;
 
-    // grab the session cookie value and check the signature
-    var rawCookie = req.cookies[name];
-
-    // get signedCookies for backwards compat with signed cookies
-    var unsignedCookie = req.signedCookies[name];
-
-    if (!unsignedCookie && rawCookie) {
-      unsignedCookie = (0 == rawCookie.indexOf('s:'))
-        ? signature.unsign(rawCookie.slice(2), secret)
-        : rawCookie;
-    }
+    // get the session ID from the cookie
+    var cookieId = req.sessionID = getcookie(req, name, secret);
 
     // set-cookie
     onHeaders(res, function(){
@@ -225,7 +217,7 @@ function session(options){
 
     // determine if session should be saved to store
     function shouldSave(req) {
-      return unsignedCookie != req.sessionID
+      return cookieId != req.sessionID
         ? saveUninitializedSession || isModified(req.session)
         : resaveSession || isModified(req.session);
     }
@@ -237,13 +229,10 @@ function session(options){
         return true;
       }
 
-      return unsignedCookie != req.sessionID
+      return cookieId != req.sessionID
         ? saveUninitializedSession || isModified(req.session)
         : req.session.cookie.expires != null && isModified(req.session);
     }
-
-    // get the sessionID from the cookie
-    req.sessionID = unsignedCookie;
 
     // generate a session if the browser doesn't send a sessionID
     if (!req.sessionID) {
@@ -291,6 +280,45 @@ function session(options){
 
 function generateSessionId(sess) {
   return uid(24);
+}
+
+/**
+ * Get the session ID cookie from request.
+ *
+ * @return {string}
+ * @api private
+ */
+
+function getcookie(req, name, secret) {
+  var header = req.headers.cookie;
+  var val;
+
+  // read from cookie header
+  if (header) {
+    var cookies = cookie.parse(header);
+
+    val = cookies[name];
+
+    if (val && val.substr(0, 2) === 's:') {
+      val = signature.unsign(val.slice(2), secret);
+    }
+  }
+
+  // back-compat read from cookieParser() signedCookies data
+  if (!val && req.signedCookies) {
+    val = req.signedCookies[name];
+  }
+
+  // back-compat read from cookieParser() cookies data
+  if (!val && req.cookies) {
+    val = req.cookies[name];
+
+    if (val && val.substr(0, 2) === 's:') {
+      val = signature.unsign(val.slice(2), secret);
+    }
+  }
+
+  return val;
 }
 
 /**
