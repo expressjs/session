@@ -621,6 +621,7 @@ describe('session()', function(){
       .get('/')
       .set('Cookie', 'connect.sid=' + id)
       .end(function(err, res){
+        if (err) return done(err);
         sid(res).should.equal(id);
         done();
       });

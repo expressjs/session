@@ -1,9 +1,11 @@
 unreleased
 ==========
 
+  * Debug name is now "express-session"
   * Deprecate integration with `cookie-parser` middleware
   * Deprecate looking for secret in `req.secret`
   * Directly read cookies; `cookie-parser` no longer required
+  * Directly set cookies; `res.cookie` no longer required
   * Generate session IDs with `uid-safe`, faster and even less collisions
 
 1.4.0 / 2014-06-17

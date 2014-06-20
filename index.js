@@ -10,13 +10,13 @@
  */
 
 var cookie = require('cookie');
+var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
   , crc32 = require('buffer-crc32')
   , parse = require('url').parse
   , signature = require('cookie-signature')
-  , debug = require('debug')('session')
 
 var Session = require('./session/session')
   , MemoryStore = require('./session/memory')
@@ -163,9 +163,7 @@ function session(options){
         return;
       }
 
-      var val = 's:' + signature.sign(req.sessionID, secret);
-      debug('set-cookie %s', val);
-      res.cookie(name, val, cookie.data);
+      setcookie(res, name, req.sessionID, secret, cookie.data);
     });
 
     // proxy end() to commit the session
@@ -384,4 +382,18 @@ function issecure(req, trustProxy) {
     : header.toLowerCase().trim()
 
   return proto === 'https';
+}
+
+function setcookie(res, name, val, secret, options) {
+  var signed = 's:' + signature.sign(val, secret);
+  var data = cookie.serialize(name, signed, options);
+
+  debug('set-cookie %s', data);
+
+  var prev = res.getHeader('set-cookie') || [];
+  var header = Array.isArray(prev) ? prev.concat(data)
+    : Array.isArray(data) ? [prev].concat(data)
+    : [prev, data];
+
+  res.setHeader('set-cookie', header)
 }
