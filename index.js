@@ -312,6 +312,10 @@ function getcookie(req, name, secret) {
   // back-compat read from cookieParser() signedCookies data
   if (!val && req.signedCookies) {
     val = req.signedCookies[name];
+
+    if (val) {
+      deprecate('cookie should be available in req.headers.cookie');
+    }
   }
 
   // back-compat read from cookieParser() cookies data
@@ -320,6 +324,10 @@ function getcookie(req, name, secret) {
 
     if (val && val.substr(0, 2) === 's:') {
       val = signature.unsign(val.slice(2), secret);
+    }
+
+    if (val) {
+      deprecate('cookie should be available in req.headers.cookie');
     }
   }
 
