@@ -112,6 +112,10 @@ function session(options){
   store.on('disconnect', function(){ storeReady = false; });
   store.on('connect', function(){ storeReady = true; });
 
+  if (!options.secret) {
+    deprecate('pass secret option; do not use req.secret');
+  }
+
   return function session(req, res, next) {
     // self-awareness
     if (req.session) return next();
@@ -127,10 +131,6 @@ function session(options){
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
     var secret = options.secret || req.secret;
-
-    if (!options.secret && req.secret) {
-      deprecate('pass secret option; do not use req.secret');
-    }
 
     // ensure secret is available or bail
     if (!secret) throw new Error('`secret` option required for sessions');

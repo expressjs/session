@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Move hard-to-track-down `req.secret` deprecation message
+
 1.5.0 / 2014-06-19
 ==================
 
