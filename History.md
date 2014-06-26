@@ -1,5 +1,5 @@
-unreleased
-==========
+1.5.2 / 2014-06-26
+==================
 
   * deps: cookie-signature@1.0.4
     - fix for timing attacks
