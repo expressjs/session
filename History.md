@@ -1,5 +1,5 @@
-unreleased
-==========
+1.6.0 / 2014-06-28
+==================
 
   * Add deprecation message to undefined `resave` option
   * Add deprecation message to undefined `saveUninitialized` option
