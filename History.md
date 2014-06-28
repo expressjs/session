@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * Fix `res.end` patch to return correct value
+  * Fix `res.end` patch to handle multiple `res.end` calls
+
 1.5.2 / 2014-06-26
 ==================
 

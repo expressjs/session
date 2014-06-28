@@ -64,6 +64,22 @@ describe('session()', function(){
       .expect(200, '', done);
   })
 
+  it('should handle multiple res.end calls', function(done){
+    var app = express()
+      .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
+      .use(function(req, res){
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Hello, world!');
+        res.end();
+      });
+    app.set('env', 'test');
+
+    request(app)
+    .get('/')
+    .expect('Content-Type', 'text/plain')
+    .expect(200, 'Hello, world!', done);
+  })
+
   describe('proxy option', function(){
     describe('when enabled', function(){
       it('should trust X-Forwarded-Proto when string', function(done){

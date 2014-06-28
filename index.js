@@ -168,8 +168,17 @@ function session(options){
 
     // proxy end() to commit the session
     var end = res.end;
-    res.end = function(data, encoding){
-      res.end = end;
+    var ended = false;
+    res.end = function(chunk, encoding){
+      if (ended) {
+        return false;
+      }
+
+      if (chunk === undefined) {
+        chunk = '';
+      }
+
+      ended = true;
 
       if (shouldDestroy(req)) {
         // destroy session
@@ -177,28 +186,30 @@ function session(options){
         store.destroy(req.sessionID, function(err){
           if (err) console.error(err.stack);
           debug('destroyed');
-          res.end(data, encoding);
+          end.call(res);
         });
+        return res.write(chunk, encoding);
       }
 
       // no session to save
       if (!req.session) {
         debug('no session');
-        return res.end(data, encoding);
+        return end.call(res, chunk, encoding);
       }
 
       req.session.resetMaxAge();
 
       if (shouldSave(req)) {
         debug('saving');
-        return req.session.save(function(err){
+        req.session.save(function(err){
           if (err) console.error(err.stack);
           debug('saved');
-          res.end(data, encoding);
+          end.call(res);
         });
+        return res.write(chunk, encoding);
       }
 
-      res.end(data, encoding);
+      return end.call(res, chunk, encoding);
     };
 
     // generate the session
