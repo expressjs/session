@@ -2,6 +2,7 @@ unreleased
 ==========
 
   * Add deprecation message to undefined `resave` option
+  * Add deprecation message to undefined `saveUninitialized` option
   * Fix `res.end` patch to return correct value
   * Fix `res.end` patch to handle multiple `res.end` calls
 

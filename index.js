@@ -74,6 +74,7 @@ function session(options){
     , storeReady = true
     , rollingSessions = options.rolling || false;
   var resaveSession = options.resave;
+  var saveUninitializedSession = options.saveUninitialized;
 
   var generateId = options.genid || generateSessionId;
 
@@ -86,9 +87,10 @@ function session(options){
     resaveSession = true;
   }
 
-  var saveUninitializedSession = options.saveUninitialized === undefined
-    ? true
-    : options.saveUninitialized;
+  if (saveUninitializedSession === undefined) {
+    deprecate('pass resave saveUninitialized; default value will change');
+    saveUninitializedSession = true;
+  }
 
   if (options.unset && options.unset !== 'destroy' && options.unset !== 'keep') {
     throw new TypeError('unset option must be "destroy" or "keep"');
