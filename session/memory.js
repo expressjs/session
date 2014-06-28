@@ -28,7 +28,7 @@ var defer = typeof setImmediate === 'function'
  */
 
 var MemoryStore = module.exports = function MemoryStore() {
-  this.sessions = {};
+  this.sessions = Object.create(null);
 };
 
 /**
@@ -102,12 +102,28 @@ MemoryStore.prototype.destroy = function(sid, fn){
  */
 
 MemoryStore.prototype.all = function(fn){
-  var arr = []
-    , keys = Object.keys(this.sessions);
+  var keys = Object.keys(this.sessions);
+  var now = Date.now();
+  var obj = Object.create(null);
+  var sess;
+  var sid;
+
   for (var i = 0, len = keys.length; i < len; ++i) {
-    arr.push(this.sessions[keys[i]]);
+    sid = keys[i];
+
+    // parse
+    sess = JSON.parse(this.sessions[sid]);
+
+    expires = typeof sess.cookie.expires === 'string'
+      ? new Date(sess.cookie.expires)
+      : sess.cookie.expires;
+
+    if (!expires || expires > now) {
+      obj[sid] = sess;
+    }
   }
-  fn && defer(fn);
+
+  fn && defer(fn, null, obj);
 };
 
 /**

@@ -1,6 +1,7 @@
 
 process.env.NO_DEPRECATION = 'express-session';
 
+var after = require('after')
 var express = require('express')
   , assert = require('assert')
   , request = require('supertest')
@@ -8,16 +9,9 @@ var express = require('express')
   , cookieParser = require('cookie-parser')
   , session = require('../')
   , Cookie = require('../session/cookie')
+var http = require('http');
 
 var min = 60 * 1000;
-
-function respond(req, res) {
-  res.end();
-}
-
-var app = express()
-  .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
-  .use(respond);
 
 describe('session()', function(){
   it('should export constructors', function(){
@@ -30,7 +24,7 @@ describe('session()', function(){
     var app = express()
       .use(function(req, res, next){ req.session = {}; next(); })
       .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
-      .use(respond);
+      .use(end);
 
       request(app)
       .get('/')
@@ -42,26 +36,88 @@ describe('session()', function(){
   })
 
   it('should error without secret', function(done){
-    var app = express()
-      .use(session({ cookie: { maxAge: min }}))
-      .use(respond);
-    app.set('env', 'test');
-
-      request(app)
-      .get('/')
-      .expect(500, /secret.*required/, done);
+    request(createServer({ secret: undefined }))
+    .get('/')
+    .expect(500, /secret.*required/, done)
   })
 
   it('should get secret from req.secret', function(done){
     var app = express()
       .use(function(req, res, next){ req.secret = 'keyboard cat'; next(); })
       .use(session({ cookie: { maxAge: min }}))
-      .use(respond);
+      .use(end);
     app.set('env', 'test');
 
       request(app)
       .get('/')
       .expect(200, '', done);
+  })
+
+  it('should create a new session', function (done) {
+    var store = new session.MemoryStore()
+    var server = createServer({ store: store }, function (req, res) {
+      req.session.active = true
+      res.end('session active')
+    });
+
+    request(server)
+    .get('/')
+    .expect(200, 'session active', function (err, res) {
+      if (err) return done(err)
+      should(sid(res)).not.be.empty
+      store.length(function (err, len) {
+        if (err) return done(err)
+        len.should.equal(1)
+        done()
+      })
+    })
+  })
+
+  it('should load session from cookie sid', function (done) {
+    var count = 0
+    var server = createServer(null, function (req, res) {
+      req.session.num = req.session.num || ++count
+      res.end('session ' + req.session.num)
+    });
+
+    request(server)
+    .get('/')
+    .expect(200, 'session 1', function (err, res) {
+      if (err) return done(err)
+      should(sid(res)).not.be.empty
+      request(server)
+      .get('/')
+      .set('Cookie', cookie(res))
+      .expect(200, 'session 1', done)
+    })
+  })
+
+  it('should create multiple sessions', function (done) {
+    var cb = after(2, check)
+    var count = 0
+    var store = new session.MemoryStore()
+    var server = createServer({ store: store }, function (req, res) {
+      var isnew = req.session.num === undefined
+      req.session.num = req.session.num || ++count
+      res.end('session ' + (isnew ? 'created' : 'updated'))
+    });
+
+    function check(err) {
+      if (err) return done(err)
+      store.all(function (err, sess) {
+        if (err) return done(err)
+        Object.keys(sess).should.have.length(2)
+        done()
+      })
+    }
+
+    request(server)
+    .get('/')
+    .expect(200, 'session created', cb)
+
+    request(server)
+    .get('/')
+    .expect(200, 'session created', cb)
   })
 
   it('should handle multiple res.end calls', function(done){
@@ -80,14 +136,145 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
+  describe('when sid not in store', function () {
+    it('should create a new session', function (done) {
+      var count = 0
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.num = req.session.num || ++count
+        res.end('session ' + req.session.num)
+      });
+
+      request(server)
+      .get('/')
+      .expect(200, 'session 1', function (err, res) {
+        if (err) return done(err)
+        should(sid(res)).not.be.empty
+        store.clear(function (err) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(200, 'session 2', done)
+        })
+      })
+    })
+
+    it('should have a new sid', function (done) {
+      var count = 0
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.num = req.session.num || ++count
+        res.end('session ' + req.session.num)
+      });
+
+      request(server)
+      .get('/')
+      .expect(200, 'session 1', function (err, res) {
+        if (err) return done(err)
+        var val = sid(res)
+        should(val).not.be.empty
+        store.clear(function (err) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(200, 'session 2', function (err, res) {
+            if (err) return done(err)
+            should(sid(res)).not.be.empty
+            should(sid(res)).not.equal(val)
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  describe('when session expired in store', function () {
+    it('should create a new session', function (done) {
+      var count = 0
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, cookie: { maxAge: 5 } }, function (req, res) {
+        req.session.num = req.session.num || ++count
+        res.end('session ' + req.session.num)
+      });
+
+      request(server)
+      .get('/')
+      .expect(200, 'session 1', function (err, res) {
+        if (err) return done(err)
+        should(sid(res)).not.be.empty
+        setTimeout(function () {
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(200, 'session 2', done)
+        }, 10)
+      })
+    })
+
+    it('should have a new sid', function (done) {
+      var count = 0
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, cookie: { maxAge: 5 } }, function (req, res) {
+        req.session.num = req.session.num || ++count
+        res.end('session ' + req.session.num)
+      });
+
+      request(server)
+      .get('/')
+      .expect(200, 'session 1', function (err, res) {
+        if (err) return done(err)
+        var val = sid(res)
+        should(val).not.be.empty
+        setTimeout(function () {
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(200, 'session 2', function (err, res) {
+            if (err) return done(err)
+            should(sid(res)).not.be.empty
+            should(sid(res)).not.equal(val)
+            done()
+          })
+        }, 10)
+      })
+    })
+
+    it('should not exist in store', function (done) {
+      var count = 0
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, cookie: { maxAge: 5 } }, function (req, res) {
+        req.session.num = req.session.num || ++count
+        res.end('session ' + req.session.num)
+      });
+
+      request(server)
+      .get('/')
+      .expect(200, 'session 1', function (err, res) {
+        if (err) return done(err)
+        var val = sid(res)
+        should(val).not.be.empty
+        setTimeout(function () {
+          store.all(function (err, sess) {
+            if (err) return done(err)
+            Object.keys(sess).should.have.length(0)
+            done()
+          })
+        }, 10)
+      })
+    })
+  })
+
   describe('proxy option', function(){
     describe('when enabled', function(){
-      it('should trust X-Forwarded-Proto when string', function(done){
-        var app = express()
-          .use(session({ secret: 'keyboard cat', proxy: true, cookie: { secure: true, maxAge: 5 }}))
-          .use(respond);
+      var server
+      before(function () {
+        server = createServer({ proxy: true, cookie: { secure: true, maxAge: 5 }})
+      })
 
-        request(app)
+      it('should trust X-Forwarded-Proto when string', function(done){
+        request(server)
         .get('/')
         .set('X-Forwarded-Proto', 'https')
         .expect(200, function(err, res){
@@ -98,11 +285,7 @@ describe('session()', function(){
       })
 
       it('should trust X-Forwarded-Proto when comma-separated list', function(done){
-        var app = express()
-          .use(session({ secret: 'keyboard cat', proxy: true, cookie: { secure: true, maxAge: 5 }}))
-          .use(respond);
-
-        request(app)
+        request(server)
         .get('/')
         .set('X-Forwarded-Proto', 'https,http')
         .expect(200, function(err, res){
@@ -113,11 +296,7 @@ describe('session()', function(){
       })
 
       it('should work when no header', function(done){
-        var app = express()
-          .use(session({ secret: 'keyboard cat', proxy: true, cookie: { secure: true, maxAge: 5 }}))
-          .use(respond);
-
-        request(app)
+        request(server)
         .get('/')
         .expect(200, function(err, res){
           if (err) return done(err);
@@ -128,12 +307,13 @@ describe('session()', function(){
     })
 
     describe('when disabled', function(){
-      it('should not trust X-Forwarded-Proto', function(done){
-        var app = express()
-          .use(session({ secret: 'keyboard cat', proxy: false, cookie: { secure: true, maxAge: min }}))
-          .use(respond);
+      var server
+      before(function () {
+        server = createServer({ proxy: false, cookie: { secure: true, maxAge: 5 }})
+      })
 
-        request(app)
+      it('should not trust X-Forwarded-Proto', function(done){
+        request(server)
         .get('/')
         .set('X-Forwarded-Proto', 'https')
         .expect(200, function(err, res){
@@ -161,12 +341,13 @@ describe('session()', function(){
     })
 
     describe('when unspecified', function(){
-      it('should not trust X-Forwarded-Proto', function(done){
-        var app = express()
-          .use(session({ secret: 'keyboard cat', cookie: { secure: true, maxAge: min }}))
-          .use(respond);
+      var server
+      before(function () {
+        server = createServer({ cookie: { secure: true, maxAge: 5 }})
+      })
 
-        request(app)
+      it('should not trust X-Forwarded-Proto', function(done){
+        request(server)
         .get('/')
         .set('X-Forwarded-Proto', 'https')
         .expect(200, function(err, res){
@@ -200,40 +381,36 @@ describe('session()', function(){
     });
 
     it('should provide default generator', function(done){
-      request(app)
+      var server = createServer()
+
+      request(server)
       .get('/')
       .expect('set-cookie', /connect\.sid=s%3A([^\.]+)\./i)
       .expect(200, done);
     });
 
     it('should allow custom function', function(done){
-      var app = express()
-        .use(session({ genid: function(){ return 'a' }, secret: 'keyboard cat', cookie: { maxAge: min }}))
-        .use(respond);
+      var server = createServer({ genid: function(){ return 'a' }})
 
-      request(app)
+      request(server)
       .get('/')
       .expect('set-cookie', /connect\.sid=s%3Aa\./i)
       .expect(200, done);
     });
 
     it('should encode unsafe chars', function(done){
-      var app = express()
-        .use(session({ genid: function(){ return '%' }, secret: 'keyboard cat', cookie: { maxAge: min }}))
-        .use(respond);
+      var server = createServer({ genid: function(){ return '%' }})
 
-      request(app)
+      request(server)
       .get('/')
       .expect('set-cookie', /connect\.sid=s%3A%25\./i)
       .expect(200, done);
     });
 
     it('should provide req argument', function(done){
-      var app = express()
-        .use(session({ genid: function(req){ return req.url }, secret: 'keyboard cat', cookie: { maxAge: min }}))
-        .use(respond);
+      var server = createServer({ genid: function(req){ return req.url }})
 
-      request(app)
+      request(server)
       .get('/foo')
       .expect('set-cookie', /connect\.sid=s%3A%2Ffoo\./i)
       .expect(200, done);
@@ -242,7 +419,7 @@ describe('session()', function(){
 
   describe('key option', function(){
     it('should default to "connect.sid"', function(done){
-      request(app)
+      request(createServer())
       .get('/')
       .end(function(err, res){
         res.headers['set-cookie'].should.have.length(1);
@@ -252,11 +429,7 @@ describe('session()', function(){
     })
 
     it('should allow overriding', function(done){
-      var app = express()
-        .use(session({ secret: 'keyboard cat', key: 'sid', cookie: { maxAge: min }}))
-        .use(respond);
-
-      request(app)
+      request(createServer({ key: 'sid' }))
       .get('/')
       .end(function(err, res){
         res.headers['set-cookie'].should.have.length(1);
@@ -617,75 +790,6 @@ describe('session()', function(){
       });
     });
   });
-
-  it('should retain the sid', function(done){
-    var n = 0;
-
-    var app = express()
-      .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
-      .use(function(req, res){
-        req.session.count = ++n;
-        res.end();
-      })
-
-    request(app)
-    .get('/')
-    .end(function(err, res){
-
-      var id = sid(res);
-      request(app)
-      .get('/')
-      .set('Cookie', 'connect.sid=' + id)
-      .end(function(err, res){
-        if (err) return done(err);
-        sid(res).should.equal(id);
-        done();
-      });
-    });
-  })
-
-  describe('when an invalid sid is given', function(){
-    it('should generate a new one', function(done){
-      request(app)
-      .get('/')
-      .set('Cookie', 'connect.sid=foobarbaz')
-      .end(function(err, res){
-        sid(res).should.not.equal('foobarbaz');
-        done();
-      });
-    })
-  })
-
-  it('should issue separate sids', function(done){
-    var n = 0;
-
-    var app = express()
-      .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
-      .use(function(req, res){
-        req.session.count = ++n;
-        res.end();
-      })
-
-    request(app)
-    .get('/')
-    .end(function(err, res){
-
-      var id = sid(res);
-      request(app)
-      .get('/')
-      .set('Cookie', 'connect.sid=' + id)
-      .end(function(err, res){
-        sid(res).should.equal(id);
-
-        request(app)
-        .get('/')
-        .end(function(err, res){
-          sid(res).should.not.equal(id);
-          done();
-        });
-      });
-    });
-  })
 
   describe('req.session', function(){
     it('should persist', function(done){
@@ -1186,6 +1290,29 @@ describe('session()', function(){
 function cookie(res) {
   var setCookie = res.headers['set-cookie'];
   return (setCookie && setCookie[0]) || undefined;
+}
+
+function createServer(opts, fn) {
+  var app = express()
+  var options = opts || {}
+
+  if (!('cookie' in options)) {
+    options.cookie = { maxAge: 60 * 1000 }
+  }
+
+  if (!('secret' in options)) {
+    options.secret = 'keyboard cat'
+  }
+
+  app.set('env', 'test')
+  app.use(session(options))
+  app.use(fn || end)
+
+  return http.createServer(app)
+}
+
+function end(req, res) {
+  res.end()
 }
 
 function expires(res) {
