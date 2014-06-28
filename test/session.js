@@ -848,30 +848,26 @@ describe('session()', function(){
 
   describe('req.session', function(){
     it('should persist', function(done){
-      var app = express()
-        .use(session({ secret: 'keyboard cat', cookie: { maxAge: min, httpOnly: false }}))
-        .use(function(req, res, next){
-          // checks that cookie options persisted
-          req.session.cookie.httpOnly.should.equal(false);
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.count = req.session.count || 0
+        req.session.count++
+        res.end('hits: ' + req.session.count)
+      })
 
-          req.session.count = req.session.count || 0;
-          req.session.count++;
-          res.end(req.session.count.toString());
-        });
-
-      request(app)
+      request(server)
       .get('/')
-      .end(function(err, res){
-        res.text.should.equal('1');
-
-        request(app)
-        .get('/')
-        .set('Cookie', cookie(res))
-        .end(function(err, res){
-          res.text.should.equal('2');
-          done();
-        });
-      });
+      .expect(200, 'hits: 1', function (err, res) {
+        if (err) return done(err)
+        store.load(sid(res), function (err, sess) {
+          if (err) return done(err)
+          should(sess).not.be.empty
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(200, 'hits: 2', done)
+        })
+      })
     })
 
     it('should only set-cookie when modified', function(done){
