@@ -973,6 +973,77 @@ describe('session()', function(){
       })
     })
 
+    describe('.reload()', function () {
+      it('should reload session from store', function (done) {
+        var server = createServer(null, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          req.session.url = req.url
+
+          if (req.url === '/bar') {
+            res.end('saw ' + req.session.url)
+            return
+          }
+
+          request(server)
+          .get('/bar')
+          .set('Cookie', val)
+          .expect(200, 'saw /bar', function (err, resp) {
+            if (err) return done(err)
+            req.session.reload(function (err) {
+              if (err) return done(err)
+              res.end('saw ' + req.session.url)
+            })
+          })
+        })
+        var val
+
+        request(server)
+        .get('/')
+        .expect(200, 'session created', function (err, res) {
+          if (err) return done(err)
+          val = cookie(res)
+          request(server)
+          .get('/foo')
+          .set('Cookie', val)
+          .expect(200, 'saw /bar', done)
+        })
+      })
+
+      it('should error is session missing', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          store.clear(function (err) {
+            if (err) return done(err)
+            req.session.reload(function (err) {
+              res.statusCode = err ? 500 : 200
+              res.end(err ? err.message : '')
+            })
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'session created', function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/foo')
+          .set('Cookie', cookie(res))
+          .expect(500, 'failed to load session', done)
+        })
+      })
+    })
+
     describe('.cookie', function(){
       describe('.*', function(){
         it('should serialize as parameters', function(done){
