@@ -73,6 +73,7 @@ function session(options){
     , trustProxy = options.proxy
     , storeReady = true
     , rollingSessions = options.rolling || false;
+  var resaveSession = options.resave;
 
   var generateId = options.genid || generateSessionId;
 
@@ -80,10 +81,10 @@ function session(options){
     throw new TypeError('genid option must be a function');
   }
 
-  // TODO: switch default to false on next major
-  var resaveSession = options.resave === undefined
-    ? true
-    : options.resave;
+  if (resaveSession === undefined) {
+    deprecate('pass resave option; default value will change');
+    resaveSession = true;
+  }
 
   var saveUninitializedSession = options.saveUninitialized === undefined
     ? true
