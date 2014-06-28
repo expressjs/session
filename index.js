@@ -308,16 +308,26 @@ function generateSessionId(sess) {
 
 function getcookie(req, name, secret) {
   var header = req.headers.cookie;
+  var raw;
   var val;
 
   // read from cookie header
   if (header) {
     var cookies = cookie.parse(header);
 
-    val = cookies[name];
+    raw = cookies[name];
 
-    if (val && val.substr(0, 2) === 's:') {
-      val = signature.unsign(val.slice(2), secret);
+    if (raw) {
+      if (raw.substr(0, 2) === 's:') {
+        val = signature.unsign(raw.slice(2), secret);
+
+        if (val === false) {
+          debug('cookie signature invalid');
+          val = undefined;
+        }
+      } else {
+        debug('cookie unsigned')
+      }
     }
   }
 
@@ -332,14 +342,23 @@ function getcookie(req, name, secret) {
 
   // back-compat read from cookieParser() cookies data
   if (!val && req.cookies) {
-    val = req.cookies[name];
+    raw = req.cookies[name];
 
-    if (val && val.substr(0, 2) === 's:') {
-      val = signature.unsign(val.slice(2), secret);
+    if (raw) {
+      deprecate('cookie should be available in req.headers.cookie');
     }
 
-    if (val) {
-      deprecate('cookie should be available in req.headers.cookie');
+    if (raw) {
+      if (raw.substr(0, 2) === 's:') {
+        val = signature.unsign(raw.slice(2), secret);
+
+        if (val === false) {
+          debug('cookie signature invalid');
+          val = undefined;
+        }
+      } else {
+        debug('cookie unsigned')
+      }
     }
   }
 

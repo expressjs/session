@@ -5,6 +5,7 @@ unreleased
   * Add deprecation message to undefined `saveUninitialized` option
   * Fix `res.end` patch to return correct value
   * Fix `res.end` patch to handle multiple `res.end` calls
+  * Reject cookies with missing signatures
 
 1.5.2 / 2014-06-26
 ==================
