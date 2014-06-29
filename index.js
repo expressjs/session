@@ -88,7 +88,7 @@ function session(options){
   }
 
   if (saveUninitializedSession === undefined) {
-    deprecate('pass resave saveUninitialized; default value will change');
+    deprecate('pass saveUninitialized option; default value will change');
     saveUninitializedSession = true;
   }
 

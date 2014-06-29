@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix saveUninitialized deprecation message
+
 1.6.0 / 2014-06-28
 ==================
 
