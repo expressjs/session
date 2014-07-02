@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Do not require `req.originalUrl`
+
 1.6.2 / 2014-07-04
 ==================
 
