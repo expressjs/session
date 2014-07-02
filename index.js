@@ -128,7 +128,7 @@ function session(options){
     if (!storeReady) return debug('store is disconnected'), next();
 
     // pathname mismatch
-    var originalPath = parse(req.originalUrl).pathname;
+    var originalPath = parse(req.originalUrl || req.url).pathname;
     if (0 != originalPath.indexOf(cookie.path || '/')) return next();
 
     // backwards compatibility for signed cookies
