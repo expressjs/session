@@ -136,7 +136,7 @@ function session(options){
     var secret = options.secret || req.secret;
 
     // ensure secret is available or bail
-    if (!secret) throw new Error('`secret` option required for sessions');
+    if (!secret) next(new Error('`secret` option required for sessions'));
 
     var originalHash
       , originalId;
