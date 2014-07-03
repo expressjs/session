@@ -1493,8 +1493,8 @@ function cookie(res) {
 }
 
 function createServer(opts, fn) {
-  var app = express()
   var options = opts || {}
+  var respond = fn || end
 
   if (!('cookie' in options)) {
     options.cookie = { maxAge: 60 * 1000 }
@@ -1504,11 +1504,19 @@ function createServer(opts, fn) {
     options.secret = 'keyboard cat'
   }
 
-  app.set('env', 'test')
-  app.use(session(options))
-  app.use(fn || end)
+  var _session = session(options)
 
-  return http.createServer(app)
+  return http.createServer(function (req, res) {
+    _session(req, res, function (err) {
+      if (err) {
+        res.statusCode = err.status || 500
+        res.end(err.message)
+        return
+      }
+
+      respond(req, res)
+    })
+  })
 }
 
 function end(req, res) {
