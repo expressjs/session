@@ -1,5 +1,5 @@
-unreleased
-==========
+1.6.3 / 2014-07-04
+==================
 
   * Fix resave deprecation message
 
