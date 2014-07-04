@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix resave deprecation message
+
 1.6.2 / 2014-07-04
 ==================
 
