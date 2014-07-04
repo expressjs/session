@@ -1,5 +1,5 @@
-unreleased
-==========
+1.6.2 / 2014-07-04
+==================
 
   * Fix confusing option deprecation messages
 
