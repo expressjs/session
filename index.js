@@ -83,12 +83,12 @@ function session(options){
   }
 
   if (resaveSession === undefined) {
-    deprecate('pass resave option; default value will change');
+    deprecate('undefined resaveSession option; provide resave option');
     resaveSession = true;
   }
 
   if (saveUninitializedSession === undefined) {
-    deprecate('pass saveUninitialized option; default value will change');
+    deprecate('undefined saveUninitialized option; provide saveUninitialized option');
     saveUninitializedSession = true;
   }
 
@@ -116,7 +116,7 @@ function session(options){
   store.on('connect', function(){ storeReady = true; });
 
   if (!options.secret) {
-    deprecate('pass secret option; do not use req.secret');
+    deprecate('req.secret; provide secret option');
   }
 
   return function session(req, res, next) {

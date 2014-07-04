@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix confusing option deprecation messages
+
 1.6.1 / 2014-06-28
 ==================
 
