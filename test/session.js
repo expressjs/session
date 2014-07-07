@@ -1357,6 +1357,44 @@ describe('session()', function(){
     })
   })
 
+  describe('synchronous store', function(){
+    it('should respond correctly on save', function(done){
+      var store = new SyncStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.count = req.session.count || 0
+        req.session.count++
+        res.end('hits: ' + req.session.count)
+      })
+
+      request(server)
+      .get('/')
+      .expect(200, 'hits: 1', done)
+    })
+
+    it('should respond correctly on destroy', function(done){
+      var store = new SyncStore()
+      var server = createServer({ store: store, unset: 'destroy' }, function (req, res) {
+        req.session.count = req.session.count || 0
+        var count = ++req.session.count
+        if (req.session.count > 1) {
+          req.session = null
+          res.write('destroyed\n')
+        }
+        res.end('hits: ' + count)
+      })
+
+      request(server)
+      .get('/')
+      .expect(200, 'hits: 1', function (err, res) {
+        if (err) return done(err)
+        request(server)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(200, 'destroyed\nhits: 2', done)
+      })
+    })
+  })
+
   describe('cookieParser()', function () {
     it('should read from req.cookies', function(done){
       var app = express()
@@ -1487,3 +1525,23 @@ function sid(res) {
   var val = match ? match[1] : undefined
   return val
 }
+
+function SyncStore() {
+  this.sessions = Object.create(null);
+}
+
+SyncStore.prototype.__proto__ = session.Store.prototype;
+
+SyncStore.prototype.destroy = function destroy(sid, callback) {
+  delete this.sessions[sid];
+  callback();
+};
+
+SyncStore.prototype.get = function get(sid, callback) {
+  callback(null, JSON.parse(this.sessions[sid]));
+};
+
+SyncStore.prototype.set = function set(sid, sess, callback) {
+  this.sessions[sid] = JSON.stringify(sess);
+  callback();
+};

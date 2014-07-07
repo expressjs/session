@@ -177,6 +177,9 @@ function session(options){
         return false;
       }
 
+      var ret;
+      var sync = true;
+
       if (chunk === undefined) {
         chunk = '';
       }
@@ -189,9 +192,22 @@ function session(options){
         store.destroy(req.sessionID, function(err){
           if (err) console.error(err.stack);
           debug('destroyed');
+
+          if (sync) {
+            ret = end.call(res, chunk, encoding);
+            sync = false;
+            return;
+          }
+
           end.call(res);
         });
-        return res.write(chunk, encoding);
+
+        if (sync) {
+          ret = res.write(chunk, encoding);
+          sync = false;
+        }
+
+        return ret;
       }
 
       // no session to save
@@ -207,9 +223,22 @@ function session(options){
         req.session.save(function(err){
           if (err) console.error(err.stack);
           debug('saved');
+
+          if (sync) {
+            ret = end.call(res, chunk, encoding);
+            sync = false;
+            return;
+          }
+
           end.call(res);
         });
-        return res.write(chunk, encoding);
+
+        if (sync) {
+          ret = res.write(chunk, encoding);
+          sync = false;
+        }
+
+        return ret;
       }
 
       return end.call(res, chunk, encoding);

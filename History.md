@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix blank responses for stores with synchronous operations
+
 1.6.3 / 2014-07-04
 ==================
 
