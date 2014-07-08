@@ -374,12 +374,12 @@ function getcookie(req, name, secret) {
     raw = req.cookies[name];
 
     if (raw) {
-      deprecate('cookie should be available in req.headers.cookie');
-    }
-
-    if (raw) {
       if (raw.substr(0, 2) === 's:') {
         val = signature.unsign(raw.slice(2), secret);
+
+        if (val) {
+          deprecate('cookie should be available in req.headers.cookie');
+        }
 
         if (val === false) {
           debug('cookie signature invalid');
