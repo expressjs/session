@@ -4,7 +4,8 @@
 [![Build Status](https://travis-ci.org/expressjs/session.svg?branch=master)](https://travis-ci.org/expressjs/session)
 [![Coverage Status](https://img.shields.io/coveralls/expressjs/session.svg?branch=master)](https://coveralls.io/r/expressjs/session)
 
-THIS REPOSITORY NEEDS A MAINTAINER. IF YOU'RE INTERESTED IN MAINTAINING THIS REPOSITORY, PLEASE LET US KNOW!
+THIS REPOSITORY NEEDS A MAINTAINER.
+If you are interested in maintaining this module, please start contributing by making PRs and solving / discussing unsolved issues.
 
 ## API
 
