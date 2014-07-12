@@ -1,5 +1,5 @@
-unreleased
-==========
+1.6.5 / 2014-07-11
+==================
 
   * Do not require `req.originalUrl`
   * deps: debug@1.0.3
