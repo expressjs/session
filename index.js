@@ -263,8 +263,9 @@ function session(options){
 
     // determine if session should be saved to store
     function shouldSave(req) {
-      if(req.DO_NOT_SAVE === true) {
+      if(req.shouldSaveSession === true) {
         return false;
+      }
       else {
         return cookieId != req.sessionID
           ? saveUninitializedSession || isModified(req.session)
