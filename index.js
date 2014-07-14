@@ -263,9 +263,13 @@ function session(options){
 
     // determine if session should be saved to store
     function shouldSave(req) {
-      return cookieId != req.sessionID
-        ? saveUninitializedSession || isModified(req.session)
-        : resaveSession || isModified(req.session);
+      if(req.DO_NOT_SAVE === true) {
+        return false;
+      else {
+        return cookieId != req.sessionID
+          ? saveUninitializedSession || isModified(req.session)
+          : resaveSession || isModified(req.session);
+      }
     }
 
     // determine if cookie should be set on response
