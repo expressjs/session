@@ -263,14 +263,15 @@ function session(options){
 
     // determine if session should be saved to store
     function shouldSave(req) {
-      if(req.shouldSaveSession === true) {
-        return false;
+      if(typeof req.session.shouldSaveSession === 'function') {
+        console.log('called');
+        console.log(req.session.shouldSaveSession());
+        return req.session.shouldSaveSession();
       }
-      else {
-        return cookieId != req.sessionID
-          ? saveUninitializedSession || isModified(req.session)
-          : resaveSession || isModified(req.session);
-      }
+
+      return cookieId != req.sessionID
+        ? saveUninitializedSession || isModified(req.session)
+        : resaveSession || isModified(req.session);
     }
 
     // determine if cookie should be set on response
