@@ -77,6 +77,7 @@ function session(options){
   var saveUninitializedSession = options.saveUninitialized;
 
   var generateId = options.genid || generateSessionId;
+  var errorHandler = options.error || handleError;
 
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
@@ -190,7 +191,10 @@ function session(options){
         // destroy session
         debug('destroying');
         store.destroy(req.sessionID, function(err){
-          if (err) console.error(err.stack);
+          if (err) {
+            errorHandler(err);
+          }
+
           debug('destroyed');
 
           if (sync) {
@@ -221,7 +225,10 @@ function session(options){
       if (shouldSave(req)) {
         debug('saving');
         req.session.save(function(err){
-          if (err) console.error(err.stack);
+          if (err) {
+            errorHandler(err);
+          }
+
           debug('saved');
 
           if (sync) {
@@ -326,6 +333,16 @@ function session(options){
 
 function generateSessionId(sess) {
   return uid(24);
+}
+
+/**
+ * Log error stack traces.
+ *
+ * @api private
+ */
+
+function handleError(err) {
+  console.error(err.stack);
 }
 
 /**

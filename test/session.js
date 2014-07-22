@@ -846,6 +846,68 @@ describe('session()', function(){
     });
   });
 
+  describe('error option', function() {
+
+    it('should be called when destroy fails', function(done) {
+
+      var errorHandled = false;
+      var store = new session.MemoryStore();
+
+      store.destroy = function(sid, callback) {
+        callback(new Error('Test error'));
+      };
+
+      var options = {
+        store: store,
+        unset: 'destroy',
+        error: function() {
+          errorHandled = true;
+        }
+      };
+
+      var server = createServer(options, function (req, res) {
+        req.session = null;
+        res.end()
+      });
+
+      request(server)
+        .get('/')
+        .expect(200, function(err) {
+          if (err) throw err;
+          assert(errorHandled, 'Custom error handler not called');
+          done();
+        });
+
+    });
+
+    it('should called when save fails', function(done) {
+
+      var errorHandled = false;
+      var options = {
+        error: function() {
+          errorHandled = true;
+        }
+      };
+
+      var server = createServer(options, function(req, res) {
+        req.session.save = function(fn){
+          fn(new Error('Test Error'));
+        };
+        res.end();
+      })
+
+      request(server)
+        .get('/')
+        .expect(200, function(err) {
+          if (err) throw err;
+          assert(errorHandled, 'Custom error handler not called');
+          done();
+        });
+
+    });
+
+  })
+
   describe('req.session', function(){
     it('should persist', function(done){
       var store = new session.MemoryStore()
