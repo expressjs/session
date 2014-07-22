@@ -1,6 +1,8 @@
 unreleased
 ==========
 
+  * Improve session-ending error handling
+    - Errors are passed to `next(err)` instead of `console.error`
   * deps: debug@1.0.4
   * deps: depd@0.4.2
     - Add `TRACE_DEPRECATION` environment variable

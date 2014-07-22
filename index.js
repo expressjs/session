@@ -51,6 +51,15 @@ var warning = 'Warning: connect.session() MemoryStore is not\n'
   + 'memory, and will not scale past a single process.';
 
 /**
+ * Node.js 0.8+ async implementation.
+ */
+
+/* istanbul ignore next */
+var defer = typeof setImmediate === 'function'
+  ? setImmediate
+  : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
+
+/**
  * Setup session store with the given `options`.
  *
  * See README.md for documentation of options and formatting.
@@ -189,8 +198,11 @@ function session(options){
       if (shouldDestroy(req)) {
         // destroy session
         debug('destroying');
-        store.destroy(req.sessionID, function(err){
-          if (err) console.error(err.stack);
+        store.destroy(req.sessionID, function ondestroy(err) {
+          if (err) {
+            defer(next, err);
+          }
+
           debug('destroyed');
 
           if (sync) {
@@ -220,8 +232,11 @@ function session(options){
 
       if (shouldSave(req)) {
         debug('saving');
-        req.session.save(function(err){
-          if (err) console.error(err.stack);
+        req.session.save(function onsave(err) {
+          if (err) {
+            defer(next, err);
+          }
+
           debug('saved');
 
           if (sync) {

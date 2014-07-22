@@ -92,6 +92,54 @@ describe('session()', function(){
     })
   })
 
+  it('should pass session fetch error', function (done) {
+    var store = new session.MemoryStore()
+    var server = createServer({ store: store }, function (req, res) {
+      res.end('hello, world')
+    })
+
+    store.get = function destroy(sid, callback) {
+      callback(new Error('boom!'))
+    }
+
+    request(server)
+    .get('/')
+    .expect(200, 'hello, world', function (err, res) {
+      if (err) return done(err)
+      should(sid(res)).not.be.empty
+      request(server)
+      .get('/')
+      .set('Cookie', cookie(res))
+      .expect(500, 'boom!', done)
+    })
+  })
+
+  it('should treat ENOENT session fetch error as not found', function (done) {
+    var count = 0
+    var store = new session.MemoryStore()
+    var server = createServer({ store: store }, function (req, res) {
+      req.session.num = req.session.num || ++count
+      res.end('session ' + req.session.num)
+    })
+
+    store.get = function destroy(sid, callback) {
+      var err = new Error('boom!')
+      err.code = 'ENOENT'
+      callback(err)
+    }
+
+    request(server)
+    .get('/')
+    .expect(200, 'session 1', function (err, res) {
+      if (err) return done(err)
+      should(sid(res)).not.be.empty
+      request(server)
+      .get('/')
+      .set('Cookie', cookie(res))
+      .expect(200, 'session 2', done)
+    })
+  })
+
   it('should create multiple sessions', function (done) {
     var cb = after(2, check)
     var count = 0
@@ -750,6 +798,27 @@ describe('session()', function(){
       .expect('set-cookie', /connect\.sid=/)
       .expect(200, done);
     });
+
+    it('should pass session save error', function (done) {
+      var cb = after(2, done)
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, saveUninitialized: true }, function (req, res) {
+        res.end('session saved')
+      })
+
+      store.set = function destroy(sid, sess, callback) {
+        callback(new Error('boom!'))
+      }
+
+      server.on('error', function onerror(err) {
+        err.message.should.equal('boom!')
+        cb()
+      })
+
+      request(server)
+      .get('/')
+      .expect(200, 'session saved', cb)
+    })
   });
 
   describe('unset option', function () {
@@ -844,6 +913,28 @@ describe('session()', function(){
         });
       });
     });
+
+    it('should pass session destroy error', function (done) {
+      var cb = after(2, done)
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, unset: 'destroy' }, function (req, res) {
+        req.session = null
+        res.end('session destroyed')
+      })
+
+      store.destroy = function destroy(sid, callback) {
+        callback(new Error('boom!'))
+      }
+
+      server.on('error', function onerror(err) {
+        err.message.should.equal('boom!')
+        cb()
+      })
+
+      request(server)
+      .get('/')
+      .expect(200, 'session destroyed', cb)
+    })
   });
 
   describe('req.session', function(){
@@ -1506,17 +1597,24 @@ function createServer(opts, fn) {
 
   var _session = session(options)
 
-  return http.createServer(function (req, res) {
+  var server = http.createServer(function (req, res) {
     _session(req, res, function (err) {
-      if (err) {
+      if (err && !res._header) {
         res.statusCode = err.status || 500
         res.end(err.message)
+        return
+      }
+
+      if (err) {
+        server.emit('error', err)
         return
       }
 
       respond(req, res)
     })
   })
+
+  return server
 }
 
 function end(req, res) {
