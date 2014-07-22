@@ -1,5 +1,5 @@
-unreleased
-==========
+1.7.0 / 2014-07-22
+==================
 
   * Improve session-ending error handling
     - Errors are passed to `next(err)` instead of `console.error`
