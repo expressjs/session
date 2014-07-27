@@ -14,7 +14,7 @@
     "cookie": "0.1.2",
     "cookie-signature": "1.0.4",
     "debug": "1.0.4",
-    "depd": "0.4.3",
+    "depd": "0.4.4",
     "on-headers": "0.0.0",
     "uid-safe": "1.0.1",
     "utils-merge": "1.0.0"
