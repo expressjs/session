@@ -248,6 +248,8 @@ function session(options){
           end.call(res);
         });
 
+        sync = false;
+
         if (sync) {
           ret = res.write(chunk, encoding);
           sync = false;
