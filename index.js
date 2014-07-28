@@ -248,7 +248,9 @@ function session(options){
           end.call(res);
         });
 
-        sync = false;
+        if (res.statusCode == 301 || res.statusCode == 302) {
+          sync = false;
+        }
 
         if (sync) {
           ret = res.write(chunk, encoding);
