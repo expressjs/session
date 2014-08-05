@@ -17,7 +17,8 @@
     "depd": "0.4.4",
     "on-headers": "0.0.0",
     "uid-safe": "1.0.1",
-    "utils-merge": "1.0.0"
+    "utils-merge": "1.0.0",
+    "redis": "^0.11.0"
   },
   "devDependencies": {
     "after": "0.8.1",

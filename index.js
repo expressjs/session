@@ -20,6 +20,7 @@ var uid = require('uid-safe').sync
 
 var Session = require('./session/session')
   , MemoryStore = require('./session/memory')
+  , RedisStore = require('./session/redis')
   , Cookie = require('./session/cookie')
   , Store = require('./session/store')
 
@@ -41,6 +42,7 @@ exports.Store = Store;
 exports.Cookie = Cookie;
 exports.Session = Session;
 exports.MemoryStore = MemoryStore;
+exports.RedisStore = RedisStore;
 
 /**
  * Warning message for `MemoryStore` usage in production.
