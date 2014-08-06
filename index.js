@@ -249,6 +249,10 @@ function session(options){
           _end.call(res);
         });
 
+        if (res.statusCode == 301 || res.statusCode == 302) {
+          sync = false;
+        }
+
         if (sync) {
           ret = _write.call(res, chunk, encoding);
           sync = false;
