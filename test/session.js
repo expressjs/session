@@ -937,6 +937,40 @@ describe('session()', function(){
     })
   });
 
+  describe('res.end patch', function () {
+    it('should correctly handle res.end/res.write patched prior', function (done) {
+      var app = express()
+
+      app.use(writePatch())
+      app.use(createSession())
+      app.use(function (req, res) {
+        req.session.hit = true
+        res.write('hello, ')
+        res.end('world')
+      })
+
+      request(app)
+      .get('/')
+      .expect(200, 'hello, world', done)
+    })
+
+    it('should correctly handle res.end/res.write patched after', function (done) {
+      var app = express()
+
+      app.use(createSession())
+      app.use(writePatch())
+      app.use(function (req, res) {
+        req.session.hit = true
+        res.write('hello, ')
+        res.end('world')
+      })
+
+      request(app)
+      .get('/')
+      .expect(200, 'hello, world', done)
+    })
+  })
+
   describe('req.session', function(){
     it('should persist', function(done){
       var store = new session.MemoryStore()
@@ -1584,18 +1618,8 @@ function cookie(res) {
 }
 
 function createServer(opts, fn) {
-  var options = opts || {}
+  var _session = createSession(opts)
   var respond = fn || end
-
-  if (!('cookie' in options)) {
-    options.cookie = { maxAge: 60 * 1000 }
-  }
-
-  if (!('secret' in options)) {
-    options.secret = 'keyboard cat'
-  }
-
-  var _session = session(options)
 
   var server = http.createServer(function (req, res) {
     _session(req, res, function (err) {
@@ -1617,6 +1641,20 @@ function createServer(opts, fn) {
   return server
 }
 
+function createSession(opts) {
+  var options = opts || {}
+
+  if (!('cookie' in options)) {
+    options.cookie = { maxAge: 60 * 1000 }
+  }
+
+  if (!('secret' in options)) {
+    options.secret = 'keyboard cat'
+  }
+
+  return session(options)
+}
+
 function end(req, res) {
   res.end()
 }
@@ -1630,6 +1668,29 @@ function sid(res) {
   var match = /^[^=]+=s%3A([^;\.]+)[\.;]/.exec(cookie(res))
   var val = match ? match[1] : undefined
   return val
+}
+
+function writePatch() {
+  var ended = false
+  return function addWritePatch(req, res, next) {
+    var _end = res.end
+    var _write = res.write
+
+    res.end = function end() {
+      ended = true
+      return _end.apply(this, arguments)
+    }
+
+    res.write = function write() {
+      if (ended) {
+        throw new Error('write after end')
+      }
+
+      return _write.apply(this, arguments)
+    }
+
+    next()
+  }
 }
 
 function SyncStore() {

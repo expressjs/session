@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix `res.end` patch to call correct upstream `res.write`
+
 1.7.2 / 2014-07-27
 ==================
 

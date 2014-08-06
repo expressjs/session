@@ -179,9 +179,10 @@ function session(options){
     });
 
     // proxy end() to commit the session
-    var end = res.end;
+    var _end = res.end;
+    var _write = res.write;
     var ended = false;
-    res.end = function(chunk, encoding){
+    res.end = function end(chunk, encoding) {
       if (ended) {
         return false;
       }
@@ -206,16 +207,16 @@ function session(options){
           debug('destroyed');
 
           if (sync) {
-            ret = end.call(res, chunk, encoding);
+            ret = _end.call(res, chunk, encoding);
             sync = false;
             return;
           }
 
-          end.call(res);
+          _end.call(res);
         });
 
         if (sync) {
-          ret = res.write(chunk, encoding);
+          ret = _write.call(res, chunk, encoding);
           sync = false;
         }
 
@@ -225,7 +226,7 @@ function session(options){
       // no session to save
       if (!req.session) {
         debug('no session');
-        return end.call(res, chunk, encoding);
+        return _end.call(res, chunk, encoding);
       }
 
       req.session.resetMaxAge();
@@ -240,23 +241,23 @@ function session(options){
           debug('saved');
 
           if (sync) {
-            ret = end.call(res, chunk, encoding);
+            ret = _end.call(res, chunk, encoding);
             sync = false;
             return;
           }
 
-          end.call(res);
+          _end.call(res);
         });
 
         if (sync) {
-          ret = res.write(chunk, encoding);
+          ret = _write.call(res, chunk, encoding);
           sync = false;
         }
 
         return ret;
       }
 
-      return end.call(res, chunk, encoding);
+      return _end.call(res, chunk, encoding);
     };
 
     // generate the session
