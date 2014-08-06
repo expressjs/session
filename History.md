@@ -1,5 +1,5 @@
-unreleased
-==========
+1.7.4 / 2014-08-05
+==================
 
   * Fix response end delay for non-chunked responses
 
