@@ -184,6 +184,120 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
+  describe('when response ended', function () {
+    it('should have saved session', function (done) {
+      var saved = false
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.hit = true
+        res.end('session saved')
+      })
+
+      var _set = store.set
+      store.set = function set(sid, sess, callback) {
+        setTimeout(function () {
+          _set.call(store, sid, sess, function (err) {
+            saved = true
+            callback(err)
+          })
+        }, 200)
+      }
+
+      request(server)
+      .get('/')
+      .expect(200, 'session saved', function (err) {
+        if (err) return done(err)
+        saved.should.be.true
+        done()
+      })
+    })
+
+    it('should have saved session even with empty response', function (done) {
+      var saved = false
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.hit = true
+        res.setHeader('Content-Length', '0')
+        res.end()
+      })
+
+      var _set = store.set
+      store.set = function set(sid, sess, callback) {
+        setTimeout(function () {
+          _set.call(store, sid, sess, function (err) {
+            saved = true
+            callback(err)
+          })
+        }, 200)
+      }
+
+      request(server)
+      .get('/')
+      .expect(200, '', function (err) {
+        if (err) return done(err)
+        saved.should.be.true
+        done()
+      })
+    })
+
+    it('should have saved session even with multi-write', function (done) {
+      var saved = false
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.hit = true
+        res.setHeader('Content-Length', '12')
+        res.write('hello, ')
+        res.end('world')
+      })
+
+      var _set = store.set
+      store.set = function set(sid, sess, callback) {
+        setTimeout(function () {
+          _set.call(store, sid, sess, function (err) {
+            saved = true
+            callback(err)
+          })
+        }, 200)
+      }
+
+      request(server)
+      .get('/')
+      .expect(200, 'hello, world', function (err) {
+        if (err) return done(err)
+        saved.should.be.true
+        done()
+      })
+    })
+
+    it('should have saved session even with non-chunked response', function (done) {
+      var saved = false
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.hit = true
+        res.setHeader('Content-Length', '13')
+        res.end('session saved')
+      })
+
+      var _set = store.set
+      store.set = function set(sid, sess, callback) {
+        setTimeout(function () {
+          _set.call(store, sid, sess, function (err) {
+            saved = true
+            callback(err)
+          })
+        }, 200)
+      }
+
+      request(server)
+      .get('/')
+      .expect(200, 'session saved', function (err) {
+        if (err) return done(err)
+        saved.should.be.true
+        done()
+      })
+    })
+  })
+
   describe('when sid not in store', function () {
     it('should create a new session', function (done) {
       var count = 0

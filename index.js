@@ -187,6 +187,8 @@ function session(options){
         return false;
       }
 
+      ended = true;
+
       var ret;
       var sync = true;
 
@@ -194,7 +196,43 @@ function session(options){
         chunk = '';
       }
 
-      ended = true;
+      function writeend() {
+        if (sync) {
+          ret = _end.call(res, chunk, encoding);
+          sync = false;
+          return;
+        }
+
+        _end.call(res);
+      }
+
+      function writetop() {
+        if (!sync) {
+          return ret;
+        }
+
+        var contentLength = Number(res.getHeader('Content-Length'));
+
+        if (!isNaN(contentLength) && contentLength > 0) {
+          // measure chunk
+          chunk = !Buffer.isBuffer(chunk)
+            ? new Buffer(chunk, encoding)
+            : chunk;
+          encoding = undefined;
+
+          if (chunk.length !== 0) {
+            debug('split response');
+            ret = _write.call(res, chunk.slice(0, chunk.length - 1));
+            chunk = chunk.slice(chunk.length - 1, chunk.length);
+            return ret;
+          }
+        }
+
+        ret = _write.call(res, chunk, encoding);
+        sync = false;
+
+        return ret;
+      }
 
       if (shouldDestroy(req)) {
         // destroy session
@@ -205,22 +243,10 @@ function session(options){
           }
 
           debug('destroyed');
-
-          if (sync) {
-            ret = _end.call(res, chunk, encoding);
-            sync = false;
-            return;
-          }
-
-          _end.call(res);
+          writeend();
         });
 
-        if (sync) {
-          ret = _write.call(res, chunk, encoding);
-          sync = false;
-        }
-
-        return ret;
+        return writetop();
       }
 
       // no session to save
@@ -239,22 +265,10 @@ function session(options){
           }
 
           debug('saved');
-
-          if (sync) {
-            ret = _end.call(res, chunk, encoding);
-            sync = false;
-            return;
-          }
-
-          _end.call(res);
+          writeend();
         });
 
-        if (sync) {
-          ret = _write.call(res, chunk, encoding);
-          sync = false;
-        }
-
-        return ret;
+        return writetop();
       }
 
       return _end.call(res, chunk, encoding);
