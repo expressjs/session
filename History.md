@@ -1,5 +1,5 @@
-unreleased
-==========
+1.7.5 / 2014-08-10
+==================
 
   * Fix parsing original URL
   * deps: on-headers@~1.0.0
