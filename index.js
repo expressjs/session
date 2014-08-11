@@ -13,10 +13,10 @@
 var cookie = require('cookie');
 var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
+var parseUrl = require('parseurl');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
   , crc32 = require('buffer-crc32')
-  , parse = require('url').parse
   , signature = require('cookie-signature')
 
 var Session = require('./session/session')
@@ -138,7 +138,7 @@ function session(options){
     if (!storeReady) return debug('store is disconnected'), next();
 
     // pathname mismatch
-    var originalPath = parse(req.originalUrl || req.url).pathname;
+    var originalPath = parseUrl.original(req).pathname;
     if (0 != originalPath.indexOf(cookie.path || '/')) return next();
 
     // backwards compatibility for signed cookies

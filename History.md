@@ -1,7 +1,9 @@
 unreleased
 ==========
 
+  * Fix parsing original URL
   * deps: on-headers@~1.0.0
+  * deps: parseurl@~1.3.0
 
 1.7.4 / 2014-08-05
 ==================
