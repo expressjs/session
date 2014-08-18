@@ -193,7 +193,7 @@ function session(options){
       var ret;
       var sync = true;
 
-      if (chunk === undefined) {
+      if (chunk == null) {
         chunk = '';
       }
 

@@ -184,6 +184,16 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
+  it('should handle res.end(null) calls', function (done) {
+    var server = createServer(null, function (req, res) {
+      res.end(null)
+    })
+
+    request(server)
+    .get('/')
+    .expect(200, '', done)
+  })
+
   describe('when response ended', function () {
     it('should have saved session', function (done) {
       var saved = false
