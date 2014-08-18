@@ -1,5 +1,5 @@
-unreleased
-==========
+1.7.6 / 2014-08-18
+==================
 
   * Fix exception on `res.end(null)` calls
 
