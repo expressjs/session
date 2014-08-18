@@ -184,6 +184,34 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
+  it('should handle HEAD requests which respond with undefined bodies', function (done) {
+    var app = express()
+
+    app.use(createSession())
+    app.use(function (req, res) {
+      res.setHeader('Content-Length', 1)
+      res.end(undefined, 'utf8')
+    })
+
+    request(app)
+    .head('/')
+    .expect(200, '', done)
+  })
+
+  it('should handle HEAD requests which respond with null bodies', function (done) {
+    var app = express()
+
+    app.use(createSession())
+    app.use(function (req, res) {
+      res.setHeader('Content-Length', 1)
+      res.end(null, 'utf8')
+    })
+
+    request(app)
+    .head('/')
+    .expect(200, '', done)
+  })
+
   describe('when response ended', function () {
     it('should have saved session', function (done) {
       var saved = false
