@@ -78,6 +78,8 @@ function session(options){
   var options = options || {}
   //  name - previously "options.key"
     , name = options.name || options.key || 'connect.sid'
+  // optional name of HTTP header to pass session ID, e.g. 'X-Session-Token'
+    , headerName = options.headerName
     , store = options.store || new MemoryStore
     , cookie = options.cookie || {}
     , trustProxy = options.proxy
@@ -155,7 +157,11 @@ function session(options){
     req.sessionStore = store;
 
     // get the session ID from the cookie
-    var cookieId = req.sessionID = getcookie(req, name, secret);
+    var sessionId = req.sessionID = getcookie(req, name, secret);
+    // if not trying to get session ID from header
+    if (!sessionId && headerName) {
+      sessionId = req.sessionID = getHeader(req, headerName, secret);
+    }
 
     // set-cookie
     onHeaders(res, function(){
@@ -177,6 +183,9 @@ function session(options){
       }
 
       setcookie(res, name, req.sessionID, secret, cookie.data);
+      if (headerName) {
+        setHeader(res, headerName, req.sessionID, secret);
+      }
     });
 
     // proxy end() to commit the session
@@ -294,7 +303,7 @@ function session(options){
 
     // determine if session should be saved to store
     function shouldSave(req) {
-      return cookieId != req.sessionID
+      return sessionId != req.sessionID
         ? saveUninitializedSession || isModified(req.session)
         : resaveSession || isModified(req.session);
     }
@@ -306,7 +315,7 @@ function session(options){
         return true;
       }
 
-      return cookieId != req.sessionID
+      return sessionId != req.sessionID
         ? saveUninitializedSession || isModified(req.session)
         : req.session.cookie.expires != null && isModified(req.session);
     }
@@ -489,4 +498,32 @@ function setcookie(res, name, val, secret, options) {
     : [prev, data];
 
   res.setHeader('set-cookie', header)
+}
+
+function setHeader(res, name, val, secret) {
+  var signed = 's:' + signature.sign(val, secret);
+  debug(name + ' %s', signed);
+
+  res.setHeader(name, signed);
+}
+
+function getHeader(req, name, secret) {
+  var header = req.headers[name.toLowerCase()];
+  var val;
+
+  // read from header
+  if (header) {
+    if (header.substr(0, 2) === 's:') {
+      val = signature.unsign(header.slice(2), secret);
+
+      if (val === false) {
+        debug('header signature invalid');
+        val = undefined;
+      }
+    } else {
+      debug('header unsigned')
+    }
+  }
+
+  return val;
 }

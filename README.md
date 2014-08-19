@@ -28,6 +28,7 @@ Session data is _not_ saved in the cookie itself, just the session ID.
 #### Options
 
   - `name` - cookie name (formerly known as `key`). (default: `'connect.sid'`)
+  - `headerName` - optional HTTP header name to pass session ID, e.g. `X-Session-Token`. (default: `undefined`)
   - `store` - session store instance.
   - `secret` - session cookie is signed with this secret to prevent tampering.
   - `cookie` - session cookie settings.

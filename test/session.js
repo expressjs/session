@@ -92,6 +92,27 @@ describe('session()', function(){
     })
   })
 
+  it('should load session from header sid', function (done) {
+    var count = 0
+    var headerName = 'X-Session-Token';
+    var server = createServer({ headerName: headerName }, function (req, res) {
+      req.session.num = req.session.num || ++count
+      res.end('session ' + req.session.num)
+    });
+
+    request(server)
+      .get('/')
+      .expect(200, 'session 1', function (err, res) {
+        if (err) return done(err)
+        sidHeader(res, headerName).should.not.be.empty
+        sidHeader(res, headerName).should.startWith('s:')
+        request(server)
+          .get('/')
+          .set(headerName, sidHeader(res, headerName))
+          .expect(200, 'session 1', done)
+      })
+  })
+
   it('should pass session fetch error', function (done) {
     var store = new session.MemoryStore()
     var server = createServer({ store: store }, function (req, res) {
@@ -1792,6 +1813,10 @@ function sid(res) {
   var match = /^[^=]+=s%3A([^;\.]+)[\.;]/.exec(cookie(res))
   var val = match ? match[1] : undefined
   return val
+}
+
+function sidHeader(res, name) {
+  return res.headers[name.toLowerCase()]
 }
 
 function writePatch() {
