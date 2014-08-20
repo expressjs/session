@@ -73,7 +73,7 @@ For using secure cookies in production, but allowing for testing in development,
 ```js
 var app = express()
 var sess = {
-  secret: 'keyboard cat'
+  secret: 'keyboard cat',
   cookie: {}
 }
 
