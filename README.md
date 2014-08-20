@@ -63,8 +63,8 @@ If `secure` is set, and you access your site over HTTP, the cookie will not be s
 var app = express()
 app.set('trust proxy', 1) // trust first proxy
 app.use(session({
-    secret: 'keyboard cat'
-  , cookie: { secure: true }
+  secret: 'keyboard cat',
+  cookie: { secure: true }
 }))
 ```
 
@@ -73,7 +73,7 @@ For using secure cookies in production, but allowing for testing in development,
 ```js
 var app = express()
 var sess = {
-  secret: 'keyboard cat'
+  secret: 'keyboard cat',
   cookie: {}
 }
 
