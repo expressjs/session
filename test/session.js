@@ -94,8 +94,8 @@ describe('session()', function(){
 
   it('should load session from header sid', function (done) {
     var count = 0
-    var headerName = 'X-Session-Token';
-    var server = createServer({ headerName: headerName }, function (req, res) {
+    var header = 'X-Session-Token';
+    var server = createServer({ header: header }, function (req, res) {
       req.session.num = req.session.num || ++count
       res.end('session ' + req.session.num)
     });
@@ -104,11 +104,11 @@ describe('session()', function(){
       .get('/')
       .expect(200, 'session 1', function (err, res) {
         if (err) return done(err)
-        sidHeader(res, headerName).should.not.be.empty
-        sidHeader(res, headerName).should.startWith('s:')
+        sidHeader(res, header).should.not.be.empty
+        sidHeader(res, header).should.startWith('s:')
         request(server)
           .get('/')
-          .set(headerName, sidHeader(res, headerName))
+          .set(header, sidHeader(res, header))
           .expect(200, 'session 1', done)
       })
   })

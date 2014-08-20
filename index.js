@@ -79,7 +79,7 @@ function session(options){
   //  name - previously "options.key"
     , name = options.name || options.key || 'connect.sid'
   // optional name of HTTP header to pass session ID, e.g. 'X-Session-Token'
-    , headerName = options.headerName
+    , headerName = options.header
     , store = options.store || new MemoryStore
     , cookie = options.cookie || {}
     , trustProxy = options.proxy
@@ -87,6 +87,11 @@ function session(options){
     , rollingSessions = options.rolling || false;
   var resaveSession = options.resave;
   var saveUninitializedSession = options.saveUninitialized;
+  var headerNameNormalized;
+  if (headerName) {
+    // lower-case representation of header name to fetch header value from req.headers
+    headerNameNormalized = headerName.toLowerCase();
+  }
 
   var generateId = options.genid || generateSessionId;
 
@@ -160,7 +165,7 @@ function session(options){
     var sessionId = req.sessionID = getcookie(req, name, secret);
     // if not trying to get session ID from header
     if (!sessionId && headerName) {
-      sessionId = req.sessionID = getHeader(req, headerName, secret);
+      sessionId = req.sessionID = getHeader(req, headerNameNormalized, secret);
     }
 
     // set-cookie
@@ -508,7 +513,7 @@ function setHeader(res, name, val, secret) {
 }
 
 function getHeader(req, name, secret) {
-  var header = req.headers[name.toLowerCase()];
+  var header = req.headers[name];
   var val;
 
   // read from header
