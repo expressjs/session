@@ -256,7 +256,8 @@ function session(options){
         return _end.call(res, chunk, encoding);
       }
 
-      req.session.resetMaxAge();
+      // touch session
+      req.session.touch();
 
       if (shouldSave(req)) {
         debug('saving');
