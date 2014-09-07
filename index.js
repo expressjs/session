@@ -148,8 +148,9 @@ function session(options){
     // ensure secret is available or bail
     if (!secret) next(new Error('`secret` option required for sessions'));
 
-    var originalHash
-      , originalId;
+    var originalHash;
+    var originalId;
+    var savedHash;
 
     // expose store
     req.sessionStore = store;
@@ -260,13 +261,11 @@ function session(options){
       req.session.touch();
 
       if (shouldSave(req)) {
-        debug('saving');
         req.session.save(function onsave(err) {
           if (err) {
             defer(next, err);
           }
 
-          debug('saved');
           writeend();
         });
 
@@ -281,11 +280,27 @@ function session(options){
       store.generate(req);
       originalId = req.sessionID;
       originalHash = hash(req.session);
+      wrapmethods(req.session);
+    }
+
+    // wrap session methods
+    function wrapmethods(sess) {
+      var _save = sess.save;
+      sess.save = function save() {
+        debug('saving %s', this.id);
+        savedHash = hash(this);
+        _save.apply(this, arguments);
+      };
     }
 
     // check if session has been modified
     function isModified(sess) {
-      return originalHash != hash(sess) || originalId != sess.id;
+      return originalId !== sess.id || originalHash !== hash(sess);
+    }
+
+    // check if session has been saved
+    function isSaved(sess) {
+      return originalId === sess.id && savedHash === hash(sess);
     }
 
     // determine if session should be destroyed
@@ -295,9 +310,9 @@ function session(options){
 
     // determine if session should be saved to store
     function shouldSave(req) {
-      return cookieId != req.sessionID
-        ? saveUninitializedSession || isModified(req.session)
-        : resaveSession || isModified(req.session);
+      return !saveUninitializedSession && cookieId !== req.sessionID
+        ? isModified(req.session)
+        : !isSaved(req.session)
     }
 
     // determine if cookie should be set on response
@@ -326,25 +341,32 @@ function session(options){
       // error handling
       if (err) {
         debug('error %j', err);
-        if ('ENOENT' == err.code) {
-          generate();
-          next();
-        } else {
+
+        if (err.code !== 'ENOENT') {
           next(err);
+          return;
         }
+
+        generate();
       // no session
       } else if (!sess) {
         debug('no session found');
         generate();
-        next();
       // populate req.session
       } else {
         debug('session found');
         store.createSession(req, sess);
         originalId = req.sessionID;
         originalHash = hash(sess);
-        next();
+
+        if (!resaveSession) {
+          savedHash = originalHash
+        }
+
+        wrapmethods(req.session);
       }
+
+      next();
     });
   };
 };

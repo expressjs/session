@@ -1307,6 +1307,40 @@ describe('session()', function(){
         .get('/')
         .expect(200, 'stored', done)
       })
+
+      it('should prevent end-of-request save', function (done) {
+        var count = 0
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.hit = true
+          req.session.save(function (err) {
+            if (err) return res.end(err.message)
+            res.end('saved')
+          })
+        })
+
+        var _set = store.set
+        store.set = function set(sid, sess, callback) {
+          count++
+          _set.call(store, sid, sess, callback)
+        }
+
+        request(server)
+        .get('/')
+        .expect(200, 'saved', function (err, res) {
+          if (err) return done(err)
+          count.should.equal(1)
+          count = 0
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(200, 'saved', function (err) {
+            if (err) return done(err)
+            count.should.equal(1)
+            done()
+          })
+        })
+      })
     })
 
     describe('.cookie', function(){
