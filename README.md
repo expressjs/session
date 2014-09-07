@@ -4,9 +4,7 @@
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Build Status][travis-image]][travis-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
-
-THIS REPOSITORY NEEDS A MAINTAINER.
-If you are interested in maintaining this module, please start contributing by making PRs and solving / discussing unsolved issues.
+[![Gratipay][gratipay-image]][gratipay-url]
 
 ## Installation
 
@@ -220,3 +218,5 @@ For an example implementation view the [connect-redis](http://github.com/visionm
 [coveralls-url]: https://coveralls.io/r/expressjs/session?branch=master
 [downloads-image]: http://img.shields.io/npm/dm/express-session.svg?style=flat
 [downloads-url]: https://npmjs.org/package/express-session
+[gratipay-image]: https://img.shields.io/gratipay/dougwilson.svg?style=flat
+[gratipay-url]: https://gratipay.com/dougwilson/
