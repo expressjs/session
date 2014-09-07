@@ -7,6 +7,12 @@
 THIS REPOSITORY NEEDS A MAINTAINER.
 If you are interested in maintaining this module, please start contributing by making PRs and solving / discussing unsolved issues.
 
+## Installation
+
+```bash
+$ npm install express-session
+```
+
 ## API
 
 ```js
