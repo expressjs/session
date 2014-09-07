@@ -1,8 +1,9 @@
 # express-session
 
-[![NPM Version](https://badge.fury.io/js/express-session.svg)](https://badge.fury.io/js/express-session)
-[![Build Status](https://travis-ci.org/expressjs/session.svg?branch=master)](https://travis-ci.org/expressjs/session)
-[![Coverage Status](https://img.shields.io/coveralls/expressjs/session.svg?branch=master)](https://coveralls.io/r/expressjs/session)
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Build Status][travis-image]][travis-url]
+[![Test Coverage][coveralls-image]][coveralls-url]
 
 THIS REPOSITORY NEEDS A MAINTAINER.
 If you are interested in maintaining this module, please start contributing by making PRs and solving / discussing unsolved issues.
@@ -206,3 +207,12 @@ Recommended methods include, but are not limited to:
    - `.clear(callback)`
 
 For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
+
+[npm-image]: https://img.shields.io/npm/v/express-session.svg?style=flat
+[npm-url]: https://npmjs.org/package/express-session
+[travis-image]: https://img.shields.io/travis/expressjs/session.svg?style=flat
+[travis-url]: https://travis-ci.org/expressjs/session
+[coveralls-image]: https://img.shields.io/coveralls/expressjs/session.svg?style=flat
+[coveralls-url]: https://coveralls.io/r/expressjs/session?branch=master
+[downloads-image]: http://img.shields.io/npm/dm/express-session.svg?style=flat
+[downloads-url]: https://npmjs.org/package/express-session
