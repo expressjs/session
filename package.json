@@ -12,7 +12,7 @@
   "dependencies": {
     "buffer-crc32": "0.2.3",
     "cookie": "0.1.2",
-    "cookie-signature": "1.0.4",
+    "cookie-signature": "1.0.5",
     "debug": "1.0.4",
     "depd": "0.4.4",
     "on-headers": "~1.0.0",
