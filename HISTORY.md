@@ -2,6 +2,7 @@ unreleased
 ==========
 
   * deps: cookie-signature@1.0.5
+  * deps: debug@~2.0.0
 
 1.7.6 / 2014-08-18
 ==================
