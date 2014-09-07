@@ -208,6 +208,10 @@ Recommended methods include, but are not limited to:
 
 For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
 
+## License
+
+[MIT](LICENSE)
+
 [npm-image]: https://img.shields.io/npm/v/express-session.svg?style=flat
 [npm-url]: https://npmjs.org/package/express-session
 [travis-image]: https://img.shields.io/travis/expressjs/session.svg?style=flat
