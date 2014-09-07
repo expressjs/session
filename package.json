@@ -29,6 +29,12 @@
     "should": "~4.0.4",
     "supertest": "~0.13.0"
   },
+  "files": [
+    "session/",
+    "HISTORY.md",
+    "LICENSE",
+    "index.js"
+  ],
   "engines": {
     "node": ">= 0.8.0"
   },
