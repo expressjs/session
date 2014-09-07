@@ -1289,6 +1289,26 @@ describe('session()', function(){
       })
     })
 
+    describe('.save()', function () {
+      it('should save session to store', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.hit = true
+          req.session.save(function (err) {
+            if (err) return res.end(err.message)
+            store.get(req.session.id, function (err, sess) {
+              if (err) return res.end(err.message)
+              res.end(sess ? 'stored' : 'empty')
+            })
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'stored', done)
+      })
+    })
+
     describe('.cookie', function(){
       describe('.*', function(){
         it('should serialize as parameters', function(done){
