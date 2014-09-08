@@ -194,6 +194,35 @@ describe('session()', function(){
     .expect(200, '', done)
   })
 
+  it('should handle reserved properties in storage', function (done) {
+    var count = 0
+    var sid
+    var store = new session.MemoryStore()
+    var server = createServer({ store: store }, function (req, res) {
+      sid = req.session.id
+      req.session.num = req.session.num || ++count
+      res.end('session saved')
+    })
+
+    request(server)
+    .get('/')
+    .expect(200, 'session saved', function (err, res) {
+      if (err) return done(err)
+      store.get(sid, function (err, sess) {
+        if (err) return done(err)
+        // save is reserved
+        sess.save = 'nope'
+        store.set(sid, sess, function (err) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(200, 'session saved', done)
+        })
+      })
+    })
+  })
+
   describe('when response ended', function () {
     it('should have saved session', function (done) {
       var saved = false

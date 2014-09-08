@@ -7,10 +7,10 @@
  */
 
 /**
- * Module dependencies.
+ * Expose Session.
  */
 
-var merge = require('utils-merge')
+module.exports = Session;
 
 /**
  * Create a new `Session` with the given request and `data`.
@@ -20,11 +20,19 @@ var merge = require('utils-merge')
  * @api private
  */
 
-var Session = module.exports = function Session(req, data) {
+function Session(req, data) {
   Object.defineProperty(this, 'req', { value: req });
   Object.defineProperty(this, 'id', { value: req.sessionID });
-  if ('object' == typeof data) merge(this, data);
-};
+
+  if (typeof data === 'object' && data !== null) {
+    // merge data into this, ignoring prototype properties
+    for (var prop in data) {
+      if (!(prop in this)) {
+        this[prop] = data[prop]
+      }
+    }
+  }
+}
 
 /**
  * Update reset `.cookie.maxAge` to prevent
