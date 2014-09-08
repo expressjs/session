@@ -216,7 +216,7 @@ For an example implementation view the [connect-redis](http://github.com/visionm
 [travis-url]: https://travis-ci.org/expressjs/session
 [coveralls-image]: https://img.shields.io/coveralls/expressjs/session.svg?style=flat
 [coveralls-url]: https://coveralls.io/r/expressjs/session?branch=master
-[downloads-image]: http://img.shields.io/npm/dm/express-session.svg?style=flat
+[downloads-image]: https://img.shields.io/npm/dm/express-session.svg?style=flat
 [downloads-url]: https://npmjs.org/package/express-session
 [gratipay-image]: https://img.shields.io/gratipay/dougwilson.svg?style=flat
 [gratipay-url]: https://gratipay.com/dougwilson/
