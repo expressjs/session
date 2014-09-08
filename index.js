@@ -286,11 +286,19 @@ function session(options){
     // wrap session methods
     function wrapmethods(sess) {
       var _save = sess.save;
-      sess.save = function save() {
+
+      function save() {
         debug('saving %s', this.id);
         savedHash = hash(this);
         _save.apply(this, arguments);
-      };
+      }
+
+      Object.defineProperty(sess, 'save', {
+        configurable: true,
+        enumerable: false,
+        value: save,
+        writable: true
+      });
     }
 
     // check if session has been modified

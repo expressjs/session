@@ -223,6 +223,18 @@ describe('session()', function(){
     })
   })
 
+  it('should only have session data enumerable (and cookie)', function (done) {
+    var server = createServer(null, function (req, res) {
+      req.session.test1 = 1
+      req.session.test2 = 'b'
+      res.end(Object.keys(req.session).sort().join(','))
+    })
+
+    request(server)
+    .get('/')
+    .expect(200, 'cookie,test1,test2', done)
+  })
+
   describe('when response ended', function () {
     it('should have saved session', function (done) {
       var saved = false
@@ -483,7 +495,7 @@ describe('session()', function(){
             should(sid(res)).not.equal(val)
             done()
           })
-        }, 10)
+        }, 15)
       })
     })
 
