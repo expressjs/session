@@ -1,5 +1,5 @@
-unreleased
-==========
+1.8.1 / 2014-09-08
+==================
 
   * Keep `req.session.save` non-enumerable
   * Prevent session prototype methods from being overwritten
