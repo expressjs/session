@@ -1,5 +1,5 @@
-unreleased
-==========
+1.8.0 / 2014-09-07
+==================
 
   * Do not resave already-saved session at end of request
   * deps: cookie-signature@1.0.5
