@@ -10,9 +10,9 @@
   "repository": "expressjs/session",
   "license": "MIT",
   "dependencies": {
-    "buffer-crc32": "0.2.3",
     "cookie": "0.1.2",
     "cookie-signature": "1.0.5",
+    "crc": "3.0.0",
     "debug": "~2.0.0",
     "depd": "0.4.5",
     "on-headers": "~1.0.0",

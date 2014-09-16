@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Use `crc` instead of `buffer-crc32` for speed
   * deps: depd@0.4.5
 
 1.8.1 / 2014-09-08

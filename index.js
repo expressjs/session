@@ -11,12 +11,12 @@
  */
 
 var cookie = require('cookie');
+var crc = require('crc').crc32;
 var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
 var parseUrl = require('parseurl');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
-  , crc32 = require('buffer-crc32')
   , signature = require('cookie-signature')
 
 var Session = require('./session/session')
@@ -465,8 +465,10 @@ function getcookie(req, name, secret) {
  */
 
 function hash(sess) {
-  return crc32.signed(JSON.stringify(sess, function(key, val){
-    if ('cookie' != key) return val;
+  return crc(JSON.stringify(sess, function (key, val) {
+    if (key !== 'cookie') {
+      return val;
+    }
   }));
 }
 
