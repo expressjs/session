@@ -163,10 +163,10 @@ function session(options){
     req.sessionStore = store;
 
     // get the session ID from the cookie
-    var sessionId = req.sessionID = getcookie(req, name, secret);
+    var cookieId = req.sessionID = getcookie(req, name, secret);
     // if not trying to get session ID from header
-    if (!sessionId && headerName) {
-      sessionId = req.sessionID = getHeader(req, headerNameNormalized, secret);
+    if (!cookieId && headerName) {
+      cookieId = req.sessionID = getHeader(req, headerNameNormalized, secret);
     }
 
     // set-cookie
@@ -344,7 +344,7 @@ function session(options){
         return true;
       }
 
-      return sessionId != req.sessionID
+      return cookieId != req.sessionID
         ? saveUninitializedSession || isModified(req.session)
         : req.session.cookie.expires != null && isModified(req.session);
     }
