@@ -1,3 +1,22 @@
+1.8.2 / 2014-09-15
+==================
+
+  * Use `crc` instead of `buffer-crc32` for speed
+  * deps: depd@0.4.5
+
+1.8.1 / 2014-09-08
+==================
+
+  * Keep `req.session.save` non-enumerable
+  * Prevent session prototype methods from being overwritten
+
+1.8.0 / 2014-09-07
+==================
+
+  * Do not resave already-saved session at end of request
+  * deps: cookie-signature@1.0.5
+  * deps: debug@~2.0.0
+
 1.7.6 / 2014-08-18
 ==================
 
