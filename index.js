@@ -8,6 +8,7 @@
 
 /**
  * Module dependencies.
+ * @private
  */
 
 var cookie = require('cookie');
@@ -45,6 +46,7 @@ exports.MemoryStore = MemoryStore;
 
 /**
  * Warning message for `MemoryStore` usage in production.
+ * @private
  */
 
 var warning = 'Warning: connect.session() MemoryStore is not\n'
@@ -53,6 +55,7 @@ var warning = 'Warning: connect.session() MemoryStore is not\n'
 
 /**
  * Node.js 0.8+ async implementation.
+ * @private
  */
 
 /* istanbul ignore next */
@@ -63,15 +66,19 @@ var defer = typeof setImmediate === 'function'
 /**
  * Setup session store with the given `options`.
  *
- * See README.md for documentation of options and formatting.
- *
- * Session data is _not_ saved in the cookie itself, however cookies are used,
- * so you must use the cookie-parser middleware _before_ `session()`.
- * [https://github.com/expressjs/cookie-parser]
- *
- * @param {Object} options
+ * @param {Object} [options]
+ * @param {Object} [options.cookie] Options for cookie
+ * @param {Function} [options.genid]
+ * @param {String} [options.name=connect.sid] Session ID cookie name
+ * @param {Boolean} [options.proxy]
+ * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
+ * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
+ * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
+ * @param {String} [options.secret] Secret for signing session ID
+ * @param {Object} [options.store=MemoryStore] Session store
+ * @param {String} [options.unset]
  * @return {Function} middleware
- * @api public
+ * @public
  */
 
 function session(options){
@@ -383,7 +390,7 @@ function session(options){
  * Generate a session ID for a new session.
  *
  * @return {String}
- * @api private
+ * @private
  */
 
 function generateSessionId(sess) {
@@ -394,7 +401,7 @@ function generateSessionId(sess) {
  * Get the session ID cookie from request.
  *
  * @return {string}
- * @api private
+ * @private
  */
 
 function getcookie(req, name, secret) {
@@ -461,7 +468,7 @@ function getcookie(req, name, secret) {
  *
  * @param {Object} sess
  * @return {String}
- * @api private
+ * @private
  */
 
 function hash(sess) {
@@ -478,7 +485,7 @@ function hash(sess) {
  * @param {Object} req
  * @param {Boolean} [trustProxy]
  * @return {Boolean}
- * @api private
+ * @private
  */
 
 function issecure(req, trustProxy) {
@@ -509,6 +516,12 @@ function issecure(req, trustProxy) {
 
   return proto === 'https';
 }
+
+/**
+ * Set cookie on response.
+ *
+ * @private
+ */
 
 function setcookie(res, name, val, secret, options) {
   var signed = 's:' + signature.sign(val, secret);
