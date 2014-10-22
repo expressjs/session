@@ -1,5 +1,5 @@
-unreleased
-==========
+1.9.1 / 2014-10-22
+==================
 
   * Remove unnecessary empty write call
     - Fixes Node.js 0.11.14 behavior change
