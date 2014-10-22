@@ -201,10 +201,6 @@ function session(options){
       var ret;
       var sync = true;
 
-      if (chunk == null) {
-        chunk = '';
-      }
-
       function writeend() {
         if (sync) {
           ret = _end.call(res, chunk, encoding);
@@ -217,6 +213,11 @@ function session(options){
 
       function writetop() {
         if (!sync) {
+          return ret;
+        }
+
+        if (chunk == null) {
+          ret = true;
           return ret;
         }
 

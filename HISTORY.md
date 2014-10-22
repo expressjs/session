@@ -1,3 +1,10 @@
+unreleased
+==========
+
+  * Remove unnecessary empty write call
+    - Fixes Node.js 0.11.14 behavior change
+    - Helps work-around Node.js 0.10.1 zlib bug
+
 1.9.0 / 2014-09-16
 ==================
 
