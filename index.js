@@ -429,15 +429,11 @@ function getcookie(req, name, secret, signer) {
     raw = cookies[name];
 
     if (raw) {
-      if (raw.substr(0, 2) === 's:') {
-        val = signer.unsign(raw.slice(2), secret);
+      val = signer.unsign(raw, secret);
 
-        if (val === false) {
-          debug('cookie signature invalid');
-          val = undefined;
-        }
-      } else {
-        debug('cookie unsigned')
+      if (val === false) {
+        debug('cookie signature missing or invalid');
+        val = undefined;
       }
     }
   }
@@ -456,19 +452,15 @@ function getcookie(req, name, secret, signer) {
     raw = req.cookies[name];
 
     if (raw) {
-      if (raw.substr(0, 2) === 's:') {
-        val = signer.unsign(raw.slice(2), secret);
+      val = signer.unsign(raw, secret);
 
-        if (val) {
-          deprecate('cookie should be available in req.headers.cookie');
-        }
+      if (val) {
+        deprecate('cookie should be available in req.headers.cookie');
+      }
 
-        if (val === false) {
-          debug('cookie signature invalid');
-          val = undefined;
-        }
-      } else {
-        debug('cookie unsigned')
+      if (val === false) {
+        debug('cookie signature missing or invalid');
+        val = undefined;
       }
     }
   }
@@ -537,7 +529,7 @@ function issecure(req, trustProxy) {
  */
 
 function setcookie(res, name, val, secret, options, signer) {
-  var signed = 's:' + signer.sign(val, secret);
+  var signed = signer.sign(val, secret);
   var data = cookie.serialize(name, signed, options);
 
   debug('set-cookie %s', data);
