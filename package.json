@@ -1,13 +1,9 @@
 {
-  "name": "express-session",
-  "version": "1.9.1",
+  "name": "me-express-session",
+  "version": "1.0.1",
   "description": "Simple session middleware for Express",
-  "author": "TJ Holowaychuk <tj@vision-media.ca> (http://tjholowaychuk.com)",
-  "contributors": [
-    "Douglas Christopher Wilson <doug@somethingdoug.com>",
-    "Joe Wagner <njwjs722@gmail.com>"
-  ],
-  "repository": "expressjs/session",
+  "author": "Nigel Kibodeaux",
+  "repository": "https://github.com/aboutdotme/session.git",
   "license": "MIT",
   "dependencies": {
     "cookie": "0.1.2",
@@ -42,5 +38,8 @@
     "test": "mocha --bail --reporter spec test/",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot test/",
     "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec test/"
+  },
+  "publishConfig": {
+    "registry": "https://aboutdotme.registry.nodejitsu.com"
   }
 }

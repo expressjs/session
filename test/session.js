@@ -1919,7 +1919,7 @@ function expires(res) {
 }
 
 function sid(res) {
-  var match = /^[^=]+=s%3A([^;\.]+)[\.;]/.exec(cookie(res))
+  var match = /^[^=]+=([^;\.]+)[\.;]/.exec(cookie(res))
   var val = match ? match[1] : undefined
   return val
 }
