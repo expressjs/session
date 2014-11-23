@@ -43,9 +43,9 @@ Session data is _not_ saved in the cookie itself, just the session ID.
     - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
   - `genid` - function to call to generate a new session ID. (default: uses `uid2` library)
   - `rolling` - forces a cookie set on every response. This resets the expiration date. (default: `false`)
-  - `resave` - forces session to be saved even when unmodified. (default: `true`, but using the default has been deprecated. Please research into this setting and choose what is appropriate to your use-case. Typically, you'll want `false`)
+  - `resave` - forces session to be saved even when unmodified. (default: `true`, but using the default has been deprecated, as the default will change in the future. Please research into this setting and choose what is appropriate to your use-case. Typically, you'll want `false`)
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto" header). When set to `true`, the "x-forwarded-proto" header will be used. When set to `false`, all headers are ignored. When left unset, will use the "trust proxy" setting from express. (default: `undefined`)
-  - `saveUninitialized` - forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified. (default: `true`, but using the default has been deprecated. Please research into this setting and choose what is appropriate to your use-case)
+  - `saveUninitialized` - forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified. (default: `true`, but using the default has been deprecated, as the default will change in the future. Please research into this setting and choose what is appropriate to your use-case)
   - `unset` - controls result of unsetting `req.session` (through `delete`, setting to `null`, etc.). This can be "keep" to keep the session in the store but ignore modifications or "destroy" to destroy the stored session. (default: `'keep'`)
 
 #### options.genid
