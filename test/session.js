@@ -691,21 +691,15 @@ describe('session()', function(){
     it('should default to "connect.sid"', function(done){
       request(createServer())
       .get('/')
-      .end(function(err, res){
-        res.headers['set-cookie'].should.have.length(1);
-        res.headers['set-cookie'][0].should.match(/^connect\.sid/);
-        done();
-      });
+      .expect('Set-Cookie', /connect\.sid=/)
+      .expect(200, done)
     })
 
     it('should allow overriding', function(done){
-      request(createServer({ key: 'sid' }))
+      request(createServer({ key: 'session_id' }))
       .get('/')
-      .end(function(err, res){
-        res.headers['set-cookie'].should.have.length(1);
-        res.headers['set-cookie'][0].should.match(/^sid/);
-        done();
-      });
+      .expect('Set-Cookie', /session_id=/)
+      .expect(200, done)
     })
   })
 
@@ -1177,31 +1171,30 @@ describe('session()', function(){
 
       request(app)
       .get('/')
-      .end(function(err, res){
-        res.text.should.equal('1');
-
+      .expect(200, '1', function (err, res) {
+        if (err) return done(err)
         request(app)
         .get('/')
         .set('Cookie', cookie(res))
-        .end(function(err, res){
+        .expect(200, '2', function (err, res) {
+          if (err) return done(err)
           var val = cookie(res);
-          res.text.should.equal('2');
           modify = false;
 
           request(app)
           .get('/')
           .set('Cookie', val)
-          .end(function(err, res){
+          .expect(200, '2', function (err, res) {
+            if (err) return done(err)
             should(sid(res)).be.empty;
-            res.text.should.equal('2');
             modify = true;
 
             request(app)
             .get('/')
             .set('Cookie', val)
-            .end(function(err, res){
+            .expect(200, '3', function (err, res) {
+              if (err) return done(err)
               sid(res).should.not.be.empty;
-              res.text.should.equal('3');
               done();
             });
           });
@@ -1223,10 +1216,8 @@ describe('session()', function(){
 
         request(app)
         .get('/')
-        .end(function(err, res){
-          res.headers.should.not.have.property('set-cookie');
-          done();
-        });
+        .expect(doesNotHaveHeader('Set-Cookie'))
+        .expect(200, done)
       })
     })
 
@@ -1435,16 +1426,14 @@ describe('session()', function(){
 
           request(app)
           .get('/admin/foo')
-          .end(function(err, res){
-            res.headers.should.have.property('set-cookie');
-
+          .expect('Set-Cookie', /connect\.sid=/)
+          .expect(200, function (err, res) {
+            if (err) return done(err)
             request(app)
             .get('/admin')
             .set('Cookie', cookie(res))
-            .end(function(err, res){
-              res.headers.should.not.have.property('set-cookie');
-              done();
-            })
+            .expect(doesNotHaveHeader('Set-Cookie'))
+            .expect(200, done)
           });
         })
 
@@ -1547,11 +1536,8 @@ describe('session()', function(){
 
           request(app)
           .get('/')
-          .end(function(err, res){
-            res.status.should.equal(200);
-            res.headers.should.not.have.property('set-cookie');
-            done();
-          });
+          .expect(doesNotHaveHeader('Set-Cookie'))
+          .expect(200, done)
         })
 
         it('should not set-cookie even for FQDN', function(done){
@@ -1569,11 +1555,8 @@ describe('session()', function(){
           request(app)
           .get('/')
           .set('host', 'http://foo/bar')
-          .end(function(err, res){
-            res.status.should.equal(200);
-            res.headers.should.not.have.property('set-cookie');
-            done();
-          });
+          .expect(doesNotHaveHeader('Set-Cookie'))
+          .expect(200, done)
         })
       })
 
@@ -1588,10 +1571,8 @@ describe('session()', function(){
 
           request(app)
           .get('/foo/bar/baz')
-          .end(function(err, res){
-            res.headers.should.have.property('set-cookie');
-            done();
-          });
+          .expect('Set-Cookie', /connect\.sid=/)
+          .expect(200, done)
         })
 
         it('should set-cookie even for FQDN', function(done){
@@ -1605,11 +1586,8 @@ describe('session()', function(){
           request(app)
           .get('/foo/bar/baz')
           .set('host', 'http://example.com')
-          .end(function(err, res){
-            res.status.should.equal(200);
-            res.headers.should.have.property('set-cookie');
-            done();
-          });
+          .expect('Set-Cookie', /connect\.sid=/)
+          .expect(200, done)
         })
       })
 
