@@ -2,14 +2,16 @@
 process.env.NO_DEPRECATION = 'express-session';
 
 var after = require('after')
+var assert = require('assert')
 var express = require('express')
-  , assert = require('assert')
   , request = require('supertest')
   , should = require('should')
   , cookieParser = require('cookie-parser')
   , session = require('../')
   , Cookie = require('../session/cookie')
-var http = require('http');
+var fs = require('fs')
+var http = require('http')
+var https = require('https')
 
 var min = 60 * 1000;
 
@@ -1492,20 +1494,42 @@ describe('session()', function(){
       })
 
       describe('.secure', function(){
-        it('should not set-cookie when insecure', function(done){
-          var app = express()
-            .use(session({ secret: 'keyboard cat' }))
-            .use(function(req, res, next){
-              req.session.cookie.secure = true;
-              res.end();
-            });
+        var app
 
-          request(app)
+        before(function () {
+          app = createRequestListener({ secret: 'keyboard cat', cookie: { secure: true } })
+        })
+
+        it('should set cookie when secure', function (done) {
+          var cert = fs.readFileSync(__dirname + '/fixtures/server.crt', 'ascii')
+          var server = https.createServer({
+            key: fs.readFileSync(__dirname + '/fixtures/server.key', 'ascii'),
+            cert: cert
+          })
+
+          server.on('request', app)
+
+          var agent = new https.Agent({ca: cert})
+          var createConnection = agent.createConnection
+
+          agent.createConnection = function (options) {
+            options.servername = 'express-session.local'
+            return createConnection.call(this, options)
+          }
+
+          var req = request(server).get('/')
+          req.agent(agent)
+          req.expect('Set-Cookie', /connect\.sid=/)
+          req.expect(200, done)
+        })
+
+        it('should not set-cookie when insecure', function(done){
+          var server = http.createServer(app)
+
+          request(server)
           .get('/')
-          .end(function(err, res){
-            res.headers.should.not.have.property('set-cookie');
-            done();
-          });
+          .expect(doesNotHaveHeader('Set-Cookie'))
+          .expect(200, done)
         })
       })
 
@@ -1837,10 +1861,16 @@ function cookie(res) {
 }
 
 function createServer(opts, fn) {
+  return http.createServer(createRequestListener(opts, fn))
+}
+
+function createRequestListener(opts, fn) {
   var _session = createSession(opts)
   var respond = fn || end
 
-  var server = http.createServer(function (req, res) {
+  return function onRequest(req, res) {
+    var server = this
+
     _session(req, res, function (err) {
       if (err && !res._header) {
         res.statusCode = err.status || 500
@@ -1855,9 +1885,7 @@ function createServer(opts, fn) {
 
       respond(req, res)
     })
-  })
-
-  return server
+  }
 }
 
 function createSession(opts) {
@@ -1872,6 +1900,12 @@ function createSession(opts) {
   }
 
   return session(options)
+}
+
+function doesNotHaveHeader(header) {
+  return function (res) {
+    assert.ok(!(header.toLowerCase() in res.headers), 'should not have ' + header + ' header')
+  }
 }
 
 function end(req, res) {
