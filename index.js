@@ -76,6 +76,8 @@ var defer = typeof setImmediate === 'function'
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
  * @param {String} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
+ * @param {Object} [options.signature] Object that has the same API as node-cookie-signature
+   if you need to implement your own signing mechanism
  * @param {String} [options.unset]
  * @return {Function} middleware
  * @public
@@ -111,6 +113,16 @@ function session(options){
 
   if (options.unset && options.unset !== 'destroy' && options.unset !== 'keep') {
     throw new TypeError('unset option must be "destroy" or "keep"');
+  }
+
+  var signer = signature;
+  if (typeof options.signature === 'object') {
+    if (typeof options.signature.sign !== 'function' ||
+      typeof options.signature.unsign !== 'function') {
+        throw new TypeError('signature option object must have sign and unsign functions');
+    }
+
+    signer = options.signature;
   }
 
   // TODO: switch to "destroy" on next major
@@ -163,7 +175,7 @@ function session(options){
     req.sessionStore = store;
 
     // get the session ID from the cookie
-    var cookieId = req.sessionID = getcookie(req, name, secret);
+    var cookieId = req.sessionID = getcookie(req, name, secret, signer);
 
     // set-cookie
     onHeaders(res, function(){
@@ -184,7 +196,7 @@ function session(options){
         return;
       }
 
-      setcookie(res, name, req.sessionID, secret, cookie.data);
+      setcookie(res, name, req.sessionID, secret, cookie.data, signer);
     });
 
     // proxy end() to commit the session
@@ -405,7 +417,7 @@ function generateSessionId(sess) {
  * @private
  */
 
-function getcookie(req, name, secret) {
+function getcookie(req, name, secret, signer) {
   var header = req.headers.cookie;
   var raw;
   var val;
@@ -417,15 +429,11 @@ function getcookie(req, name, secret) {
     raw = cookies[name];
 
     if (raw) {
-      if (raw.substr(0, 2) === 's:') {
-        val = signature.unsign(raw.slice(2), secret);
+      val = signer.unsign(raw, secret);
 
-        if (val === false) {
-          debug('cookie signature invalid');
-          val = undefined;
-        }
-      } else {
-        debug('cookie unsigned')
+      if (val === false) {
+        debug('cookie signature missing or invalid');
+        val = undefined;
       }
     }
   }
@@ -444,19 +452,15 @@ function getcookie(req, name, secret) {
     raw = req.cookies[name];
 
     if (raw) {
-      if (raw.substr(0, 2) === 's:') {
-        val = signature.unsign(raw.slice(2), secret);
+      val = signer.unsign(raw, secret);
 
-        if (val) {
-          deprecate('cookie should be available in req.headers.cookie');
-        }
+      if (val) {
+        deprecate('cookie should be available in req.headers.cookie');
+      }
 
-        if (val === false) {
-          debug('cookie signature invalid');
-          val = undefined;
-        }
-      } else {
-        debug('cookie unsigned')
+      if (val === false) {
+        debug('cookie signature missing or invalid');
+        val = undefined;
       }
     }
   }
@@ -524,8 +528,8 @@ function issecure(req, trustProxy) {
  * @private
  */
 
-function setcookie(res, name, val, secret, options) {
-  var signed = 's:' + signature.sign(val, secret);
+function setcookie(res, name, val, secret, options, signer) {
+  var signed = signer.sign(val, secret);
   var data = cookie.serialize(name, signed, options);
 
   debug('set-cookie %s', data);
