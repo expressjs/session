@@ -467,7 +467,7 @@ describe('session()', function(){
           .get('/')
           .set('Cookie', cookie(res))
           .expect(200, 'session 2', done)
-        }, 10)
+        }, 20)
       })
     })
 
