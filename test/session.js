@@ -1,4 +1,3 @@
-
 process.env.NO_DEPRECATION = 'express-session';
 
 var after = require('after')
@@ -346,6 +345,25 @@ describe('session()', function(){
       .expect(200, 'session saved', function (err) {
         if (err) return done(err)
         saved.should.be.true
+        done()
+      })
+    })
+
+    it('should finish response', function(done) {
+      var finished = false;
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.hit = true
+        res.write('hello, ')
+        res.end('world')
+        finished = res.finished
+      })
+
+      request(server)
+      .get('/')
+      .expect(200, 'hello, world', function(err) {
+        if (err) return done(err)
+        finished.should.be.true
         done()
       })
     })
