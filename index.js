@@ -196,12 +196,15 @@ function session(options){
         return false;
       }
 
+      var _finished = res.finished;
+      res.finished = true;
       ended = true;
 
       var ret;
       var sync = true;
 
       function writeend() {
+        res.finished = _finished;
         if (sync) {
           ret = _end.call(res, chunk, encoding);
           sync = false;
@@ -262,6 +265,8 @@ function session(options){
       // no session to save
       if (!req.session) {
         debug('no session');
+
+        res.finished = _finished;
         return _end.call(res, chunk, encoding);
       }
 
@@ -280,6 +285,7 @@ function session(options){
         return writetop();
       }
 
+      res.finished = _finished;
       return _end.call(res, chunk, encoding);
     };
 
