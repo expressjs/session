@@ -1,5 +1,5 @@
-unreleased
-==========
+1.9.3 / 2014-12-02
+==================
 
   * Fix error when `req.sessionID` contains a non-string value
 
