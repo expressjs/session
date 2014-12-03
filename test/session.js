@@ -237,6 +237,28 @@ describe('session()', function(){
     .expect(200, 'cookie,test1,test2', done)
   })
 
+  it('should not save with bogus req.sessionID', function (done) {
+    var store = new session.MemoryStore()
+    var server = createServer({ store: store }, function (req, res) {
+      req.sessionID = function () {}
+      req.session.test1 = 1
+      req.session.test2 = 'b'
+      res.end()
+    })
+
+    request(server)
+    .get('/')
+    .expect(doesNotHaveHeader('Set-Cookie'))
+    .expect(200, function (err) {
+      if (err) return done(err)
+      store.length(function (err, length) {
+        if (err) return done(err)
+        assert.equal(length, 0)
+        done()
+      })
+    })
+  })
+
   describe('when response ended', function () {
     it('should have saved session', function (done) {
       var saved = false

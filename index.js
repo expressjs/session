@@ -326,6 +326,12 @@ function session(options){
 
     // determine if session should be saved to store
     function shouldSave(req) {
+      // cannot set cookie without a session ID
+      if (typeof req.sessionID !== 'string') {
+        debug('session ignored because of bogus req.sessionID %o', req.sessionID);
+        return false;
+      }
+
       return !saveUninitializedSession && cookieId !== req.sessionID
         ? isModified(req.session)
         : !isSaved(req.session)
@@ -333,6 +339,11 @@ function session(options){
 
     // determine if cookie should be set on response
     function shouldSetCookie(req) {
+      // cannot set cookie without a session ID
+      if (typeof req.sessionID !== 'string') {
+        return false;
+      }
+
       // in case of rolling session, always reset the cookie
       if (rollingSessions) {
         return true;
