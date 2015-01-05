@@ -215,6 +215,7 @@ Every session store _must_ implement the following methods
 
 Recommended methods include, but are not limited to:
 
+   - `.touch(sid, session, callback)`
    - `.length(callback)`
    - `.clear(callback)`
 

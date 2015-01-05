@@ -853,6 +853,35 @@ describe('session()', function(){
         .expect(200, done);
       });
     });
+
+    it('should pass session touch error', function (done) {
+      var cb = after(2, done)
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, resave: false }, function (req, res) {
+        req.session.hit = true
+        res.end('session saved')
+      })
+
+      store.touch = function touch(sid, sess, callback) {
+        callback(new Error('boom!'))
+      }
+
+      server.on('error', function onerror(err) {
+        assert.ok(err)
+        assert.equal(err.message, 'boom!')
+        cb()
+      })
+
+      request(server)
+      .get('/')
+      .expect(200, 'session saved', function (err, res) {
+        if (err) return cb(err)
+        request(server)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .end(cb)
+      })
+    })
   });
 
   describe('saveUninitialized option', function(){
@@ -962,6 +991,22 @@ describe('session()', function(){
       request(server)
       .get('/')
       .expect(200, 'session saved', cb)
+    })
+
+    it('should prevent uninitialized session from being touched', function (done) {
+      var cb = after(1, done)
+      var store = new session.MemoryStore()
+      var server = createServer({ saveUninitialized: false, store: store, cookie: { maxAge: min } }, function (req, res) {
+        res.end()
+      })
+
+      store.touch = function () {
+        cb(new Error('should not be called'))
+      }
+
+      request(server)
+      .get('/')
+      .expect(200, cb)
     })
   });
 
@@ -1354,6 +1399,41 @@ describe('session()', function(){
             if (err) return done(err)
             assert.equal(count, 1)
             done()
+          })
+        })
+      })
+    })
+
+    describe('.touch()', function () {
+      it('should reset session expiration', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ resave: false, store: store, cookie: { maxAge: min } }, function (req, res) {
+          req.session.hit = true
+          req.session.touch()
+          res.end()
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          var id = sid(res)
+          store.get(id, function (err, sess) {
+            if (err) return done(err)
+            var exp = new Date(sess.cookie.expires)
+            setTimeout(function () {
+              request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(200, function (err, res) {
+                if (err) return done(err);
+                store.get(id, function (err, sess) {
+                  if (err) return done(err)
+                  assert.notEqual(new Date(sess.cookie.expires).getTime(), exp.getTime())
+                  done()
+                })
+              })
+            }, 100)
           })
         })
       })

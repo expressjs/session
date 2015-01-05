@@ -129,6 +129,7 @@ function session(options){
     req.session.cookie = new Cookie(cookie);
   };
 
+  var storeImplementsTouch = typeof store.touch === 'function';
   store.on('disconnect', function(){ storeReady = false; });
   store.on('connect', function(){ storeReady = true; });
 
@@ -278,6 +279,19 @@ function session(options){
         });
 
         return writetop();
+      } else if (storeImplementsTouch && shouldTouch(req)) {
+        // store implements touch method
+        debug('touching');
+        store.touch(req.sessionID, req.session, function ontouch(err) {
+          if (err) {
+            defer(next, err);
+          }
+
+          debug('touched');
+          writeend();
+        });
+
+        return writetop();
       }
 
       return _end.call(res, chunk, encoding);
@@ -335,6 +349,17 @@ function session(options){
       return !saveUninitializedSession && cookieId !== req.sessionID
         ? isModified(req.session)
         : !isSaved(req.session)
+    }
+
+    // determine if session should be touched
+    function shouldTouch(req) {
+      // cannot set cookie without a session ID
+      if (typeof req.sessionID !== 'string') {
+        debug('session ignored because of bogus req.sessionID %o', req.sessionID);
+        return false;
+      }
+
+      return cookieId === req.sessionID && !shouldSave(req);
     }
 
     // determine if cookie should be set on response

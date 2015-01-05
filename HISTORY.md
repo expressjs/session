@@ -1,6 +1,8 @@
 unreleased
 ==========
 
+  * Add `store.touch` interface for session stores
+  * Fix `MemoryStore` expiration with `resave: false`
   * deps: debug@~2.1.1
 
 1.9.3 / 2014-12-02

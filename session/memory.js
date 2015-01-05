@@ -83,6 +83,41 @@ MemoryStore.prototype.set = function(sid, sess, fn){
 };
 
 /**
+ * Touch the given `sess` object associated with the given `sid`.
+ *
+ * @param {String} sid
+ * @param {Session} sess
+ * @param {Function} fn
+ * @api public
+ */
+
+MemoryStore.prototype.touch = function touch(sid, sess, fn) {
+  var curr = this.sessions[sid];
+
+  if (!curr) {
+    return defer(fn);
+  }
+
+  // parse
+  curr = JSON.parse(curr);
+
+  var expires = typeof curr.cookie.expires === 'string'
+    ? new Date(curr.cookie.expires)
+    : curr.cookie.expires;
+
+  // destroy expired session
+  if (expires && expires <= Date.now()) {
+    return self.destroy(sid, fn);
+  }
+
+  // update expiration
+  curr.cookie = sess.cookie;
+  this.sessions[sid] = JSON.stringify(curr);
+
+  fn && defer(fn);
+};
+
+/**
  * Destroy the session associated with the given `sid`.
  *
  * @param {String} sid
