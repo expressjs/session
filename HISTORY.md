@@ -1,5 +1,5 @@
-unreleased
-==========
+1.10.0 / 2015-01-05
+===================
 
   * Add `store.touch` interface for session stores
   * Fix `MemoryStore` expiration with `resave: false`
