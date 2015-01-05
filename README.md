@@ -207,7 +207,8 @@ req.session.cookie.maxAge // => 30000
 
 ## Session Store Implementation
 
-Every session store _must_ implement the following methods
+Every session store _must_ be an `EventEmitter` and implement the following
+methods:
 
    - `.get(sid, callback)`
    - `.set(sid, session, callback)`
