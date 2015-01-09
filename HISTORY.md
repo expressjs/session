@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * deps: uid-safe@1.0.2
+    - Remove dependency on `mz`
+
 1.10.0 / 2015-01-05
 ===================
 
