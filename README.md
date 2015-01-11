@@ -20,7 +20,11 @@ var session = require('express-session')
 
 var app = express()
 
-app.use(session({secret: 'keyboard cat'}))
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true
+}))
 ```
 
 
@@ -40,9 +44,9 @@ Session data is _not_ saved in the cookie itself, just the session ID.
     - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
   - `genid` - function to call to generate a new session ID. (default: uses `uid2` library)
   - `rolling` - forces a cookie set on every response. This resets the expiration date. (default: `false`)
-  - `resave` - forces session to be saved even when unmodified. (default: `true`)
+  - `resave` - forces session to be saved even when unmodified. (default: `true`, but using the default has been deprecated, as the default will change in the future. Please research into this setting and choose what is appropriate to your use-case. Typically, you'll want `false`)
   - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto" header). When set to `true`, the "x-forwarded-proto" header will be used. When set to `false`, all headers are ignored. When left unset, will use the "trust proxy" setting from express. (default: `undefined`)
-  - `saveUninitialized` - forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified. This is useful for implementing login sessions, reducing server storage usage, or complying with laws that require permission before setting a cookie. (default: `true`)
+  - `saveUninitialized` - forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified. (default: `true`, but using the default has been deprecated, as the default will change in the future. Please research into this setting and choose what is appropriate to your use-case)
   - `unset` - controls result of unsetting `req.session` (through `delete`, setting to `null`, etc.). This can be "keep" to keep the session in the store but ignore modifications or "destroy" to destroy the stored session. (default: `'keep'`)
 
 #### options.genid
@@ -60,6 +64,14 @@ app.use(session({
 }))
 ```
 
+#### options.resave
+
+Forces the session to be saved back to the session store, even if the session was never modified during the request. Depending on your store this may be necessary, but it can also create race conditions where a client has two parallel requests to your server and changes made to the session in one request may get overwritten when the other request ends, even if it made no changes (this behavior also depends on what store you're using).
+
+#### options.saveUninitialized
+
+Forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified. Choosing `false` is useful for implementing login sessions, reducing server storage usage, or complying with laws that require permission before setting a cookie. Choose `false` will also help with race conditions where a client makes multiple parallel requests without a session.
+
 #### Cookie options
 
 Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
@@ -70,6 +82,8 @@ var app = express()
 app.set('trust proxy', 1) // trust first proxy
 app.use(session({
   secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
   cookie: { secure: true }
 }))
 ```
@@ -194,7 +208,8 @@ req.session.cookie.maxAge // => 30000
 
 ## Session Store Implementation
 
-Every session store _must_ implement the following methods
+Every session store _must_ be an `EventEmitter` and implement the following
+methods:
 
    - `.get(sid, callback)`
    - `.set(sid, session, callback)`
@@ -202,6 +217,7 @@ Every session store _must_ implement the following methods
 
 Recommended methods include, but are not limited to:
 
+   - `.touch(sid, session, callback)`
    - `.length(callback)`
    - `.clear(callback)`
 

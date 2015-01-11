@@ -1,19 +1,22 @@
-
 /*!
- * Connect - session - MemoryStore
+ * express-session
  * Copyright(c) 2010 Sencha Inc.
  * Copyright(c) 2011 TJ Holowaychuk
+ * Copyright(c) 2015 Douglas Christopher Wilson
  * MIT Licensed
  */
 
 /**
  * Module dependencies.
+ * @private
  */
 
-var Store = require('./store');
+var Store = require('./store')
+var util = require('util')
 
 /**
  * Shim setImmediate for node.js < 0.10
+ * @private
  */
 
 /* istanbul ignore next */
@@ -22,130 +25,159 @@ var defer = typeof setImmediate === 'function'
   : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
 
 /**
- * Initialize a new `MemoryStore`.
- *
- * @api public
+ * Module exports.
  */
 
-var MemoryStore = module.exports = function MemoryStore() {
-  this.sessions = Object.create(null);
-};
+module.exports = MemoryStore
 
 /**
- * Inherit from `Store.prototype`.
+ * A session store in memory.
+ * @public
  */
 
-MemoryStore.prototype.__proto__ = Store.prototype;
+function MemoryStore() {
+  Store.call(this)
+  this.sessions = Object.create(null)
+}
 
 /**
- * Attempt to fetch session by the given `sid`.
- *
- * @param {String} sid
- * @param {Function} fn
- * @api public
+ * Inherit from Store.
  */
 
-MemoryStore.prototype.get = function(sid, fn){
-  var self = this;
-  var sess = self.sessions[sid];
-
-  if (!sess) {
-    return defer(fn);
-  }
-
-  // parse
-  sess = JSON.parse(sess);
-
-  var expires = typeof sess.cookie.expires === 'string'
-    ? new Date(sess.cookie.expires)
-    : sess.cookie.expires;
-
-  // destroy expired session
-  if (expires && expires <= Date.now()) {
-    return self.destroy(sid, fn);
-  }
-
-  defer(fn, null, sess);
-};
+util.inherits(MemoryStore, Store)
 
 /**
- * Commit the given `sess` object associated with the given `sid`.
+ * Get all active sessions.
  *
- * @param {String} sid
- * @param {Session} sess
- * @param {Function} fn
- * @api public
+ * @param {function} callback
+ * @public
  */
 
-MemoryStore.prototype.set = function(sid, sess, fn){
-  this.sessions[sid] = JSON.stringify(sess);
-  fn && defer(fn);
-};
+MemoryStore.prototype.all = function all(callback) {
+  var sessionIds = Object.keys(this.sessions)
+  var sessions = Object.create(null)
 
-/**
- * Destroy the session associated with the given `sid`.
- *
- * @param {String} sid
- * @api public
- */
+  for (var i = 0; i < sessionIds.length; i++) {
+    var sessionId = sessionIds[i]
+    var session = getSession.call(this, sessionId)
 
-MemoryStore.prototype.destroy = function(sid, fn){
-  delete this.sessions[sid];
-  fn && defer(fn);
-};
-
-/**
- * Invoke the given callback `fn` with all active sessions.
- *
- * @param {Function} fn
- * @api public
- */
-
-MemoryStore.prototype.all = function(fn){
-  var keys = Object.keys(this.sessions);
-  var now = Date.now();
-  var obj = Object.create(null);
-  var sess;
-  var sid;
-
-  for (var i = 0, len = keys.length; i < len; ++i) {
-    sid = keys[i];
-
-    // parse
-    sess = JSON.parse(this.sessions[sid]);
-
-    expires = typeof sess.cookie.expires === 'string'
-      ? new Date(sess.cookie.expires)
-      : sess.cookie.expires;
-
-    if (!expires || expires > now) {
-      obj[sid] = sess;
+    if (session) {
+      sessions[sessionId] = session;
     }
   }
 
-  fn && defer(fn, null, obj);
-};
+  callback && defer(callback, null, sessions)
+}
 
 /**
  * Clear all sessions.
  *
- * @param {Function} fn
- * @api public
+ * @param {function} callback
+ * @public
  */
 
-MemoryStore.prototype.clear = function(fn){
-  this.sessions = {};
-  fn && defer(fn);
-};
+MemoryStore.prototype.clear = function clear(callback) {
+  this.sessions = Object.create(null)
+  callback && defer(callback)
+}
 
 /**
- * Fetch number of sessions.
+ * Destroy the session associated with the given session ID.
  *
- * @param {Function} fn
- * @api public
+ * @param {string} sessionId
+ * @public
  */
 
-MemoryStore.prototype.length = function(fn){
-  var len = Object.keys(this.sessions).length;
-  defer(fn, null, len);
-};
+MemoryStore.prototype.destroy = function destroy(sessionId, callback) {
+  delete this.sessions[sessionId]
+  callback && defer(callback)
+}
+
+/**
+ * Fetch session by the given session ID.
+ *
+ * @param {string} sessionId
+ * @param {function} callback
+ * @public
+ */
+
+MemoryStore.prototype.get = function get(sessionId, callback) {
+  defer(callback, null, getSession.call(this, sessionId))
+}
+
+/**
+ * Commit the given session associated with the given sessionId to the store.
+ *
+ * @param {string} sessionId
+ * @param {object} session
+ * @param {function} callback
+ * @public
+ */
+
+/**
+ * Get number of active sessions.
+ *
+ * @param {function} callback
+ * @public
+ */
+
+MemoryStore.prototype.length = function length(callback) {
+  this.all(function (err, sessions) {
+    if (err) return callback(err)
+    callback(null, Object.keys(sessions).length)
+  })
+}
+
+MemoryStore.prototype.set = function set(sessionId, session, callback) {
+  this.sessions[sessionId] = JSON.stringify(session)
+  callback && defer(callback)
+}
+
+/**
+ * Touch the given session object associated with the given session ID.
+ *
+ * @param {string} sessionId
+ * @param {object} session
+ * @param {function} callback
+ * @public
+ */
+
+MemoryStore.prototype.touch = function touch(sessionId, session, callback) {
+  var currentSession = getSession.call(this, sessionId)
+
+  if (currentSession) {
+    // update expiration
+    currentSession.cookie = session.cookie
+    this.sessions[sessionId] = JSON.stringify(currentSession)
+  }
+
+  callback && defer(callback)
+}
+
+/**
+ * Get session from the store.
+ * @private
+ */
+
+function getSession(sessionId) {
+  var sess = this.sessions[sessionId]
+
+  if (!sess) {
+    return
+  }
+
+  // parse
+  sess = JSON.parse(sess)
+
+  var expires = typeof sess.cookie.expires === 'string'
+    ? new Date(sess.cookie.expires)
+    : sess.cookie.expires
+
+  // destroy expired session
+  if (expires && expires <= Date.now()) {
+    delete this.sessions[sessionId]
+    return
+  }
+
+  return sess
+}

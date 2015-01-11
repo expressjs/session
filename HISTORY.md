@@ -1,3 +1,41 @@
+1.10.1 / 2015-01-08
+===================
+
+  * deps: uid-safe@1.0.2
+    - Remove dependency on `mz`
+
+1.10.0 / 2015-01-05
+===================
+
+  * Add `store.touch` interface for session stores
+  * Fix `MemoryStore` expiration with `resave: false`
+  * deps: debug@~2.1.1
+
+1.9.3 / 2014-12-02
+==================
+
+  * Fix error when `req.sessionID` contains a non-string value
+
+1.9.2 / 2014-11-22
+==================
+
+  * deps: crc@3.2.1
+    - Minor fixes
+
+1.9.1 / 2014-10-22
+==================
+
+  * Remove unnecessary empty write call
+    - Fixes Node.js 0.11.14 behavior change
+    - Helps work-around Node.js 0.10.1 zlib bug
+
+1.9.0 / 2014-09-16
+==================
+
+  * deps: debug@~2.1.0
+    - Implement `DEBUG_FD` env variable support
+  * deps: depd@~1.0.0
+
 1.8.2 / 2014-09-15
 ==================
 
