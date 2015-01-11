@@ -113,6 +113,21 @@ describe('session()', function(){
       })
   })
 
+  it('should not respond with cookie if configuration cookie key set as null', function (done) {
+    var header = 'X-Session-Token';
+    var server = createServer({ header: header, cookie: null }, function (req, res) {
+      res.end('session')
+    });
+
+    request(server)
+      .get('/')
+      .expect(200, 'session', function (err, res) {
+        if (err) return done(err)
+        res.headers.should.not.have.property('set-cookie');
+        done();
+      })
+  })
+
   it('should pass session fetch error', function (done) {
     var store = new session.MemoryStore()
     var server = createServer({ store: store }, function (req, res) {

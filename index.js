@@ -87,6 +87,7 @@ function session(options){
     , rollingSessions = options.rolling || false;
   var resaveSession = options.resave;
   var saveUninitializedSession = options.saveUninitialized;
+  var isCookieConfigurationSet = options.cookie !== null;
   var headerNameNormalized;
   if (headerName) {
     // lower-case representation of header name to fetch header value from req.headers
@@ -126,7 +127,9 @@ function session(options){
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    req.session.cookie = new Cookie(cookie);
+    if (isCookieConfigurationSet) {
+      req.session.cookie = new Cookie(cookie);
+    }
   };
 
   store.on('disconnect', function(){ storeReady = false; });
@@ -144,9 +147,11 @@ function session(options){
     // the store has temporarily disconnected etc
     if (!storeReady) return debug('store is disconnected'), next();
 
-    // pathname mismatch
-    var originalPath = parseUrl.original(req).pathname;
-    if (0 != originalPath.indexOf(cookie.path || '/')) return next();
+    if (isCookieConfigurationSet) {
+      // pathname mismatch
+      var originalPath = parseUrl.original(req).pathname;
+      if (0 != originalPath.indexOf(cookie.path || '/')) return next();
+    }
 
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
@@ -162,10 +167,13 @@ function session(options){
     // expose store
     req.sessionStore = store;
 
-    // get the session ID from the cookie
-    var cookieId = req.sessionID = getcookie(req, name, secret);
-    // if not trying to get session ID from header
-    if (!cookieId && headerName) {
+    var cookieId;
+    if (isCookieConfigurationSet) {
+      // get the session ID from the cookie
+      cookieId = req.sessionID = getcookie(req, name, secret);
+    }
+    if (headerName) {
+      // get the session ID from the header
       cookieId = req.sessionID = getHeader(req, headerNameNormalized, secret);
     }
 
@@ -176,19 +184,19 @@ function session(options){
         return;
       }
 
-      var cookie = req.session.cookie;
-
-      // only send secure cookies via https
-      if (cookie.secure && !issecure(req, trustProxy)) {
-        debug('not secured');
-        return;
+      if (isCookieConfigurationSet) {
+        var cookie = req.session.cookie;
+        // only send secure cookies via https
+        if (cookie.secure && !issecure(req, trustProxy)) {
+          debug('not secured');
+          return;
+        }
+        if (!shouldSetCookie(req)) {
+          return;
+        }
+        setcookie(res, name, req.sessionID, secret, cookie.data);
       }
 
-      if (!shouldSetCookie(req)) {
-        return;
-      }
-
-      setcookie(res, name, req.sessionID, secret, cookie.data);
       if (headerName) {
         setHeader(res, headerName, req.sessionID, secret);
       }
