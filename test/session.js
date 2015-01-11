@@ -100,10 +100,9 @@ describe('session()', function(){
 
     request(server)
       .get('/')
+      .expect(shouldHaveHeader(header))
       .expect(200, 'session 1', function (err, res) {
         if (err) return done(err)
-        sidHeader(res, header).should.not.be.empty
-        sidHeader(res, header).should.startWith('s:')
         request(server)
           .get('/')
           .set(header, sidHeader(res, header))
@@ -119,11 +118,8 @@ describe('session()', function(){
 
     request(server)
       .get('/')
-      .expect(200, 'session', function (err, res) {
-        if (err) return done(err)
-        res.headers.should.not.have.property('set-cookie');
-        done();
-      })
+      .expect(shouldNotHaveHeader('Set-Cookie'))
+      .expect(200, 'session', done)
   })
 
   it('should pass session fetch error', function (done) {
@@ -1973,6 +1969,12 @@ function expires(res) {
 function shouldNotHaveHeader(header) {
   return function (res) {
     assert.ok(!(header.toLowerCase() in res.headers), 'should not have ' + header + ' header')
+  }
+}
+
+function shouldHaveHeader(header) {
+  return function (res) {
+    assert.ok(header.toLowerCase() in res.headers, 'should have ' + header + ' header')
   }
 }
 
