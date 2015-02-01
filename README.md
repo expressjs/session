@@ -20,46 +20,119 @@ var session = require('express-session')
 
 ### session(options)
 
-Setup session store with the given `options`.
+Create a session middleware with the given `options`.
 
-Session data is _not_ saved in the cookie itself, just the session ID.
+**Note** session data is _not_ saved in the cookie itself, just the session ID.
+Session data is stored server-side.
 
 #### Options
 
-  - `name` - cookie name (formerly known as `key`). (default: `'connect.sid'`)
-  - `store` - session store instance.
-  - `secret` - session cookie is signed with this secret to prevent tampering.
-  - `cookie` - session cookie settings.
-    - (default: `{ path: '/', httpOnly: true, secure: false, maxAge: null }`)
-  - `genid` - function to call to generate a new session ID. (default: uses `uid2` library)
-  - `rolling` - forces a cookie set on every response. This resets the expiration date. (default: `false`)
-  - `resave` - forces session to be saved even when unmodified. (default: `true`, but using the default has been deprecated, as the default will change in the future. Please research into this setting and choose what is appropriate to your use-case. Typically, you'll want `false`)
-  - `proxy` - trust the reverse proxy when setting secure cookies (via "x-forwarded-proto" header). When set to `true`, the "x-forwarded-proto" header will be used. When set to `false`, all headers are ignored. When left unset, will use the "trust proxy" setting from express. (default: `undefined`)
-  - `saveUninitialized` - forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified. (default: `true`, but using the default has been deprecated, as the default will change in the future. Please research into this setting and choose what is appropriate to your use-case). **Note** if you are using Session in conjunction with PassportJS, Passport will add an empty Passport object to the session for use after a user is authenticated, which will be treated as a modification to the session, causing it to be saved.
-  - `unset` - controls result of unsetting `req.session` (through `delete`, setting to `null`, etc.). This can be "keep" to keep the session in the store but ignore modifications or "destroy" to destroy the stored session. (default: `'keep'`)
+`express-session` accepts these properties in the options object.
 
-#### options.genid
+##### cookie
 
-Generate a custom session ID for new sessions. Provide a function that returns a string that will be used as a session ID. The function is given `req` as the first argument if you want to use some value attached to `req` when generating the ID.
+Settings for the session ID cookie. See the "Cookie options" section below for
+more information on the different values.
+
+The default value is `{ path: '/', httpOnly: true, secure: false, maxAge: null }`.
+
+##### genid
+
+Function to call to generate a new session ID. Provide a function that returns
+a string that will be used as a session ID. The function is given `req` as the
+first argument if you want to use some value attached to `req` when generating
+the ID.
+
+The default valuses uses the `uid2` library to generate IDs.
 
 **NOTE** be careful you generate unique IDs so your sessions do not conflict.
 
 ```js
 app.use(session({
   genid: function(req) {
-    return genuuid(); // use UUIDs for session IDs
+    return genuuid() // use UUIDs for session IDs
   },
   secret: 'keyboard cat'
 }))
 ```
 
-#### options.resave
+##### name
 
-Forces the session to be saved back to the session store, even if the session was never modified during the request. Depending on your store this may be necessary, but it can also create race conditions where a client has two parallel requests to your server and changes made to the session in one request may get overwritten when the other request ends, even if it made no changes (this behavior also depends on what store you're using).
+The name of the session ID cookie to set in the response (and read from in the
+request).
 
-#### options.saveUninitialized
+The default value is `'connect.sid'`.
 
-Forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified. Choosing `false` is useful for implementing login sessions, reducing server storage usage, or complying with laws that require permission before setting a cookie. Choose `false` will also help with race conditions where a client makes multiple parallel requests without a session.
+##### proxy
+
+Trust the reverse proxy when setting secure cookies (via the "X-Forwarded-Proto"
+header).
+
+The default value is `undefined`.
+
+  - `true` The "X-Forwarded-Proto" header will be used.
+  - `false` All headers are ignored and the connection is considered secure only
+    if there is a direct TLS/SSL connection.
+  - `undefined` Use the "trust proxy" setting from express
+
+##### resave
+
+Forces the session to be saved back to the session store, even if the session
+was never modified during the request. Depending on your store this may be
+necessary, but it can also create race conditions where a client has two
+parallel requests to your server and changes made to the session in one
+request may get overwritten when the other request ends, even if it made no
+changes (this behavior also depends on what store you're using).
+
+The default value is `true`, but using the default has been deprecated,
+as the default will change in the future. Please research into this setting
+and choose what is appropriate to your use-case. Typically, you'll want
+`false`.
+
+##### rolling
+
+Force a cookie to be set on every response. This resets the expiration date.
+
+The default value is `false`.
+
+##### saveUninitialized
+
+Forces a session that is "uninitialized" to be saved to the store. A session is
+uninitialized when it is new but not modified. Choosing `false` is useful for
+implementing login sessions, reducing server storage usage, or complying with
+laws that require permission before setting a cookie. Choose `false` will also
+help with race conditions where a client makes multiple parallel requests
+without a session.
+
+The default value is `true`, but using the default has been deprecated, as the
+default will change in the future. Please research into this setting and
+choose what is appropriate to your use-case.
+
+**Note** if you are using Session in conjunction with PassportJS, Passport
+will add an empty Passport object to the session for use after a user is
+authenticated, which will be treated as a modification to the session, causing
+it to be saved.
+
+##### secret
+
+**Required option**
+
+This is the secret used to sign the session ID cookie.
+
+##### store
+
+The session store instance, defaults to a new `MemoryStore` instance.
+
+##### unset
+
+Control the result of unsetting `req.session` (through `delete`, setting to `null`,
+etc.).
+
+The default value is `'keep'`.
+
+  - `'destroy'` The session will be destroyed (deleted) when the response ends.
+  - `'keep'` The session in the store will be ketp, but modifications made during
+    the request are ignored and not saved.
 
 #### Cookie options
 
