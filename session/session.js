@@ -55,7 +55,9 @@ Session.prototype.touch = function(){
  */
 
 Session.prototype.resetMaxAge = function(){
-  this.cookie.maxAge = this.cookie.originalMaxAge;
+  if (this.cookie) {
+    this.cookie.maxAge = this.cookie.originalMaxAge;
+  }
   return this;
 };
 

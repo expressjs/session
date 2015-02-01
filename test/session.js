@@ -90,6 +90,38 @@ describe('session()', function(){
     })
   })
 
+  it('should load session from header sid', function (done) {
+    var count = 0
+    var header = 'X-Session-Token';
+    var server = createServer({ header: header }, function (req, res) {
+      req.session.num = req.session.num || ++count
+      res.end('session ' + req.session.num)
+    });
+
+    request(server)
+      .get('/')
+      .expect(shouldHaveHeader(header))
+      .expect(200, 'session 1', function (err, res) {
+        if (err) return done(err)
+        request(server)
+          .get('/')
+          .set(header, sidHeader(res, header))
+          .expect(200, 'session 1', done)
+      })
+  })
+
+  it('should not respond with cookie if configuration cookie key set as null', function (done) {
+    var header = 'X-Session-Token';
+    var server = createServer({ header: header, cookie: null }, function (req, res) {
+      res.end('session')
+    });
+
+    request(server)
+      .get('/')
+      .expect(shouldNotHaveHeader('Set-Cookie'))
+      .expect(200, 'session', done)
+  })
+
   it('should pass session fetch error', function (done) {
     var store = new session.MemoryStore()
     var server = createServer({ store: store }, function (req, res) {
@@ -1940,6 +1972,12 @@ function shouldNotHaveHeader(header) {
   }
 }
 
+function shouldHaveHeader(header) {
+  return function (res) {
+    assert.ok(header.toLowerCase() in res.headers, 'should have ' + header + ' header')
+  }
+}
+
 function shouldSetCookie(name) {
   return function (res) {
     var header = cookie(res)
@@ -1961,6 +1999,10 @@ function sid(res) {
   var match = /^[^=]+=s%3A([^;\.]+)[\.;]/.exec(cookie(res))
   var val = match ? match[1] : undefined
   return val
+}
+
+function sidHeader(res, name) {
+  return res.headers[name.toLowerCase()]
 }
 
 function writePatch() {

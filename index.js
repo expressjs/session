@@ -85,6 +85,8 @@ function session(options){
   var options = options || {}
   //  name - previously "options.key"
     , name = options.name || options.key || 'connect.sid'
+  // optional name of HTTP header to pass session ID, e.g. 'X-Session-Token'
+    , headerName = options.header
     , store = options.store || new MemoryStore
     , cookie = options.cookie || {}
     , trustProxy = options.proxy
@@ -92,6 +94,12 @@ function session(options){
     , rollingSessions = options.rolling || false;
   var resaveSession = options.resave;
   var saveUninitializedSession = options.saveUninitialized;
+  var isCookieConfigurationSet = options.cookie !== null;
+  var headerNameNormalized;
+  if (headerName) {
+    // lower-case representation of header name to fetch header value from req.headers
+    headerNameNormalized = headerName.toLowerCase();
+  }
 
   var generateId = options.genid || generateSessionId;
 
@@ -126,7 +134,9 @@ function session(options){
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    req.session.cookie = new Cookie(cookie);
+    if (isCookieConfigurationSet) {
+      req.session.cookie = new Cookie(cookie);
+    }
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
@@ -145,9 +155,11 @@ function session(options){
     // the store has temporarily disconnected etc
     if (!storeReady) return debug('store is disconnected'), next();
 
-    // pathname mismatch
-    var originalPath = parseUrl.original(req).pathname;
-    if (0 != originalPath.indexOf(cookie.path || '/')) return next();
+    if (isCookieConfigurationSet) {
+      // pathname mismatch
+      var originalPath = parseUrl.original(req).pathname;
+      if (0 != originalPath.indexOf(cookie.path || '/')) return next();
+    }
 
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
@@ -163,8 +175,15 @@ function session(options){
     // expose store
     req.sessionStore = store;
 
-    // get the session ID from the cookie
-    var cookieId = req.sessionID = getcookie(req, name, secret);
+    var cookieId;
+    if (isCookieConfigurationSet) {
+      // get the session ID from the cookie
+      cookieId = req.sessionID = getcookie(req, name, secret);
+    }
+    if (headerName) {
+      // get the session ID from the header
+      cookieId = req.sessionID = getHeader(req, headerNameNormalized, secret);
+    }
 
     // set-cookie
     onHeaders(res, function(){
@@ -173,19 +192,22 @@ function session(options){
         return;
       }
 
-      var cookie = req.session.cookie;
-
-      // only send secure cookies via https
-      if (cookie.secure && !issecure(req, trustProxy)) {
-        debug('not secured');
-        return;
+      if (isCookieConfigurationSet) {
+        var cookie = req.session.cookie;
+        // only send secure cookies via https
+        if (cookie.secure && !issecure(req, trustProxy)) {
+          debug('not secured');
+          return;
+        }
+        if (!shouldSetCookie(req)) {
+          return;
+        }
+        setcookie(res, name, req.sessionID, secret, cookie.data);
       }
 
-      if (!shouldSetCookie(req)) {
-        return;
+      if (headerName) {
+        setHeader(res, headerName, req.sessionID, secret);
       }
-
-      setcookie(res, name, req.sessionID, secret, cookie.data);
     });
 
     // proxy end() to commit the session
@@ -572,4 +594,32 @@ function setcookie(res, name, val, secret, options) {
     : [prev, data];
 
   res.setHeader('set-cookie', header)
+}
+
+function setHeader(res, name, val, secret) {
+  var signed = 's:' + signature.sign(val, secret);
+  debug(name + ' %s', signed);
+
+  res.setHeader(name, signed);
+}
+
+function getHeader(req, name, secret) {
+  var header = req.headers[name];
+  var val;
+
+  // read from header
+  if (header) {
+    if (header.substr(0, 2) === 's:') {
+      val = signature.unsign(header.slice(2), secret);
+
+      if (val === false) {
+        debug('header signature invalid');
+        val = undefined;
+      }
+    } else {
+      debug('header unsigned')
+    }
+  }
+
+  return val;
 }
