@@ -1,3 +1,10 @@
+unreleased
+==========
+
+  * deps: uid-safe@1.0.3
+    - Fix error branch that would throw
+    - deps: base64-url@1.2.0
+
 1.10.1 / 2015-01-08
 ===================
 
