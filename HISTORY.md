@@ -1,5 +1,5 @@
-unreleased
-==========
+1.10.2 / 2015-01-31
+===================
 
   * deps: uid-safe@1.0.3
     - Fix error branch that would throw
