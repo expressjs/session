@@ -131,7 +131,7 @@ etc.).
 The default value is `'keep'`.
 
   - `'destroy'` The session will be destroyed (deleted) when the response ends.
-  - `'keep'` The session in the store will be ketp, but modifications made during
+  - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
 
 #### Cookie options
