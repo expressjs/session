@@ -43,7 +43,7 @@ a string that will be used as a session ID. The function is given `req` as the
 first argument if you want to use some value attached to `req` when generating
 the ID.
 
-The default valuses uses the `uid2` library to generate IDs.
+The default value is a function which uses the `uid2` library to generate IDs.
 
 **NOTE** be careful you generate unique IDs so your sessions do not conflict.
 
@@ -131,7 +131,7 @@ etc.).
 The default value is `'keep'`.
 
   - `'destroy'` The session will be destroyed (deleted) when the response ends.
-  - `'keep'` The session in the store will be ketp, but modifications made during
+  - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
 
 #### Cookie options
