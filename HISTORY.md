@@ -1,5 +1,5 @@
-unreleased
-==========
+1.10.3 / 2015-02-16
+===================
 
   * deps: cookie-signature@1.0.6
   * deps: uid-safe@1.1.0
