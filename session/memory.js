@@ -153,7 +153,11 @@ MemoryStore.prototype.set = function set(sessionId, session, callback) {
 
   var firstSession = this.first
 
-  if(typeof this.sessions[sessionId] === 'undefined'){
+  if (this.l >= this.cacheLimit) {
+    this.destroy(this.last.id)
+  }
+
+  if (typeof this.sessions[sessionId] === 'undefined'){
     this.l++
   }
 
@@ -165,12 +169,6 @@ MemoryStore.prototype.set = function set(sessionId, session, callback) {
 
   if(this.last === null) {
     this.last = this.first
-  }
-
-  if (this.l > this.cacheLimit) {
-    var last = this.last
-    this.last = this.last.next
-    this.destroy(last.id)
   }
 
   callback && defer(callback)
