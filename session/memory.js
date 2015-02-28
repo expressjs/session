@@ -35,9 +35,9 @@ module.exports = MemoryStore
  * @public
  */
 
-function MemoryStore() {
+function MemoryStore(options) {
   Store.call(this)
-  this.cacheLimit = 1000
+  this.cacheLimit = options && options.cacheLimit || 1000
   this.sessions = Object.create(null)
   this.first = null
   this.last = null
@@ -102,6 +102,14 @@ MemoryStore.prototype.destroy = function destroy(sessionId, callback) {
   if(typeof sess !== 'undefined'){
     if(sess.next !== null) sess.next.prev = sess.prev
     if(sess.prev !== null) sess.prev.next = sess.next
+
+    if(this.last !== null && this.last.id === sessionId){
+      this.last = this.last.next
+    }
+
+    if(this.first !== null && this.first.id === sessionId){
+      this.first = this.first.prev
+    }
 
     this.l--
   }

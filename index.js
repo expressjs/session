@@ -85,7 +85,7 @@ function session(options){
   var options = options || {}
   //  name - previously "options.key"
     , name = options.name || options.key || 'connect.sid'
-    , store = options.store || new MemoryStore
+    , store = options.store || new MemoryStore(options)
     , cookie = options.cookie || {}
     , trustProxy = options.proxy
     , storeReady = true
