@@ -37,7 +37,11 @@ module.exports = MemoryStore
 
 function MemoryStore() {
   Store.call(this)
+  this.cacheLimit = 1000
   this.sessions = Object.create(null)
+  this.first = null
+  this.last = null
+  this.l = 0
 }
 
 /**
@@ -62,7 +66,7 @@ MemoryStore.prototype.all = function all(callback) {
     var session = getSession.call(this, sessionId)
 
     if (session) {
-      sessions[sessionId] = session;
+      sessions[sessionId] = session
     }
   }
 
@@ -78,6 +82,9 @@ MemoryStore.prototype.all = function all(callback) {
 
 MemoryStore.prototype.clear = function clear(callback) {
   this.sessions = Object.create(null)
+  this.last = null
+  this.first = null
+  this.l = 0
   callback && defer(callback)
 }
 
@@ -89,7 +96,16 @@ MemoryStore.prototype.clear = function clear(callback) {
  */
 
 MemoryStore.prototype.destroy = function destroy(sessionId, callback) {
+  var sess = this.sessions[sessionId]
   delete this.sessions[sessionId]
+
+  if(typeof sess !== 'undefined'){
+    if(sess.next !== null) sess.next.prev = sess.prev
+    if(sess.prev !== null) sess.prev.next = sess.next
+
+    this.l--
+  }
+
   callback && defer(callback)
 }
 
@@ -122,14 +138,33 @@ MemoryStore.prototype.get = function get(sessionId, callback) {
  */
 
 MemoryStore.prototype.length = function length(callback) {
-  this.all(function (err, sessions) {
-    if (err) return callback(err)
-    callback(null, Object.keys(sessions).length)
-  })
+  callback(null, this.l)
 }
 
 MemoryStore.prototype.set = function set(sessionId, session, callback) {
-  this.sessions[sessionId] = JSON.stringify(session)
+
+  var firstSession = this.first
+
+  if(typeof this.sessions[sessionId] === 'undefined'){
+    this.l++
+  }
+
+  this.first = this.sessions[sessionId] = {id: sessionId, data: JSON.stringify(session), prev: firstSession, next: null}
+
+  if(firstSession !== null){
+    firstSession.next = this.first
+  }
+
+  if(this.last === null) {
+    this.last = this.first
+  }
+
+  if (this.l > this.cacheLimit) {
+    var last = this.last
+    this.last = this.last.next
+    this.destroy(last.id)
+  }
+
   callback && defer(callback)
 }
 
@@ -148,7 +183,7 @@ MemoryStore.prototype.touch = function touch(sessionId, session, callback) {
   if (currentSession) {
     // update expiration
     currentSession.cookie = session.cookie
-    this.sessions[sessionId] = JSON.stringify(currentSession)
+    this.sessions[sessionId].data = JSON.stringify(currentSession)
   }
 
   callback && defer(callback)
@@ -167,7 +202,7 @@ function getSession(sessionId) {
   }
 
   // parse
-  sess = JSON.parse(sess)
+  sess = JSON.parse(sess.data)
 
   var expires = typeof sess.cookie.expires === 'string'
     ? new Date(sess.cookie.expires)
@@ -175,7 +210,7 @@ function getSession(sessionId) {
 
   // destroy expired session
   if (expires && expires <= Date.now()) {
-    delete this.sessions[sessionId]
+    this.destroy(sessionId)
     return
   }
 
