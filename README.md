@@ -22,8 +22,13 @@ var session = require('express-session')
 
 Create a session middleware with the given `options`.
 
-**Note** session data is _not_ saved in the cookie itself, just the session ID.
+**Note** Session data is _not_ saved in the cookie itself, just the session ID.
 Session data is stored server-side.
+
+**Warning** The default server-side session storage, `MemoryStore`, is _purposely_
+not designed for a production environment. It will leak memory under most
+conditions, does not scale past a single process, and it meant for debugging and
+developing.
 
 #### Options
 
