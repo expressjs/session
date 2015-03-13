@@ -454,7 +454,7 @@ function getcookie(req, name, secret) {
 
     if (raw) {
       if (raw.substr(0, 2) === 's:') {
-        val = signature.unsign(raw.slice(2), secret);
+        val = unsigncookie(raw.slice(2), secret);
 
         if (val === false) {
           debug('cookie signature invalid');
@@ -481,7 +481,7 @@ function getcookie(req, name, secret) {
 
     if (raw) {
       if (raw.substr(0, 2) === 's:') {
-        val = signature.unsign(raw.slice(2), secret);
+        val = unsigncookie(raw.slice(2), secret);
 
         if (val) {
           deprecate('cookie should be available in req.headers.cookie');
@@ -498,6 +498,31 @@ function getcookie(req, name, secret) {
   }
 
   return val;
+}
+
+/**
+ * Unsign and decode the given `val` with `secret`.
+ * If `secret` is an array, iterates through each value until a valid signature is found.
+ * @param {String} val
+ * @param {String|Array} secret
+ * @returns {String|Boolean}
+ */
+function unsigncookie(val, secret) {
+  // array of secrets
+  if (Array.isArray(secret)) {
+    for (var i = 0; i < secret.length; i++) {
+      var result = signature.unsign(val, secret[i]);
+      if (result !== false) {
+        return result;
+      }
+    }
+    return false;
+  // single secret
+  } else if ('string' === typeof secret) {
+    return signature.unsign(val, secret);
+  } else {
+    debug('invalid secret type');
+  }
 }
 
 /**
@@ -561,7 +586,7 @@ function issecure(req, trustProxy) {
  */
 
 function setcookie(res, name, val, secret, options) {
-  var signed = 's:' + signature.sign(val, secret);
+  var signed = 's:' + signcookie(val, secret);
   var data = cookie.serialize(name, signed, options);
 
   debug('set-cookie %s', data);
@@ -572,4 +597,23 @@ function setcookie(res, name, val, secret, options) {
     : [prev, data];
 
   res.setHeader('set-cookie', header)
+}
+
+/**
+ * Sign the given `val` with `secret`.
+ * If secret is an array, the first element is used.
+ * @param {String} val
+ * @param {String|Array} secret
+ * @returns {String}
+ */
+function signcookie(val, secret) {
+  // array of secrets
+  if (Array.isArray(secret) && array.length > 0) {
+    return signature.sign(val, secret[0]);
+  // single secret
+  } else if ('string' === typeof secret) {
+    return signature.sign(val, secret);
+  } else {
+    debug('invalid secret type');
+  }
 }
