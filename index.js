@@ -74,7 +74,7 @@ var defer = typeof setImmediate === 'function'
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
- * @param {String} [options.secret] Secret for signing session ID
+ * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
  * @return {Function} middleware
@@ -116,6 +116,19 @@ function session(options){
   // TODO: switch to "destroy" on next major
   var unsetDestroy = options.unset === 'destroy';
 
+  if (Array.isArray(options.secret) && options.secret.length === 0) {
+    throw new TypeError('secret option array must contain one or more strings');
+  }
+
+  if (options.secret && !Array.isArray(options.secret)) {
+    options.secret = [options.secret];
+  }
+
+  if (!options.secret) {
+    deprecate('req.secret; provide secret option');
+    options.secret = undefined;
+  }
+
   // notify user that this store is not
   // meant for a production environment
   if ('production' == env && store instanceof MemoryStore) {
@@ -133,10 +146,6 @@ function session(options){
   store.on('disconnect', function(){ storeReady = false; });
   store.on('connect', function(){ storeReady = true; });
 
-  if (!options.secret) {
-    deprecate('req.secret; provide secret option');
-  }
-
   return function session(req, res, next) {
     // self-awareness
     if (req.session) return next();
@@ -149,12 +158,15 @@ function session(options){
     var originalPath = parseUrl.original(req).pathname;
     if (0 != originalPath.indexOf(cookie.path || '/')) return next();
 
+    // ensure a secret is available or bail
+    if (!options.secret && !req.secret) {
+      next(new Error('secret option required for sessions'));
+      return;
+    }
+
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
-    var secret = options.secret || req.secret;
-
-    // ensure secret is available or bail
-    if (!secret) next(new Error('`secret` option required for sessions'));
+    var secrets = options.secret || [req.secret];
 
     var originalHash;
     var originalId;
@@ -164,7 +176,7 @@ function session(options){
     req.sessionStore = store;
 
     // get the session ID from the cookie
-    var cookieId = req.sessionID = getcookie(req, name, secret);
+    var cookieId = req.sessionID = getcookie(req, name, secrets);
 
     // set-cookie
     onHeaders(res, function(){
@@ -185,7 +197,7 @@ function session(options){
         return;
       }
 
-      setcookie(res, name, req.sessionID, secret, cookie.data);
+      setcookie(res, name, req.sessionID, secrets[0], cookie.data);
     });
 
     // proxy end() to commit the session
@@ -441,7 +453,7 @@ function generateSessionId(sess) {
  * @private
  */
 
-function getcookie(req, name, secret) {
+function getcookie(req, name, secrets) {
   var header = req.headers.cookie;
   var raw;
   var val;
@@ -454,7 +466,7 @@ function getcookie(req, name, secret) {
 
     if (raw) {
       if (raw.substr(0, 2) === 's:') {
-        val = signature.unsign(raw.slice(2), secret);
+        val = unsigncookie(raw.slice(2), secrets);
 
         if (val === false) {
           debug('cookie signature invalid');
@@ -481,7 +493,7 @@ function getcookie(req, name, secret) {
 
     if (raw) {
       if (raw.substr(0, 2) === 's:') {
-        val = signature.unsign(raw.slice(2), secret);
+        val = unsigncookie(raw.slice(2), secrets);
 
         if (val) {
           deprecate('cookie should be available in req.headers.cookie');
@@ -572,4 +584,24 @@ function setcookie(res, name, val, secret, options) {
     : [prev, data];
 
   res.setHeader('set-cookie', header)
+}
+
+/**
+ * Verify and decode the given `val` with `secrets`.
+ *
+ * @param {String} val
+ * @param {Array} secrets
+ * @returns {String|Boolean}
+ * @private
+ */
+function unsigncookie(val, secrets) {
+  for (var i = 0; i < secrets.length; i++) {
+    var result = signature.unsign(val, secrets[i]);
+
+    if (result !== false) {
+      return result;
+    }
+  }
+
+  return false;
 }

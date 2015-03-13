@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Support an array in `secret` option for key rotation
+
 1.10.4 / 2015-03-15
 ===================
 

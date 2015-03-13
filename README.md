@@ -134,7 +134,10 @@ it to be saved.
 
 **Required option**
 
-This is the secret used to sign the session ID cookie.
+This is the secret used to sign the session ID cookie. This can be either a string
+for a single secret, or an array of multiple secrets. If an array of secrets is
+provided, only the first element will be used to sign the session ID cookie, while
+all the elements will be considered when verifying the signature in requests.
 
 ##### store
 
