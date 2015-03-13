@@ -2029,7 +2029,6 @@ function shouldSetCookieToValue(name, val) {
     var header = cookie(res);
     assert.ok(header, 'should have a cookie header')
     assert.equal(header.split('=')[0], name, 'should set cookie ' + name)
-    console.log('actual:' + header.split('=')[1].split(';')[0]);
     assert.equal(header.split('=')[1].split(';')[0], val, 'should set cookie ' + name + ' to ' + val)
   }
 }
