@@ -1127,6 +1127,82 @@ describe('session()', function(){
     })
   });
 
+  describe.only('secret option', function () {
+    it('should handle arrays', function(done){
+      var app = express();
+      app.use(session({ secret: ['keyboard cat', 'nyan cat'] }));
+      app.use(function(req, res){
+        req.session.user = 'bob';
+        res.end(req.session.user);
+      });
+
+      request(app)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'bob', done);
+    })
+
+    it('should handle secret deprecation', function(done){
+      var store = new session.MemoryStore();
+      var oldSecretSession = session({ secret: ['keyboard cat'], store: store });
+      var newSecretSession = session({ secret: ['nyan cat', 'keyboard cat'], store: store });
+
+      var app = express();
+      app.use(oldSecretSession);
+      app.use(function(req, res){
+        req.session.user = 'bob';
+        res.end('user: ' + req.session.user);
+      });
+
+      request(app)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'user: bob', function (err, res) {
+
+          app = express();
+          app.use(newSecretSession);
+          app.use(function(req, res){
+            res.end(req.session.user + ' could be read!');
+          });
+
+          request(app)
+            .get('/')
+            .set('Cookie', cookie(res))
+            .expect(200, 'bob could be read!', done);
+        });
+    })
+
+    it('should use first element of the array to sign the cookie', function(done){
+      var store = new session.MemoryStore();
+      var oldSecretSession = session({ secret: ['keyboard cat', 'nyan cat'], store: store });
+      var newSecretSession = session({ secret: ['nyan cat'], store: store });
+
+      var app = express();
+      app.use(oldSecretSession);
+      app.use(function(req, res){
+        req.session.user = 'bob';
+        res.end(req.session.user);
+      });
+
+      request(app)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'bob', function (err, res) {
+
+          app = express();
+          app.use(newSecretSession);
+          app.use(function(req, res){
+            res.end(req.session.user + ' could be read!');
+          });
+
+          request(app)
+            .get('/')
+            .set('Cookie', cookie(res))
+            .expect(200, {}, done); // bob could not be read
+        });
+    })
+  });
+
   describe('res.end patch', function () {
     it('should correctly handle res.end/res.write patched prior', function (done) {
       var app = express()
@@ -1953,6 +2029,7 @@ function shouldSetCookieToValue(name, val) {
     var header = cookie(res);
     assert.ok(header, 'should have a cookie header')
     assert.equal(header.split('=')[0], name, 'should set cookie ' + name)
+    console.log('actual:' + header.split('=')[1].split(';')[0]);
     assert.equal(header.split('=')[1].split(';')[0], val, 'should set cookie ' + name + ' to ' + val)
   }
 }

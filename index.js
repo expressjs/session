@@ -608,7 +608,7 @@ function setcookie(res, name, val, secret, options) {
  */
 function signcookie(val, secret) {
   // array of secrets
-  if (Array.isArray(secret) && array.length > 0) {
+  if (Array.isArray(secret) && secret.length > 0) {
     return signature.sign(val, secret[0]);
   // single secret
   } else if ('string' === typeof secret) {
