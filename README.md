@@ -183,6 +183,8 @@ By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
 so the cookie becomes a browser-session cookie. When the user closes the
 browser the cookie (and session) will be removed.
 
+Since version 1.5.0, the (cookie-parser)[https://github.com/expressjs/cookie-parser] middleware is no longer a dependency. Express-session now creates its own cookie, so there is no need to require cookie-parser to support your sessions, and if you choose to do so it may cause conflicts.
+
 ### req.session
 
 To store or access session data, simply use the request property `req.session`,
