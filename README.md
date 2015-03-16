@@ -96,6 +96,12 @@ as the default will change in the future. Please research into this setting
 and choose what is appropriate to your use-case. Typically, you'll want
 `false`.
 
+How do I know if this is necessary for my store? The best way to know is to
+check with your store if it implements the `touch` method. If it does, then
+you can safely set `resave: false`. If it does not implement the `touch`
+method and your store sets an expiration date on stored sessions, then you
+likely need `resave: true`.
+
 ##### rolling
 
 Force a cookie to be set on every response. This resets the expiration date.
