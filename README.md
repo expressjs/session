@@ -314,6 +314,8 @@ module. Please make a PR to add additional modules :)
 
   * [connect-redis](https://www.npmjs.com/package/connect-redis) A Redis-based
     session store.
+  * [connect-mongo](https://www.npmjs.com/package/connect-mongo) A MongoDB-based
+    session store.
 
 ## Example
 
