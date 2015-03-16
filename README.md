@@ -70,6 +70,10 @@ request).
 
 The default value is `'connect.sid'`.
 
+**Note** if you have multiple apps running on the same host (hostname + port),
+then you need to separate the session cookies from each other. The simplest
+method is to simply set different `name`s per app.
+
 ##### proxy
 
 Trust the reverse proxy when setting secure cookies (via the "X-Forwarded-Proto"
@@ -100,7 +104,7 @@ How do I know if this is necessary for my store? The best way to know is to
 check with your store if it implements the `touch` method. If it does, then
 you can safely set `resave: false`. If it does not implement the `touch`
 method and your store sets an expiration date on stored sessions, then you
-likely need `resave: true`.
+likely need `resave: true`.h
 
 ##### rolling
 
