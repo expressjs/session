@@ -312,6 +312,8 @@ For an example implementation view the [connect-redis](http://github.com/visionm
 The following modules implement a session store that is compatible with this
 module. Please make a PR to add additional modules :)
 
+  * [connect-mongo](https://www.npmjs.com/package/connect-mongo) A MongoDB-based
+    session store.
   * [connect-redis](https://www.npmjs.com/package/connect-redis) A Redis-based
     session store.
 
