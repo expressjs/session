@@ -1127,7 +1127,7 @@ describe('session()', function(){
     })
   });
 
-  describe.only('secret option', function () {
+  describe('secret option', function () {
     it('should handle arrays', function(done){
       var app = express();
       app.use(session({ secret: ['keyboard cat', 'nyan cat'] }));
