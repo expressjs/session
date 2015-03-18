@@ -22,8 +22,15 @@ var session = require('express-session')
 
 Create a session middleware with the given `options`.
 
-**Note** session data is _not_ saved in the cookie itself, just the session ID.
-Session data is stored server-side.
+**Note** Session data is _not_ saved in the cookie itself, just the session ID.
+Session hdata is stored server-side.
+
+**Warning** The default server-side session storage, `MemoryStore`, is _purposely_
+not designed for a production environment. It will leak memory under most
+conditions, does not scale past a single process, and it meant for debugging and
+developing.
+
+For a list of stores, see [compatible session stores](#compatible-session-stores).
 
 #### Options
 
@@ -63,6 +70,10 @@ request).
 
 The default value is `'connect.sid'`.
 
+**Note** if you have multiple apps running on the same host (hostname + port),
+then you need to separate the session cookies from each other. The simplest
+method is to simply set different `name`s per app.
+
 ##### proxy
 
 Trust the reverse proxy when setting secure cookies (via the "X-Forwarded-Proto"
@@ -88,6 +99,12 @@ The default value is `true`, but using the default has been deprecated,
 as the default will change in the future. Please research into this setting
 and choose what is appropriate to your use-case. Typically, you'll want
 `false`.
+
+How do I know if this is necessary for my store? The best way to know is to
+check with your store if it implements the `touch` method. If it does, then
+you can safely set `resave: false`. If it does not implement the `touch`
+method and your store sets an expiration date on stored sessions, then you
+likely need `resave: true`.h
 
 ##### rolling
 
@@ -135,6 +152,11 @@ The default value is `'keep'`.
     the request are ignored and not saved.
 
 #### Cookie options
+
+**Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
+no longer needs to be used for this module to work. This module now directly reads
+and writes cookies on `req`/`res`. Using `cookie-parser` may result in issues
+if the `secret` is not the same between this module and `cookie-parser`.
 
 Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
 If `secure` is set, and you access your site over HTTP, the cookie will not be set. If you have your node.js behind a proxy and are using `secure: true`, you need to set "trust proxy" in express:
@@ -284,6 +306,16 @@ Recommended methods include, but are not limited to:
    - `.clear(callback)`
 
 For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
+
+## Compatible Session Stores
+
+The following modules implement a session store that is compatible with this
+module. Please make a PR to add additional modules :)
+
+  * [connect-mongo](https://www.npmjs.com/package/connect-mongo) A MongoDB-based
+    session store.
+  * [connect-redis](https://www.npmjs.com/package/connect-redis) A Redis-based
+    session store.
 
 ## Example
 

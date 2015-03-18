@@ -1743,7 +1743,7 @@ describe('session()', function(){
 
             val = cookie(res);
 
-            assert.ok(delta > 1000 && delta < 2000)
+            assert.ok(delta > 1000 && delta <= 2000)
             done();
           });
         });
@@ -1759,7 +1759,7 @@ describe('session()', function(){
 
             val = cookie(res);
 
-            assert.ok(delta > 4000 && delta < 5000)
+            assert.ok(delta > 4000 && delta <= 5000)
             done();
           });
         });
@@ -1775,7 +1775,7 @@ describe('session()', function(){
 
             val = cookie(res);
 
-            assert.ok(delta > 2999999000 && delta < 3000000000)
+            assert.ok(delta > 2999999000 && delta <= 3000000000)
             done();
           });
         });
