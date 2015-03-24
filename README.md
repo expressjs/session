@@ -23,7 +23,7 @@ var session = require('express-session')
 Create a session middleware with the given `options`.
 
 **Note** Session data is _not_ saved in the cookie itself, just the session ID.
-Session hdata is stored server-side.
+Session data is stored server-side.
 
 **Warning** The default server-side session storage, `MemoryStore`, is _purposely_
 not designed for a production environment. It will leak memory under most
@@ -104,7 +104,7 @@ How do I know if this is necessary for my store? The best way to know is to
 check with your store if it implements the `touch` method. If it does, then
 you can safely set `resave: false`. If it does not implement the `touch`
 method and your store sets an expiration date on stored sessions, then you
-likely need `resave: true`.h
+likely need `resave: true`.
 
 ##### rolling
 
