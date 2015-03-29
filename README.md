@@ -132,9 +132,12 @@ it to be saved.
 
 ##### secret
 
-**Required option**
+**Required option**. This is the secret used to sign/unsign the session ID cookie:
 
-This is the secret used to sign the session ID cookie.
+ - If a string is provided, it will be used both for signing and unsigning.
+ - If an array is provided, only the first element will be used to sign the session ID cookie,
+ while all the elements will be used to unsign it. This allows to deprecate a secret used in production
+ without invalidating all sessions.
 
 ##### store
 
