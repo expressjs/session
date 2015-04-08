@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix mutating `options.secret` value
+
 1.11.0 / 2015-04-07
 ===================
 
