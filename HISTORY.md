@@ -2,6 +2,7 @@ unreleased
 ==========
 
   * Support an array in `secret` option for key rotation
+  * deps: depd@~1.0.1
 
 1.10.4 / 2015-03-15
 ===================
