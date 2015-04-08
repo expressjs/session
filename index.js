@@ -92,6 +92,7 @@ function session(options){
     , rollingSessions = options.rolling || false;
   var resaveSession = options.resave;
   var saveUninitializedSession = options.saveUninitialized;
+  var secret = options.secret;
 
   var generateId = options.genid || generateSessionId;
 
@@ -116,17 +117,17 @@ function session(options){
   // TODO: switch to "destroy" on next major
   var unsetDestroy = options.unset === 'destroy';
 
-  if (Array.isArray(options.secret) && options.secret.length === 0) {
+  if (Array.isArray(secret) && secret.length === 0) {
     throw new TypeError('secret option array must contain one or more strings');
   }
 
-  if (options.secret && !Array.isArray(options.secret)) {
-    options.secret = [options.secret];
+  if (secret && !Array.isArray(secret)) {
+    secret = [secret];
   }
 
-  if (!options.secret) {
+  if (!secret) {
     deprecate('req.secret; provide secret option');
-    options.secret = undefined;
+    secret = undefined;
   }
 
   // notify user that this store is not
@@ -159,14 +160,14 @@ function session(options){
     if (0 != originalPath.indexOf(cookie.path || '/')) return next();
 
     // ensure a secret is available or bail
-    if (!options.secret && !req.secret) {
+    if (!secret && !req.secret) {
       next(new Error('secret option required for sessions'));
       return;
     }
 
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
-    var secrets = options.secret || [req.secret];
+    var secrets = secret || [req.secret];
 
     var originalHash;
     var originalId;
