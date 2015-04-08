@@ -1,5 +1,5 @@
-unreleased
-==========
+1.11.0 / 2015-04-07
+===================
 
   * Support an array in `secret` option for key rotation
   * deps: depd@~1.0.1
