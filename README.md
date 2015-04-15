@@ -27,7 +27,7 @@ Session data is stored server-side.
 
 **Warning** The default server-side session storage, `MemoryStore`, is _purposely_
 not designed for a production environment. It will leak memory under most
-conditions, does not scale past a single process, and it meant for debugging and
+conditions, does not scale past a single process, and is meant for debugging and
 developing.
 
 For a list of stores, see [compatible session stores](#compatible-session-stores).
