@@ -52,7 +52,7 @@ the ID.
 
 The default value is a function which uses the `uid2` library to generate IDs.
 
-**NOTE** be careful you generate unique IDs so your sessions do not conflict.
+**NOTE** be careful to generate unique IDs so your sessions do not conflict.
 
 ```js
 app.use(session({
@@ -84,13 +84,13 @@ The default value is `undefined`.
   - `true` The "X-Forwarded-Proto" header will be used.
   - `false` All headers are ignored and the connection is considered secure only
     if there is a direct TLS/SSL connection.
-  - `undefined` Use the "trust proxy" setting from express
+  - `undefined` Uses the "trust proxy" setting from express
 
 ##### resave
 
 Forces the session to be saved back to the session store, even if the session
 was never modified during the request. Depending on your store this may be
-necessary, but it can also create race conditions where a client has two
+necessary, but it can also create race conditions where a client makes two
 parallel requests to your server and changes made to the session in one
 request may get overwritten when the other request ends, even if it made no
 changes (this behavior also depends on what store you're using).
