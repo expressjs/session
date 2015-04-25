@@ -319,6 +319,8 @@ module. Please make a PR to add additional modules :)
     session store.
   * [connect-redis](https://www.npmjs.com/package/connect-redis) A Redis-based
     session store.
+  * [level-session-store](https://www.npmjs.com/package/level-session-store)
+    A LevelDB-based session store.
   * [session-file-store](https://www.npmjs.com/package/session-file-store) A file
     system-based session store.
 
