@@ -315,6 +315,8 @@ For an example implementation view the [connect-redis](http://github.com/visionm
 The following modules implement a session store that is compatible with this
 module. Please make a PR to add additional modules :)
 
+  * [cassandra-store](https://www.npmjs.com/package/cassandra-store) An Apache
+    Cassandra-based session store.
   * [connect-mongo](https://www.npmjs.com/package/connect-mongo) A MongoDB-based
     session store.
   * [connect-redis](https://www.npmjs.com/package/connect-redis) A Redis-based
