@@ -317,12 +317,16 @@ module. Please make a PR to add additional modules :)
 
   * [cassandra-store](https://www.npmjs.com/package/cassandra-store) An Apache
     Cassandra-based session store.
+  * [connect-mssql](https://www.npmjs.com/package/connect-mssql) A SQL Server-based
+    session store.
   * [connect-mongo](https://www.npmjs.com/package/connect-mongo) A MongoDB-based
     session store.
   * [connect-redis](https://www.npmjs.com/package/connect-redis) A Redis-based
     session store.
   * [level-session-store](https://www.npmjs.com/package/level-session-store)
     A LevelDB-based session store.
+  * [mssql-session-store](https://www.npmjs.com/package/mssql-session-store) A
+    SQL Server-based session store.
   * [session-file-store](https://www.npmjs.com/package/session-file-store) A file
     system-based session store.
 
