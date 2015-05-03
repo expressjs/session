@@ -325,6 +325,8 @@ module. Please make a PR to add additional modules :)
     A LevelDB-based session store.
   * [session-file-store](https://www.npmjs.com/package/session-file-store) A file
     system-based session store.
+  * [mssql-session-store](https://www.npmjs.com/package/mssql-session-store) A SQL Server 
+    based session store.
 
 ## Example
 
