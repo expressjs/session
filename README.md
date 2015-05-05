@@ -315,20 +315,33 @@ For an example implementation view the [connect-redis](http://github.com/visionm
 The following modules implement a session store that is compatible with this
 module. Please make a PR to add additional modules :)
 
-  * [cassandra-store](https://www.npmjs.com/package/cassandra-store) An Apache
-    Cassandra-based session store.
-  * [connect-mssql](https://www.npmjs.com/package/connect-mssql) A SQL Server-based
-    session store.
-  * [connect-mongo](https://www.npmjs.com/package/connect-mongo) A MongoDB-based
-    session store.
-  * [connect-redis](https://www.npmjs.com/package/connect-redis) A Redis-based
-    session store.
-  * [level-session-store](https://www.npmjs.com/package/level-session-store)
-    A LevelDB-based session store.
-  * [mssql-session-store](https://www.npmjs.com/package/mssql-session-store) A
-    SQL Server-based session store.
-  * [session-file-store](https://www.npmjs.com/package/session-file-store) A file
-    system-based session store.
+[![Github Stars][cassandra-store-image] cassandra-store][cassandra-store-url] An Apache Cassandra-based session store.
+[cassandra-store-url]: https://www.npmjs.com/package/cassandra-store
+[cassandra-store-image]: https://img.shields.io/github/stars/webcc/cassandra-store.svg?label=%E2%98%85
+
+[![Github Stars][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
+[connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
+[connect-mssql-image]: https://img.shields.io/github/stars/patriksimek/connect-mssql.svg?label=%E2%98%85
+
+[![Github Stars][connect-mongo-image] connect-mongo][connect-mongo-url] A MongoDB-based session store.
+[connect-mongo-url]: https://www.npmjs.com/package/connect-mongo
+[connect-mongo-image]: https://img.shields.io/github/stars/kcbanner/connect-mongo.svg?label=%E2%98%85
+
+[![Github Stars][connect-redis-image] connect-redis][connect-redis-url] A Redis-based session store.
+[connect-redis-url]: https://www.npmjs.com/package/connect-redis
+[connect-redis-image]: https://img.shields.io/github/stars/tj/connect-redis.svg?label=%E2%98%85
+
+[![Github Stars][level-session-store-image] level-session-store][level-session-store-url] A LevelDB-based session store.
+[level-session-store-url]: https://www.npmjs.com/package/level-session-store
+[level-session-store-image]: https://img.shields.io/github/stars/scriptollc/level-session-store.svg?label=%E2%98%85
+
+[![Github Stars][mssql-session-store-image] mssql-session-store][mssql-session-store-url] A SQL Server-based session store.
+[mssql-session-store-url]: https://www.npmjs.com/package/mssql-session-store
+[mssql-session-store-image]: https://img.shields.io/github/stars/jwathen/mssql-session-store.svg?label=%E2%98%85
+
+[![Github Stars][session-file-store-image] session-file-store][session-file-store-url] A file system-based session store.
+[session-file-store-url]: https://www.npmjs.com/package/session-file-store
+[session-file-store-image]: https://img.shields.io/github/stars/valery-barysok/session-file-store.svg?label=%E2%98%85
 
 ## Example
 
