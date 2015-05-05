@@ -329,6 +329,8 @@ module. Please make a PR to add additional modules :)
     SQL Server-based session store.
   * [session-file-store](https://www.npmjs.com/package/session-file-store) A file
     system-based session store.
+  * [connect-mssql](https://www.npmjs.com/package/connect-mssql) A SQL Server 
+    based session store.
 
 ## Example
 
