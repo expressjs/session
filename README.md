@@ -376,13 +376,13 @@ app.get('/bar', function (req, res, next) {
 
 [MIT](LICENSE)
 
-[npm-image]: https://img.shields.io/npm/v/express-session.svg?style=flat
+[npm-image]: https://img.shields.io/npm/v/express-session.svg
 [npm-url]: https://npmjs.org/package/express-session
-[travis-image]: https://img.shields.io/travis/expressjs/session.svg?style=flat
+[travis-image]: https://img.shields.io/travis/expressjs/session/master.svg
 [travis-url]: https://travis-ci.org/expressjs/session
-[coveralls-image]: https://img.shields.io/coveralls/expressjs/session.svg?style=flat
+[coveralls-image]: https://img.shields.io/coveralls/expressjs/session/master.svg
 [coveralls-url]: https://coveralls.io/r/expressjs/session?branch=master
-[downloads-image]: https://img.shields.io/npm/dm/express-session.svg?style=flat
+[downloads-image]: https://img.shields.io/npm/dm/express-session.svg
 [downloads-url]: https://npmjs.org/package/express-session
-[gratipay-image]: https://img.shields.io/gratipay/dougwilson.svg?style=flat
+[gratipay-image]: https://img.shields.io/gratipay/dougwilson.svg
 [gratipay-url]: https://gratipay.com/dougwilson/
