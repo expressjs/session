@@ -348,6 +348,10 @@ module. Please make a PR to add additional modules :)
 [session-file-store-url]: https://www.npmjs.com/package/session-file-store
 [session-file-store-image]: https://img.shields.io/github/stars/valery-barysok/session-file-store.svg?label=%E2%98%85
 
+[![Github Stars][connect-session-knex-image] connect-session-knex][connect-session-knex-url] A session store using [Knex.js](http://knexjs.org/), which is a SQL query builder for PostgreSQL, MySQL, MariaDB, SQLite3, and Oracle.
+[connect-session-knex-url]: https://www.npmjs.com/package/connect-session-knex
+[connect-session-knex-image]: https://img.shields.io/github/stars/llambda/connect-session-knex.svg?label=%E2%98%85
+
 ## Example
 
 A simple example using `express-session` to store page views for a user.
