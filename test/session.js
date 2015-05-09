@@ -1811,6 +1811,53 @@ describe('session()', function(){
               done();
             });
           })
+
+          it('should not reset cookie', function (done) {
+            var server = createServer(null, function (req, res) {
+              req.session.cookie.expires = null;
+              res.end();
+            });
+
+            request(server)
+            .get('/')
+            .expect(200, function (err, res) {
+              if (err) return done(err);
+              var val = cookie(res);
+              assert.equal(val.indexOf('Expires'), -1, 'should be not have cookie Expires')
+              request(server)
+              .get('/')
+              .set('Cookie', val)
+              .expect(200, function (err, res) {
+                if (err) return done(err);
+                assert.ok(!cookie(res));
+                done();
+              });
+            });
+          })
+
+          it('should not reset cookie when modified', function (done) {
+            var server = createServer(null, function (req, res) {
+              req.session.cookie.expires = null;
+              req.session.hit = (req.session.hit || 0) + 1;
+              res.end();
+            });
+
+            request(server)
+            .get('/')
+            .expect(200, function (err, res) {
+              if (err) return done(err);
+              var val = cookie(res);
+              assert.equal(val.indexOf('Expires'), -1, 'should be not have cookie Expires')
+              request(server)
+              .get('/')
+              .set('Cookie', val)
+              .expect(200, function (err, res) {
+                if (err) return done(err);
+                assert.ok(!cookie(res));
+                done();
+              });
+            });
+          })
         })
       })
     })
