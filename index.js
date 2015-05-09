@@ -386,9 +386,7 @@ function session(options){
         return true;
       }
 
-      return cookieId != req.sessionID
-        ? saveUninitializedSession || isModified(req.session)
-        : req.session.cookie.expires != null && isModified(req.session);
+      return (cookieId != req.sessionID && saveUninitializedSession) || isModified(req.session);
     }
 
     // generate a session if the browser doesn't send a sessionID
