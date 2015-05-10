@@ -348,6 +348,10 @@ module. Please make a PR to add additional modules :)
 [session-file-store-url]: https://www.npmjs.com/package/session-file-store
 [session-file-store-image]: https://img.shields.io/github/stars/valery-barysok/session-file-store.svg?label=%E2%98%85
 
+[![Github Stars][session-rethinkdb-image] session-rethinkdb][session-rethinkdb-url] A [RethinkDB](http://rethinkdb.com/)-based session store.
+[session-rethinkdb-url]: https://www.npmjs.com/package/session-rethinkdb
+[session-rethinkdb-image]: https://img.shields.io/github/stars/llambda/session-rethinkdb.svg?label=%E2%98%85
+
 ## Example
 
 A simple example using `express-session` to store page views for a user.
