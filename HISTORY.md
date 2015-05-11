@@ -1,6 +1,8 @@
 unreleased
 ==========
 
+  * deps: debug@~2.2.0
+    - deps: ms@0.7.1
   * deps: uid-safe@~2.0.0
 
 1.11.1 / 2015-04-08
