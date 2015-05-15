@@ -199,6 +199,70 @@ function session(options){
 
       setcookie(res, name, req.sessionID, secrets[0], cookie.data);
     });
+    
+    // proxy redirect() to commit the session
+    var _redirect = res.redirect;
+    var redirected = false;
+    res.redirect = function redirect(url) {
+	  if (redirected) {
+        return;
+      }
+
+      redirected = true;
+
+      if (shouldDestroy(req)) {
+        // destroy session
+        debug('destroying');
+        store.destroy(req.sessionID, function ondestroy(err) {
+          if (err) {
+            defer(next, err);
+          }
+
+          debug('destroyed');
+          _redirect.call(res, url);
+        });
+        
+        return;
+      }
+      
+      // no session to save
+      if (!req.session) {
+        debug('no session');
+        _redirect.call(res, url);
+        
+        return;
+      }
+
+      // touch session
+      req.session.touch();
+      
+      if (shouldSave(req)) {
+        req.session.save(function onsave(err) {
+          if (err) {
+            defer(next, err);
+          }
+
+          _redirect.call(res, url);
+        });
+        
+        return;
+      } else if (storeImplementsTouch && shouldTouch(req)) {
+        // store implements touch method
+        debug('touching');
+        store.touch(req.sessionID, req.session, function ontouch(err) {
+          if (err) {
+            defer(next, err);
+          }
+
+          debug('touched');
+          _redirect.call(res, url);
+        });
+        
+        return;
+      }
+      
+      return _redirect.call(res, url);
+    };
 
     // proxy end() to commit the session
     var _end = res.end;
@@ -210,6 +274,11 @@ function session(options){
       }
 
       ended = true;
+      
+      if (redirected) {
+	    // we've done everything in res.redirect
+	    return _end.call(res, chunk, encoding);
+      }
 
       var ret;
       var sync = true;

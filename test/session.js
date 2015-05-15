@@ -367,6 +367,42 @@ describe('session()', function(){
         done()
       })
     })
+
+    it('should have saved session before before res.redirect sends location header', function (done) {
+      var saved = false
+      var success = false
+      var store = new session.MemoryStore()
+      var app = express()
+        .use(session({ store: store, secret: 'keyboard cat', cookie: { maxAge: min }}))
+        .use(function(req, res){
+	      req.session.hit = true
+	      res.redirect('http://xxx.com');
+        });
+      app.set('env', 'test');
+      
+      var _set = store.set
+      store.set = function set(sid, sess, callback) {
+        setTimeout(function () {
+          _set.call(store, sid, sess, function (err) {
+            saved = true
+            callback(err)
+          })
+        }, 200)
+      }
+
+      request(app)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect('location', 'http://xxx.com')
+      .expect(302, function (err) {
+        if (err) return done(err)
+        assert.ok(success)
+        done()
+      })
+      .req.on('response', function() {
+	      if (saved) success = true;
+      })
+    })
   })
 
   describe('when sid not in store', function () {
