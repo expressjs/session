@@ -369,15 +369,14 @@ describe('session()', function(){
     })
   })
   
-  describe('when response redirect', function () {
-    it('should have saved session before location header is sent to the browser #1', function (done) {
+  describe('when location header is set', function () {
+    it('should buffer the response #1', function (done) {
       var saved = false
       var success = false
       var store = new session.MemoryStore()
       var server = createServer({ store: store, saveBeforeRedirect: true }, function (req, res) {
         req.session.hit = true
-        res.setHeader('Location', 'http://xxx.com')
-        res.writeHead(308);
+        res.writeHead(308, {location: 'http://xxx.com'});
         res.end('custom body');
       })
 
@@ -405,7 +404,7 @@ describe('session()', function(){
       })
     })
     
-    it('should have saved session before location header is sent to the browser #2', function (done) {
+    it('should buffer the response #2', function (done) {
       var saved = false
       var success = false
       var store = new session.MemoryStore()
@@ -442,7 +441,7 @@ describe('session()', function(){
       })
     })
   
-    it('should have saved session before location header is sent to the browser #3 (synchronous store)', function(done){
+    it('should buffer the response #3 (synchronous store)', function(done){
       var store = new SyncStore()
       var server = createServer({ store: store, saveBeforeRedirect: true }, function (req, res) {
         res.setHeader('Location', 'http://xxx.com')
@@ -453,6 +452,40 @@ describe('session()', function(){
       request(server)
       .get('/')
       .expect(308, 'response', done)
+    })
+  
+    it('should not buffer the response', function(done){
+      var saved = false
+      var success = true
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, saveBeforeRedirect: true }, function (req, res) {
+        req.session.hit = true
+        res.writeHead(200, {location: 'http://xxx.com'});
+        res.end('custom body');
+      })
+
+      var _set = store.set
+      store.set = function set(sid, sess, callback) {
+        setTimeout(function () {
+          _set.call(store, sid, sess, function (err) {
+            saved = true
+            callback(err)
+          })
+        }, 200)
+      }
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect('location', 'http://xxx.com')
+      .expect(200, 'custom body', function (err) {
+        if (err) return done(err)
+        assert.ok(success)
+        done()
+      })
+      .req.on('response', function() {
+	      if (saved) success = false;
+      })
     })
   })
 

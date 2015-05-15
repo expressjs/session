@@ -11,7 +11,6 @@
  * @private
  */
 
-var util = require('util');
 var cookie = require('cookie');
 var crc = require('crc').crc32;
 var debug = require('debug')('express-session');
@@ -213,13 +212,13 @@ function session(options){
       res.writeHead = function writeHead(statusCode, reason, obj) {
         if (headWritten) return;
         headWritten = true;
-        
+
         // search for location header only for 3xx status codes
-        if (statusCode < 300 && statusCode >= 400) {
+        if (statusCode < 300 || statusCode >= 400) {
           return _writeHead.call(res, statusCode, reason, obj);
         }
         
-        if (!util.isString(reason)) {
+        if ('string' != typeof(reason)) {
           obj = reason;
           reason = undefined;
         }
