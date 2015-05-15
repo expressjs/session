@@ -201,69 +201,73 @@ function session(options){
     });
     
     // proxy redirect() to commit the session
-    var _redirect = res.redirect;
     var redirected = false;
-    res.redirect = function redirect(url) {
-	  if (redirected) {
-        return;
-      }
-
-      redirected = true;
-
-      if (shouldDestroy(req)) {
-        // destroy session
-        debug('destroying');
-        store.destroy(req.sessionID, function ondestroy(err) {
-          if (err) {
-            defer(next, err);
-          }
-
-          debug('destroyed');
-          _redirect.call(res, url);
-        });
+    if ('function' == typeof(res.redirect)) {
+      var _redirect = res.redirect;
+      res.redirect = function redirect() {
+        var args = arguments;
         
-        return;
-      }
-      
-      // no session to save
-      if (!req.session) {
-        debug('no session');
-        _redirect.call(res, url);
+  	    if (redirected) {
+          return;
+        }
         
-        return;
-      }
-
-      // touch session
-      req.session.touch();
-      
-      if (shouldSave(req)) {
-        req.session.save(function onsave(err) {
-          if (err) {
-            defer(next, err);
-          }
-
-          _redirect.call(res, url);
-        });
+        redirected = true;
+  
+        if (shouldDestroy(req)) {
+          // destroy session
+          debug('destroying');
+          store.destroy(req.sessionID, function ondestroy(err) {
+            if (err) {
+              defer(next, err);
+            }
+  
+            debug('destroyed');
+            _redirect.apply(res, args);
+          });
+          
+          return;
+        }
         
-        return;
-      } else if (storeImplementsTouch && shouldTouch(req)) {
-        // store implements touch method
-        debug('touching');
-        store.touch(req.sessionID, req.session, function ontouch(err) {
-          if (err) {
-            defer(next, err);
-          }
-
-          debug('touched');
-          _redirect.call(res, url);
-        });
+        // no session to save
+        if (!req.session) {
+          debug('no session');
+          _redirect.apply(res, args);
+          
+          return;
+        }
+  
+        // touch session
+        req.session.touch();
         
-        return;
-      }
-      
-      return _redirect.call(res, url);
+        if (shouldSave(req)) {
+          req.session.save(function onsave(err) {
+            if (err) {
+              defer(next, err);
+            }
+  
+            _redirect.apply(res, args);
+          });
+          
+          return;
+        } else if (storeImplementsTouch && shouldTouch(req)) {
+          // store implements touch method
+          debug('touching');
+          store.touch(req.sessionID, req.session, function ontouch(err) {
+            if (err) {
+              defer(next, err);
+            }
+  
+            debug('touched');
+            _redirect.apply(res, args);
+          });
+          
+          return;
+        }
+        
+        return _redirect.apply(res, args);
+      };
     };
-
+    
     // proxy end() to commit the session
     var _end = res.end;
     var _write = res.write;
