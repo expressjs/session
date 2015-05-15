@@ -11,6 +11,7 @@
  * @private
  */
 
+var util = require('util');
 var cookie = require('cookie');
 var crc = require('crc').crc32;
 var debug = require('debug')('express-session');
@@ -89,7 +90,8 @@ function session(options){
     , cookie = options.cookie || {}
     , trustProxy = options.proxy
     , storeReady = true
-    , rollingSessions = options.rolling || false;
+    , rollingSessions = options.rolling || false
+    , saveBeforeLocationHeader = options.saveBeforeRedirect || false;
   var resaveSession = options.resave;
   var saveUninitializedSession = options.saveUninitialized;
   var secret = options.secret;
@@ -171,6 +173,9 @@ function session(options){
     var originalHash;
     var originalId;
     var savedHash;
+    var buffered;
+    var bufferedChunks;
+    var writeHeadLater;
 
     // expose store
     req.sessionStore = store;
@@ -200,77 +205,60 @@ function session(options){
       setcookie(res, name, req.sessionID, secrets[0], cookie.data);
     });
     
-    // proxy redirect() to commit the session
-    var redirected = false;
-    if ('function' == typeof(res.redirect)) {
-      var _redirect = res.redirect;
-      res.redirect = function redirect() {
-        var args = arguments;
+    var _write = res.write;
+
+    if (saveBeforeLocationHeader) {
+      var _writeHead = res.writeHead;
+      var headWritten = false;
+      res.writeHead = function writeHead(statusCode, reason, obj) {
+        if (headWritten) return;
+        headWritten = true;
         
-  	    if (redirected) {
-          return;
+        // search for location header only for 3xx status codes
+        if (statusCode < 300 && statusCode >= 400) {
+          return _writeHead.call(res, statusCode, reason, obj);
         }
         
-        redirected = true;
-  
-        if (shouldDestroy(req)) {
-          // destroy session
-          debug('destroying');
-          store.destroy(req.sessionID, function ondestroy(err) {
-            if (err) {
-              defer(next, err);
-            }
-  
-            debug('destroyed');
-            _redirect.apply(res, args);
-          });
-          
-          return;
+        if (!util.isString(reason)) {
+          obj = reason;
+          reason = undefined;
         }
         
-        // no session to save
-        if (!req.session) {
-          debug('no session');
-          _redirect.apply(res, args);
-          
-          return;
-        }
-  
-        // touch session
-        req.session.touch();
-        
-        if (shouldSave(req)) {
-          req.session.save(function onsave(err) {
-            if (err) {
-              defer(next, err);
-            }
-  
-            _redirect.apply(res, args);
-          });
-          
-          return;
-        } else if (storeImplementsTouch && shouldTouch(req)) {
-          // store implements touch method
-          debug('touching');
-          store.touch(req.sessionID, req.session, function ontouch(err) {
-            if (err) {
-              defer(next, err);
-            }
-  
-            debug('touched');
-            _redirect.apply(res, args);
-          });
-          
-          return;
+        if (obj) {
+          var keys = Object.keys(obj);
+          for (var i = 0, l = keys.length; i < l; i++) {
+            var k = keys[i];
+            if (k) res.setHeader(k, obj[k]);
+          }
         }
         
-        return _redirect.apply(res, args);
+        // we have a `location` header so we must buffer all writes
+        if (res.getHeader('location') != null) {
+          debug('redirect found, buffering response')
+          buffered = true;
+          bufferedChunks = new Buffer(0);
+          writeHeadLater = function() { _writeHead.call(res, statusCode, reason); };
+        } else {
+          _writeHead.call(res, statusCode, reason);
+        }
+      };
+      
+      var __write = _write;
+      res.write = _write = function write(chunk, encoding, callback) {
+        if (!headWritten) res.writeHead(this.statusCode);
+        
+        if (buffered) {
+          bufferedChunks = Buffer.concat([bufferedChunks, !Buffer.isBuffer(chunk) ? new Buffer(chunk, encoding) : chunk]);
+          if ('function' === typeof(callback)) setImmediate(callback);
+          return true;
+        } else {
+          return __write.apply(res, arguments);
+        }
       };
     };
     
     // proxy end() to commit the session
     var _end = res.end;
-    var _write = res.write;
     var ended = false;
     res.end = function end(chunk, encoding) {
       if (ended) {
@@ -278,23 +266,23 @@ function session(options){
       }
 
       ended = true;
-      
-      if (redirected) {
-	    // we've done everything in res.redirect
-	    return _end.call(res, chunk, encoding);
-      }
 
       var ret;
       var sync = true;
 
       function writeend() {
         if (sync) {
-          ret = _end.call(res, chunk, encoding);
+          if (chunk) _write.call(res, chunk, encoding);
           sync = false;
-          return;
+        }
+        
+        if (buffered) {
+          if (writeHeadLater) writeHeadLater();
+          __write.call(res, bufferedChunks);
         }
 
-        _end.call(res);
+        ret = _end.call(res);
+        return ret;
       }
 
       function writetop() {
@@ -378,7 +366,7 @@ function session(options){
 
         return writetop();
       }
-
+      
       return _end.call(res, chunk, encoding);
     };
 

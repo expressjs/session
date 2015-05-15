@@ -367,19 +367,20 @@ describe('session()', function(){
         done()
       })
     })
-
-    it('should have saved session before before res.redirect sends location header', function (done) {
+  })
+  
+  describe('when response redirect', function () {
+    it('should have saved session before location header is sent to the browser #1', function (done) {
       var saved = false
       var success = false
       var store = new session.MemoryStore()
-      var app = express()
-        .use(session({ store: store, secret: 'keyboard cat', cookie: { maxAge: min }}))
-        .use(function(req, res){
-	      req.session.hit = true
-	      res.redirect('http://xxx.com');
-        });
-      app.set('env', 'test');
-      
+      var server = createServer({ store: store, saveBeforeRedirect: true }, function (req, res) {
+        req.session.hit = true
+        res.setHeader('Location', 'http://xxx.com')
+        res.writeHead(308);
+        res.end('custom body');
+      })
+
       var _set = store.set
       store.set = function set(sid, sess, callback) {
         setTimeout(function () {
@@ -390,11 +391,11 @@ describe('session()', function(){
         }, 200)
       }
 
-      request(app)
+      request(server)
       .get('/')
       .expect(shouldSetCookie('connect.sid'))
       .expect('location', 'http://xxx.com')
-      .expect(302, function (err) {
+      .expect(308, 'custom body', function (err) {
         if (err) return done(err)
         assert.ok(success)
         done()
@@ -402,6 +403,56 @@ describe('session()', function(){
       .req.on('response', function() {
 	      if (saved) success = true;
       })
+    })
+    
+    it('should have saved session before location header is sent to the browser #2', function (done) {
+      var saved = false
+      var success = false
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, saveBeforeRedirect: true }, function (req, res) {
+        req.session.hit = true
+        res.setHeader('Location', 'http://xxx.com')
+        res.statusCode = 308
+        res.write('a');
+        res.write('b');
+        res.end('c');
+      })
+
+      var _set = store.set
+      store.set = function set(sid, sess, callback) {
+        setTimeout(function () {
+          _set.call(store, sid, sess, function (err) {
+            saved = true
+            callback(err)
+          })
+        }, 200)
+      }
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect('location', 'http://xxx.com')
+      .expect(308, 'abc', function (err) {
+        if (err) return done(err)
+        assert.ok(success)
+        done()
+      })
+      .req.on('response', function() {
+	      if (saved) success = true;
+      })
+    })
+  
+    it('should have saved session before location header is sent to the browser #3 (synchronous store)', function(done){
+      var store = new SyncStore()
+      var server = createServer({ store: store, saveBeforeRedirect: true }, function (req, res) {
+        res.setHeader('Location', 'http://xxx.com')
+        res.statusCode = 308
+        res.end('response')
+      })
+
+      request(server)
+      .get('/')
+      .expect(308, 'response', done)
     })
   })
 
