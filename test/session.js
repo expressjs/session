@@ -454,7 +454,7 @@ describe('session()', function(){
       .expect(308, 'response', done)
     })
   
-    it('should not buffer the response', function(done){
+    it('should not buffer the response #1', function(done){
       var saved = false
       var success = true
       var store = new session.MemoryStore()
@@ -479,6 +479,39 @@ describe('session()', function(){
       .expect(shouldSetCookie('connect.sid'))
       .expect('location', 'http://xxx.com')
       .expect(200, 'custom body', function (err) {
+        if (err) return done(err)
+        assert.ok(success)
+        done()
+      })
+      .req.on('response', function() {
+	      if (saved) success = false;
+      })
+    })
+  
+    it('should not buffer the response #2', function(done){
+      var saved = false
+      var success = true
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, saveBeforeRedirect: true }, function (req, res) {
+        req.session.hit = true
+        res.writeHead(302);
+        res.end('custom body');
+      })
+
+      var _set = store.set
+      store.set = function set(sid, sess, callback) {
+        setTimeout(function () {
+          _set.call(store, sid, sess, function (err) {
+            saved = true
+            callback(err)
+          })
+        }, 200)
+      }
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(302, 'custom body', function (err) {
         if (err) return done(err)
         assert.ok(success)
         done()
