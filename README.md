@@ -63,6 +63,24 @@ app.use(session({
 }))
 ```
 
+##### sessionid
+
+Function to manually set the sessionID. This is most helpful for environments where
+cookies are not possible. When the expression returns no value, the regular sessionID
+will be used or generated.
+
+**NOTE** be careful with unsecured connections. When you don't use SSL, a man in the
+middle could intercept a sessionID and pick up a session from there.
+
+```js
+app.use(session({
+  sessionid: function(req) {
+    return req.query.sessionID;
+  },
+  secret: 'keyboard cat'
+}))
+```
+
 ##### name
 
 The name of the session ID cookie to set in the response (and read from in the
