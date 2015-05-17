@@ -95,8 +95,9 @@ function session(options){
   var saveUninitializedSession = options.saveUninitialized;
   var secret = options.secret;
 
-  var getManualSessionId = options.sessionID;
-  var generateId = options.genid || getManualSessionId || generateSessionId;
+  var generateId = options.genid || generateSessionId;
+
+  var getManualSessionId = options.sessionID || function(req) {};
 
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
@@ -139,7 +140,7 @@ function session(options){
 
   // generates the new session
   store.generate = function(req){
-    req.sessionID = generateId(req);
+    req.sessionID = getManualSessionId(req) ? getManualSessionId(req) : generateId(req);
     req.session = new Session(req);
     req.session.cookie = new Cookie(cookie);
   };
@@ -178,7 +179,7 @@ function session(options){
     req.sessionStore = store;
 
     // get the session ID from the cookie
-    var cookieId = req.sessionID = getManualSessionId ? getManualSessionId(req) : getcookie(req, name, secrets);
+    var cookieId = req.sessionID = getManualSessionId(req) ? getManualSessionId(req) : getcookie(req, name, secrets);
 
     // set-cookie
     onHeaders(res, function(){
