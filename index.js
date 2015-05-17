@@ -74,7 +74,7 @@ var defer = typeof setImmediate === 'function'
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
- * @param {Function} [options.sessionID] Manually set session ID
+ * @param {Function} [options.sessionid] Manually set session ID
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
@@ -97,7 +97,7 @@ function session(options){
 
   var generateId = options.genid || generateSessionId;
 
-  var getManualSessionId = options.sessionID || function(req) {};
+  var getManualSessionId = options.sessionid || function(req) {};
 
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
