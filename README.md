@@ -327,6 +327,10 @@ module. Please make a PR to add additional modules :)
 [connect-mongo-url]: https://www.npmjs.com/package/connect-mongo
 [connect-mongo-image]: https://img.shields.io/github/stars/kcbanner/connect-mongo.svg?label=%E2%98%85
 
+[![Github Stars][connect-mongodb-session-image] connect-mongodb-session][connect-mongodb-session-url] Lightweight MongoDB-based session store built and maintained by MongoDB.
+[connect-mongodb-session-url]: https://www.npmjs.com/package/connect-mongodb-session
+[connect-mongodb-session-image]: https://img.shields.io/github/stars/mongodb-js/connect-mongodb-session.svg?label=%E2%98%85
+
 [![Github Stars][connect-redis-image] connect-redis][connect-redis-url] A Redis-based session store.
 [connect-redis-url]: https://www.npmjs.com/package/connect-redis
 [connect-redis-image]: https://img.shields.io/github/stars/tj/connect-redis.svg?label=%E2%98%85
