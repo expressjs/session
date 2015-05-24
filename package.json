@@ -30,6 +30,7 @@
   },
   "files": [
     "session/",
+    "driver/",
     "HISTORY.md",
     "LICENSE",
     "index.js"
