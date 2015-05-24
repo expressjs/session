@@ -19,6 +19,7 @@ var Session = require('./session/session')
   , Cookie = require('./session/cookie')
   , Store = require('./session/store')
   , CookieDriver = require('./driver/cookie')
+  , HeaderDriver = require('./driver/header')
 
 // environment
 
@@ -72,12 +73,13 @@ var warning = 'Warning: connect.session() MemoryStore is not\n'
  */
 
 function session(options){
-  var options = options || {}
-    , store = options.store || new MemoryStore
+  var options = options || {};
+  var store = options.store || new MemoryStore;
+  var driver = options.driver || 'Cookie';
   var resaveSession = options.resave;
   var saveUninitializedSession = options.saveUninitialized;
   var driverOptions = {
-    name: options.name || options.key || 'connect.sid',
+	name: options.name || options.key || (driver === 'Cookie') ? 'connect.sid' : 'Authorization',
     storeReady: true,
     secret: options.secret,
     saveUninitializedSession: options.saveUninitialized,
@@ -132,14 +134,14 @@ function session(options){
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    req.session.cookie = new Cookie(driverOptions.cookie);
+	req.session.cookie = new Cookie(driverOptions.cookie);
   };
 
   driverOptions.storeImplementsTouch = typeof store.touch === 'function';
   store.on('disconnect', function(){ driverOptions.storeReady = false; });
   store.on('connect', function(){ driverOptions.storeReady = true; });
 
-  return CookieDriver(store, driverOptions);
+  return driver === 'Cookie' ? CookieDriver(store, driverOptions) : HeaderDriver(store, driverOptions);
 };
 
 /**
