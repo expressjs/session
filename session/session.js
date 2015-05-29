@@ -6,6 +6,8 @@
  * MIT Licensed
  */
 
+var crc = require('crc').crc32;
+
 /**
  * Expose Session.
  */
@@ -21,10 +23,15 @@ module.exports = Session;
  */
 
 function Session(req, data) {
-  Object.defineProperty(this, 'req', { value: req });
-  Object.defineProperty(this, 'id', { value: req.sessionID });
+  Object.defineProperties(this, {
+    req: { value: req },
+    id:  { value: req.sessionID },
+    _hashCode: { writable: true, value: {} },
+    _isRetrieved: { writable: true, value: false }
+  });
 
   if (typeof data === 'object' && data !== null) {
+    this._isRetrieved = true;
     // merge data into this, ignoring prototype properties
     for (var prop in data) {
       if (!(prop in this)) {
@@ -32,6 +39,8 @@ function Session(req, data) {
       }
     }
   }
+
+  this._hashCode.original = hash(this);
 }
 
 /**
@@ -68,6 +77,7 @@ Session.prototype.resetMaxAge = function(){
  */
 
 Session.prototype.save = function(fn){
+  this._hashCode.saved = hash(this);
   this.req.sessionStore.set(this.id, this, fn || function(){});
   return this;
 };
@@ -122,3 +132,65 @@ Session.prototype.regenerate = function(fn){
   this.req.sessionStore.regenerate(this.req, fn);
   return this;
 };
+
+/**
+ * Check if session is modified.
+ *
+ * @return {boolean}
+ * @api public
+ */
+
+Session.prototype.isModified = function(){
+  return this.id !== this.req.sessionID || this._hashCode.original !== hash(this);
+};
+
+/**
+ * Check if session is saved.
+ *
+ * @return {boolean}
+ * @api public
+ */
+
+Session.prototype.isSaved = function(){
+  return this.id === this.req.sessionID && this._hashCode.saved === hash(this);
+};
+
+/**
+ * Check if session is retrieved from storage.
+ *
+ * @return {boolean}
+ * @api public
+ */
+
+Session.prototype.isRetrieved = function(){
+  return this._isRetrieved;
+};
+
+/**
+ * Retain session. Set saved hash code to original hash code value.
+ * TODO: Probably this method will be removed in funture
+ *
+ * @return {Session} for chaining
+ * @api public
+ */
+
+Session.prototype.retain = function(){
+  this._hashCode.saved = this._hashCode.original;
+  return this;
+};
+
+/**
+ * Hash the given `sess` object omitting changes to `.cookie`.
+ *
+ * @param {Object} sess
+ * @return {String}
+ * @private
+ */
+
+function hash(sess) {
+  return crc(JSON.stringify(sess, function (key, val) {
+    if (key !== 'cookie') {
+      return val;
+    }
+  }));
+}

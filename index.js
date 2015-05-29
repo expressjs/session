@@ -12,7 +12,6 @@
  */
 
 var cookie = require('cookie');
-var crc = require('crc').crc32;
 var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
 var parseUrl = require('parseurl');
@@ -152,7 +151,6 @@ function session(options){
     req.session.cookie = new Cookie(cookie);
   };
 
-  var storeImplementsTouch = typeof store.touch === 'function';
   store.on('disconnect', function(){ storeReady = false; });
   store.on('connect', function(){ storeReady = true; });
 
@@ -174,34 +172,24 @@ function session(options){
     // req.secret is passed from the cookie parser middleware
     var secrets = secret || [req.secret];
 
-    var originalHash;
-    var originalId;
-    var savedHash;
-
-    // expose store
     req.sessionStore = store;
+    req.sessionID = sessionId.get(req, name, secrets);
 
-    // get the session ID from the cookie
-    var currentSessionId = req.sessionID = sessionId.get(req, name, secrets);
-
-    // set-cookie
     onHeaders(res, function(){
       if (!req.session) {
         debug('no session');
         return;
       }
 
-      //TODO: options object can be simplified only after this file is refactored
-      //there are a lot of mixed responsibilities
+      //TODO: implement parseOptions method and pass here options from
+      //middleware function. Decrease amount of closured vars
       sessionId.set(res, name, req.sessionID, {
         secret: secrets[0],
         cookie: req.session.cookie,
         proxy: trustProxy,
         rolling: rollingSessions,
         saveUninitialized: saveUninitializedSession,
-        currentSessionId: currentSessionId,
-        request: req,
-        isModifiedSession: isModified(req.session)
+        request: req
       });
     });
 
@@ -296,7 +284,7 @@ function session(options){
         });
 
         return writetop();
-      } else if (storeImplementsTouch && shouldTouch(req)) {
+      } else if (shouldTouch(req)) {
         // store implements touch method
         debug('touching');
         store.touch(req.sessionID, req.session, function ontouch(err) {
@@ -314,42 +302,6 @@ function session(options){
       return _end.call(res, chunk, encoding);
     };
 
-    // generate the session
-    function generate() {
-      store.generate(req);
-      originalId = req.sessionID;
-      originalHash = hash(req.session);
-      wrapmethods(req.session);
-    }
-
-    // wrap session methods
-    function wrapmethods(sess) {
-      var _save = sess.save;
-
-      function save() {
-        debug('saving %s', this.id);
-        savedHash = hash(this);
-        _save.apply(this, arguments);
-      }
-
-      Object.defineProperty(sess, 'save', {
-        configurable: true,
-        enumerable: false,
-        value: save,
-        writable: true
-      });
-    }
-
-    // check if session has been modified
-    function isModified(sess) {
-      return originalId !== sess.id || originalHash !== hash(sess);
-    }
-
-    // check if session has been saved
-    function isSaved(sess) {
-      return originalId === sess.id && savedHash === hash(sess);
-    }
-
     // determine if session should be destroyed
     function shouldDestroy(req) {
       return req.sessionID && unsetDestroy && req.session == null;
@@ -363,9 +315,9 @@ function session(options){
         return false;
       }
 
-      return !saveUninitializedSession && currentSessionId !== req.sessionID
-        ? isModified(req.session)
-        : !isSaved(req.session)
+      return saveUninitializedSession || req.session.isRetrieved()
+        ? !req.session.isSaved()
+        : req.session.isModified()
     }
 
     // determine if session should be touched
@@ -376,15 +328,14 @@ function session(options){
         return false;
       }
 
-      return currentSessionId === req.sessionID && !shouldSave(req);
+      return typeof store.touch === 'function' && req.session.isRetrieved() && !shouldSave(req);
     }
 
     // generate a session if the browser doesn't send a sessionID
     if (!req.sessionID) {
       debug('no SID sent, generating session');
-      generate();
-      next();
-      return;
+      store.generate(req);
+      return next();
     }
 
     // generate the session object
@@ -395,27 +346,21 @@ function session(options){
         debug('error %j', err);
 
         if (err.code !== 'ENOENT') {
-          next(err);
-          return;
+          return next(err);
         }
 
-        generate();
-      // no session
+        // no session
+        store.generate(req);
       } else if (!sess) {
         debug('no session found');
-        generate();
-      // populate req.session
+        store.generate(req);
       } else {
         debug('session found');
         store.createSession(req, sess);
-        originalId = req.sessionID;
-        originalHash = hash(sess);
 
         if (!resaveSession) {
-          savedHash = originalHash
+          req.session.retain();
         }
-
-        wrapmethods(req.session);
       }
 
       next();
@@ -467,22 +412,6 @@ function getcookie(req, name, secrets) {
 }
 
 /**
- * Hash the given `sess` object omitting changes to `.cookie`.
- *
- * @param {Object} sess
- * @return {String}
- * @private
- */
-
-function hash(sess) {
-  return crc(JSON.stringify(sess, function (key, val) {
-    if (key !== 'cookie') {
-      return val;
-    }
-  }));
-}
-
-/**
  * Determine if request is secure.
  *
  * @param {Object} req
@@ -519,15 +448,16 @@ function issecure(req, trustProxy) {
  * @private
  */
 function setcookie(res, name, sessionId, options) {
+  var req = options.request;
   // only send secure cookies via https
-  if (options.cookie.secure && !issecure(options.request, options.proxy)) {
+  if (options.cookie.secure && !issecure(req, options.proxy)) {
     debug('not secured');
     return;
   }
 
-  var canSetCookie = options.currentSessionId != sessionId
-    ? options.saveUninitialized || options.isModifiedSession
-    : options.cookie.expires != null && options.isModifiedSession;
+  var canSetCookie = req.session.isRetrieved()
+    ? options.cookie.expires != null && req.session.isModified()
+    : options.saveUninitialized || req.session.isModified();
 
   var isValidCookiePath = parseUrl.original(options.request).pathname.indexOf(options.cookie.path) === 0;
 
