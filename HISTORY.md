@@ -1,5 +1,5 @@
-unreleased
-==========
+1.11.3 / 2015-05-22
+===================
 
   * deps: cookie@0.1.3
     - Slight optimizations
