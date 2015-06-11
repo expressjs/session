@@ -3,6 +3,7 @@ unreleased
 
   * deps: cookie@0.1.3
     - Slight optimizations
+  * deps: crc@3.3.0
 
 1.11.2 / 2015-05-10
 ===================
