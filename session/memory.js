@@ -13,6 +13,7 @@
 
 var Store = require('./store')
 var util = require('util')
+var debug = require('debug')('express-session')
 
 /**
  * Shim setImmediate for node.js < 0.10
@@ -32,12 +33,47 @@ module.exports = MemoryStore
 
 /**
  * A session store in memory.
+
+ * @param {Object} [options]
+ * @param {Number} [options.timeout] Session timeout (in minutes). Use a negative value to never expire.
  * @public
  */
 
-function MemoryStore() {
+function MemoryStore(options) {
   Store.call(this)
   this.sessions = Object.create(null)
+  this.session_timers = Object.create(null)
+
+  // set up the store
+  this.options = {
+    timeout: -1 // sessions never expire by default
+  }
+
+  if (options) {
+    if (typeof options.timeout !== 'undefined') {
+      this.options.timeout = options.timeout
+    }
+  }
+
+  debug('session timeout is set to ' + this.options.timeout)
+
+  // run the session timeout checker
+  if (this.options.timeout >= 0) {
+    var self = this
+    this.session_timeout_checker = setInterval(function() {
+      debug('checking sessions for timeout')
+      for (var sessionId in self.session_timers) {
+        if (self.session_timers[sessionId] === 0) {
+          debug('session ' + sessionId + ' timed out, destroying it')
+          self.destroy(sessionId)
+        }
+        else {
+          self.session_timers[sessionId]--
+        }
+      }
+    }, 
+    60 * 1000) // runs every minute
+  }
 }
 
 /**
@@ -78,6 +114,7 @@ MemoryStore.prototype.all = function all(callback) {
 
 MemoryStore.prototype.clear = function clear(callback) {
   this.sessions = Object.create(null)
+  this.session_timers = Object.create(null)
   callback && defer(callback)
 }
 
@@ -89,6 +126,7 @@ MemoryStore.prototype.clear = function clear(callback) {
  */
 
 MemoryStore.prototype.destroy = function destroy(sessionId, callback) {
+  delete this.session_timers[sessionId]
   delete this.sessions[sessionId]
   callback && defer(callback)
 }
@@ -129,6 +167,10 @@ MemoryStore.prototype.length = function length(callback) {
 }
 
 MemoryStore.prototype.set = function set(sessionId, session, callback) {
+  if (typeof this.sessions[sessionId] === 'undefined') {
+    debug('session created')
+    this.session_timers[sessionId] = this.options.timeout
+  }
   this.sessions[sessionId] = JSON.stringify(session)
   callback && defer(callback)
 }
@@ -160,11 +202,17 @@ MemoryStore.prototype.touch = function touch(sessionId, session, callback) {
  */
 
 function getSession(sessionId) {
+  
+  debug('get session #' + sessionId)
+
   var sess = this.sessions[sessionId]
 
   if (!sess) {
     return
   }
+
+  debug('Prolonging life for session #' + sessionId)
+  this.session_timers[sessionId] = this.options.timeout
 
   // parse
   sess = JSON.parse(sess)
@@ -176,6 +224,7 @@ function getSession(sessionId) {
   // destroy expired session
   if (expires && expires <= Date.now()) {
     delete this.sessions[sessionId]
+    delete this.session_timers[sessionId]
     return
   }
 
