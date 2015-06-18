@@ -16,6 +16,7 @@ var crc = require('crc').crc32;
 var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
 var parseUrl = require('parseurl');
+var querystring = require('querystring');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
   , signature = require('cookie-signature')
