@@ -77,6 +77,7 @@ var defer = typeof setImmediate === 'function'
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
+ * @param {String} [options.nextopen] Whether save session at the next open browser。 
  * @return {Function} middleware
  * @public
  */
@@ -89,7 +90,14 @@ function session(options){
     , cookie = options.cookie || {}
     , trustProxy = options.proxy
     , storeReady = true
-    , rollingSessions = options.rolling || false;
+    , rollingSessions = options.rolling || false
+    , nextopen = options.nextopen === undefined ? true : options.nextopen
+    , sessionID_Dep;
+
+  if(!nextopen && (cookie.maxAge || cookie.expires) && (new Cookie(cookie)).expires > Date.now()){
+    sessionID_Dep = name + '.dep';
+  }
+
   var resaveSession = options.resave;
   var saveUninitializedSession = options.saveUninitialized;
   var secret = options.secret;
@@ -147,6 +155,16 @@ function session(options){
   store.on('connect', function(){ storeReady = true; });
 
   return function session(req, res, next) {
+    // Processing reopen the browser session
+    if(sessionID_Dep){
+      if(!req.cookies[sessionID_Dep]){
+        delete req.cookies[name]
+        req.headers.cookie = querystring.stringify(req.cookies, ';', '=')
+        //res.cookie(sessionID_Dep,'Dep',{httpOnly:true})
+        setcookie(res, sessionID_Dep, "Dep", "Dep", {httpOnly:true});
+      }
+    }
+
     // self-awareness
     if (req.session) return next();
 
