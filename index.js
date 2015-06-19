@@ -218,6 +218,8 @@ function session(options){
           return _writeHead.call(res, statusCode, reason, obj);
         }
         
+        this.statusCode = statusCode;
+        
         if ('string' != typeof(reason)) {
           obj = reason;
           reason = undefined;
