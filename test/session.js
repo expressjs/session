@@ -740,6 +740,108 @@ describe('session()', function(){
     });
   });
 
+  describe('nextopen option', function(){
+    it('should default to true',function(done){
+      var app = express(),mark = 0;
+      app.use(cookieParser());
+      app.use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        if(!mark){
+          mark = req.session.user = 'bob';
+        }
+        res.setHeader("test-user",req.session.user || 'undefined')
+        res.end();
+      });
+      request(app)
+      .get('/')
+      .expect('test-user','bob')
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        request(app)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect('test-user','bob')
+        .expect(200,done)
+      });
+    })
+    it('Clear no expiration time "cookie" (analog browser is closed) session loss',function(done){
+      var app = express(),mark=0;
+      app.use(cookieParser());
+      app.use(session({nextopen: false, secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        if(!mark){
+          mark = req.session.user = 'bob';
+        }
+        res.setHeader("test-user",req.session.user || 'undefined')
+        res.end();
+      });
+      request(app)
+      .get('/')
+      .expect('test-user','bob')
+      .expect(function(res){
+        var cookies = res.headers['set-cookie']
+        for(var i in cookies){
+          var v = cookies[i]
+          if(v.indexOf('connect.sid.dep') === 0) return;
+        }
+        return new Error('nextopen not working');
+      })
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        var cookies = res.headers['set-cookie']
+        for(var i = 0; i < cookies.length; i++){
+          var v = cookies[i];
+          if(v.indexOf('Expires=') == -1){
+            cookies.splice(i,1);
+            i--;
+          }else{
+            cookies[i] = v.split(';')[0]
+          }
+        }
+        request(app)
+        .get('/')
+        .set('Cookie', cookies.join(';'))
+        .expect(function(res){
+          if(res.headers['test-user'] == "bob") return Error ('Clear session failed');
+        })
+        .expect(200,done)
+      });
+    })
+    it('maxAge is null, not take effect then "false"',function(done){
+      var app = express(),mark=0;
+      app.use(session({nextopen:false, secret: 'keyboard cat', cookie: { maxAge: null }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        if(!mark){
+          mark = req.session.user = 'bob';
+        }
+        res.setHeader("test-user",req.session.user || 'undefined')
+        res.end();
+      });
+      request(app)
+      .get('/')
+      .expect('test-user','bob')
+      .expect(function(res){
+        var cookies = res.headers['set-cookie']
+        for(var i in cookies){
+          var v = cookies[i]
+          assert.ok(v.indexOf('connect.sid.dep') !== 0,'nextopen Working Error')
+        }
+      })
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        console.log(res.body)
+        request(app)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect('test-user','bob')
+        .expect(200,done)
+      });
+    })
+  });
+
   describe('resave option', function(){
     it('should default to true', function(done){
       var count = 0;
