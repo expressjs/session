@@ -154,6 +154,25 @@ The default value is `'keep'`.
   - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
 
+##### nextopen
+Close the browser to save the session, of course, you must configure the expiration time for the sessionID.  
+
+The default value is `true`.  
+
+  - `false` cookie.maxAge is any, User closes the browser sessionID reset;  
+
+For example,The following Settings. The user if not close the browser for more than 20 minutes, the session will also be reset.  
+
+```js
+var app = express()
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+  secret: 'keyboard cat',
+  cookie: { maxAge: 60000 * 20}
+  nextopen: false
+}))
+```
+
 #### Cookie options
 
 **Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
