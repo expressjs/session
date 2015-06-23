@@ -68,6 +68,7 @@ var defer = typeof setImmediate === 'function'
  *
  * @param {Object} [options]
  * @param {Object} [options.cookie] Options for cookie
+ * @param {Function} [options.cookieFn] Function producing cookie options per request
  * @param {Function} [options.genid]
  * @param {String} [options.name=connect.sid] Session ID cookie name
  * @param {Boolean} [options.proxy]
@@ -87,6 +88,7 @@ function session(options){
     , name = options.name || options.key || 'connect.sid'
     , store = options.store || new MemoryStore
     , cookie = options.cookie || {}
+    , cookieFn = options.cookieFn
     , trustProxy = options.proxy
     , storeReady = true
     , rollingSessions = options.rolling || false;
@@ -98,6 +100,10 @@ function session(options){
 
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
+  }
+
+  if (cookieFn && typeof cookieFn !== 'function') {
+    throw new TypeError('cookieFn option must be a function');
   }
 
   if (resaveSession === undefined) {
@@ -139,7 +145,7 @@ function session(options){
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    req.session.cookie = new Cookie(cookie);
+    req.session.cookie = new Cookie(cookieFn && cookieFn(req) || cookie);
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
