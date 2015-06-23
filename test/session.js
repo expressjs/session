@@ -638,6 +638,21 @@ describe('session()', function(){
     })
   })
 
+  describe('cookieFn option', function(){
+    it('should reject non-function values', function(){
+      assert.throws(session.bind(null, { cookieFn: 'bogus!' }), /cookieFn.*must/)
+    });
+
+    it('should allow custom function', function(done){
+      function cookieFn(req) { return { domain: req.url } }
+
+      request(createServer({ cookieFn: cookieFn }))
+      .get('/abc')
+      .expect(shouldSetCookieToDomain('connect.sid', '/abc'))
+      .expect(200, done)
+    });
+  })
+
   describe('genid option', function(){
     it('should reject non-function values', function(){
       assert.throws(session.bind(null, { genid: 'bogus!' }), /genid.*must/)
@@ -2069,6 +2084,15 @@ function shouldSetCookieToValue(name, val) {
     assert.ok(header, 'should have a cookie header')
     assert.equal(header.split('=')[0], name, 'should set cookie ' + name)
     assert.equal(header.split('=')[1].split(';')[0], val, 'should set cookie ' + name + ' to ' + val)
+  }
+}
+
+function shouldSetCookieToDomain(name, val) {
+  return function (res) {
+    var header = cookie(res);
+    assert.ok(header, 'should have a cookie header')
+    assert.equal(header.split('=')[0], name, 'should set cookie ' + name)
+    assert.equal(header.split('=')[2].split(';')[0], val, 'should set cookie ' + name + ' to ' + val)
   }
 }
 
