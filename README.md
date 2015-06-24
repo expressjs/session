@@ -329,6 +329,10 @@ module. Please make a PR to add additional modules :)
 [connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
 [connect-mssql-image]: https://img.shields.io/github/stars/patriksimek/connect-mssql.svg?label=%E2%98%85
 
+[![Github Stars][connect-monetdb-image] connect-monetdb][connect-monetdb-url] A MonetDB-based session store.
+[connect-monetdb-url]: https://www.npmjs.com/package/connect-monetdb
+[connect-monetdb-image]: https://img.shields.io/github/stars/MonetDB/npm-connect-monetdb.svg?label=%E2%98%85
+
 [![Github Stars][connect-mongo-image] connect-mongo][connect-mongo-url] A MongoDB-based session store.
 [connect-mongo-url]: https://www.npmjs.com/package/connect-mongo
 [connect-mongo-image]: https://img.shields.io/github/stars/kcbanner/connect-mongo.svg?label=%E2%98%85
