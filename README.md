@@ -293,6 +293,12 @@ to its original value.
 req.session.cookie.maxAge // => 30000
 ```
 
+### req.sessionID
+
+To get the ID of the loaded session, access the request property
+`req.sessionID`. This is simply a read-only value set when a session
+is loaded/created.
+
 ## Session Store Implementation
 
 Every session store _must_ be an `EventEmitter` and implement the following
