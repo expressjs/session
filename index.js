@@ -89,7 +89,8 @@ function session(options){
     , cookie = options.cookie || {}
     , trustProxy = options.proxy
     , storeReady = true
-    , rollingSessions = options.rolling || false;
+    , rollingSessions = options.rolling || false,
+    , checkIP = options.checkIP || false;
   var resaveSession = options.resave;
   var saveUninitializedSession = options.saveUninitialized;
   var secret = options.secret;
@@ -140,6 +141,10 @@ function session(options){
     req.sessionID = generateId(req);
     req.session = new Session(req);
     req.session.cookie = new Cookie(cookie);
+    
+    if (checkIP) {
+      req.session.clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    }
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
@@ -430,7 +435,22 @@ function session(options){
         wrapmethods(req.session);
       }
 
-      next();
+      if (checkIP) {
+        var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+        if (ip !== req.session.clientIP) {
+          err = new Error('Incorrect client IP address of the cookie');
+          err.code = 'EINCRIP'
+
+          req.session.destroy();
+
+          next(err);
+        } else {
+          next();
+        }
+      } else {
+        next();
+      }
     });
   };
 };
