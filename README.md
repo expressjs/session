@@ -313,6 +313,13 @@ and **optional**.
 
 For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
 
+### store.all(callback)
+
+**Optional**
+
+This optional method is used to get all sessions in the store as an array. The
+`callback` should be called as `callback(error, sessions)`.
+
 ### store.destroy(sid, callback)
 
 **Required**
