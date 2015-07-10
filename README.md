@@ -301,20 +301,70 @@ is loaded/created.
 
 ## Session Store Implementation
 
-Every session store _must_ be an `EventEmitter` and implement the following
-methods:
+Every session store _must_ be an `EventEmitter` and implement specific
+methods. The following methods are the list of **required**, **recommended**,
+and **optional**.
 
-   - `.get(sid, callback)`
-   - `.set(sid, session, callback)`
-   - `.destroy(sid, callback)`
-
-Recommended methods include, but are not limited to:
-
-   - `.touch(sid, session, callback)`
-   - `.length(callback)`
-   - `.clear(callback)`
+  * Required methods are ones that this module will always call on the store.
+  * Recommended methods are ones that this module will call on the store if
+    available.
+  * Optional methods are ones this module does not call at all, but helps
+    present uniform stores to users.
 
 For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
+
+### store.destroy(sid, callback)
+
+**Required**
+
+This required method is used to destroy/delete a session from the store given
+a session ID (`sid`). The `callback` should be called as `callback(error)` once
+the session is destroyed.
+
+### store.clear(callback)
+
+**Optional**
+
+This optional method is used to delete all sessions from the store. The
+`callback` should be called as `callback(error)` once the store is cleared.
+
+### store.length(callback)
+
+**Optional**
+
+This optional method is used to get the count of all sessions in the store.
+The `callback` should be called as `callback(error, len)`.
+
+### store.get(sid, callback)
+
+**Required**
+
+This required method is used to get a session from the store given a session
+ID (`sid`). The `callback` should be called as `callback(error, session)`.
+
+The `session` argument should be a session if found, otherwise `null` or
+`undefined` if the session was not found (and there was no error). A special
+case is made when `error.code === 'ENOENT'` to act like `callback(null, null)`.
+
+### store.set(sid, session, callback)
+
+**Required**
+
+This required method is used to upsert a session into the store given a
+session ID (`sid`) and session (`session`) object. The callback should be
+called as `callback(error)` once the session has been set in the store.
+
+### store.touch(sid, session, callback)
+
+**Recommended**
+
+This recommended method is used to "touch" a given session given a
+session ID (`sid`) and session (`session`) object. The `callback` should be
+called as `callback(error)` once the session has been touched.
+
+This is primarily used when the store will automatically delete idle sessions
+and this method is used to signal to the store the given session is active,
+potentially resetting the idle timer.
 
 ## Compatible Session Stores
 
