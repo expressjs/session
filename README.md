@@ -382,6 +382,12 @@ module. Please make a PR to add additional modules :)
 [cassandra-store-url]: https://www.npmjs.com/package/cassandra-store
 [cassandra-store-image]: https://img.shields.io/github/stars/webcc/cassandra-store.svg?label=%E2%98%85
 
+[![Github Stars][cluster-store-image] cluster-store][cluster-store-url] A wrapper for using in-process / embedded
+stores - such as SQLite (via knex), leveldb, files, or memory - with node cluster (desirable for Raspberry Pi 2
+and other multi-core embedded devices).
+[cluster-store-url]: https://www.npmjs.com/package/cluster-store
+[cluster-store-image]: https://img.shields.io/github/stars/coolaj86/cluster-store.svg?label=%E2%98%85
+
 [![Github Stars][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
 [connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
 [connect-mssql-image]: https://img.shields.io/github/stars/patriksimek/connect-mssql.svg?label=%E2%98%85
