@@ -407,6 +407,11 @@ module. Please make a PR to add additional modules :)
 [connect-session-knex-url]: https://www.npmjs.com/package/connect-session-knex
 [connect-session-knex-image]: https://img.shields.io/github/stars/llambda/connect-session-knex.svg?label=%E2%98%85
 
+[![Github Stars][cluster-store-image] cluster-store][cluster-store-url] A wrapper for using in-process / embedded
+stores - such as SQLite (via knex), leveldb, files, or memory - with node cluster (desirable for Raspberry Pi 2 and other multi-core embedded devices).
+[cluster-store-url]: https://www.npmjs.com/package/cluster-store
+[cluster-store-image]: https://img.shields.io/github/stars/coolaj86/cluster-store.svg?label=%E2%98%85
+
 [![Github Stars][level-session-store-image] level-session-store][level-session-store-url] A LevelDB-based session store.
 [level-session-store-url]: https://www.npmjs.com/package/level-session-store
 [level-session-store-image]: https://img.shields.io/github/stars/scriptollc/level-session-store.svg?label=%E2%98%85
