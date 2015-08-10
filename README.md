@@ -388,6 +388,10 @@ and other multi-core embedded devices).
 [cluster-store-url]: https://www.npmjs.com/package/cluster-store
 [cluster-store-image]: https://img.shields.io/github/stars/coolaj86/cluster-store.svg?label=%E2%98%85
 
+[![Github Stars][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](http://www.couchbase.com/)-based session store.
+[connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
+[connect-couchbase-image]: https://img.shields.io/github/stars/christophermina/connect-couchbase.svg?label=%E2%98%85
+
 [![Github Stars][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
 [connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
 [connect-mssql-image]: https://img.shields.io/github/stars/patriksimek/connect-mssql.svg?label=%E2%98%85
