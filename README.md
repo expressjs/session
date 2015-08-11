@@ -417,6 +417,11 @@ and other multi-core embedded devices).
 [connect-session-knex-url]: https://www.npmjs.com/package/connect-session-knex
 [connect-session-knex-image]: https://img.shields.io/github/stars/llambda/connect-session-knex.svg?label=%E2%98%85
 
+[![Github Stars][connect-session-sequelize-image] connect-session-sequelize][connect-session-sequelize-url] A session store using
+[Sequelize.js](http://sequelizejs.com/), which is a Node.js / io.js ORM for PostgreSQL, MySQL, SQLite and MSSQL.
+[connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
+[connect-session-sequelize-image]: https://img.shields.io/github/stars/mweibel/connect-session-sequelize.svg?label=%E2%98%85
+
 [![Github Stars][level-session-store-image] level-session-store][level-session-store-url] A LevelDB-based session store.
 [level-session-store-url]: https://www.npmjs.com/package/level-session-store
 [level-session-store-image]: https://img.shields.io/github/stars/scriptollc/level-session-store.svg?label=%E2%98%85
