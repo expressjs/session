@@ -222,7 +222,7 @@ app.use(function(req, res, next) {
 
 #### Session.regenerate()
 
-To regenerate the session simply invoke the method, once complete
+To regenerate the session simply invoke the method. Once complete,
 a new SID and `Session` instance will be initialized at `req.session`.
 
 ```js
@@ -233,7 +233,7 @@ req.session.regenerate(function(err) {
 
 #### Session.destroy()
 
-Destroys the session, removing `req.session`, will be re-generated next request.
+Destroys the session, removing `req.session`; will be re-generated next request.
 
 ```js
 req.session.destroy(function(err) {
