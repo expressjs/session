@@ -408,6 +408,10 @@ and other multi-core embedded devices).
 [connect-mongodb-session-url]: https://www.npmjs.com/package/connect-mongodb-session
 [connect-mongodb-session-image]: https://img.shields.io/github/stars/mongodb-js/connect-mongodb-session.svg?label=%E2%98%85
 
+[![Github Stars][connect-pg-simple-image] connect-pg-simple][connect-pg-simple-url] A PostgreSQL-based session store.
+[connect-pg-simple-url]: https://www.npmjs.com/package/connect-pg-simple
+[connect-pg-simple-image]: https://img.shields.io/github/stars/voxpelli/node-connect-pg-simple.svg?label=%E2%98%85
+
 [![Github Stars][connect-redis-image] connect-redis][connect-redis-url] A Redis-based session store.
 [connect-redis-url]: https://www.npmjs.com/package/connect-redis
 [connect-redis-image]: https://img.shields.io/github/stars/tj/connect-redis.svg?label=%E2%98%85
