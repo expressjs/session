@@ -112,6 +112,14 @@ Force a cookie to be set on every response. This resets the expiration date.
 
 The default value is `false`.
 
+##### saveBeforeRedirect
+
+Tells the module to completly buffer the response when `location` header is set.
+This is because the browser is performing redirection immediately after the `location`
+header is parsed without waiting for the store to finish saving.
+
+The default value is `false`.
+
 ##### saveUninitialized
 
 Forces a session that is "uninitialized" to be saved to the store. A session is
