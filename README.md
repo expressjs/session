@@ -43,6 +43,34 @@ more information on the different values.
 
 The default value is `{ path: '/', httpOnly: true, secure: false, maxAge: null }`.
 
+##### sessionId
+
+Object which allows to read, set and generate session id manually. All 3 methods are optinal.
+In case if one of them is missed will be used cookie store for sessionId.
+
+**NOTE** default session id store can be accessed as `require('express-session').sessionId`
+```js
+app.use(session({
+  secret: 'my secret',
+
+  sessionId: {
+    get: function(res, name, val) {
+      res.setHeader('x-api-id', val);
+    },
+
+    set: function(req) {
+      return req.headers['x-api-id'];
+    },
+
+    generate: function(req) {
+      return 'sess:' + req.user.id;
+    }
+  }
+}));
+```
+
+**NOTE** be careful to generate unique IDs so your sessions do not conflict.
+
 ##### genid
 
 Function to call to generate a new session ID. Provide a function that returns
@@ -52,7 +80,7 @@ the ID.
 
 The default value is a function which uses the `uid2` library to generate IDs.
 
-**NOTE** be careful to generate unique IDs so your sessions do not conflict.
+**NOTE** deprecated, use sessionId.generate instead
 
 ```js
 app.use(session({

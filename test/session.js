@@ -1991,6 +1991,92 @@ describe('session()', function(){
       })
     })
   })
+
+  it('should use "genid" option when both "sessionId.generate" and "genid" are specified', function(done) {
+    var server = createServer({
+      sessionId: {
+        generate: function() {
+          return 'sessionId';
+        }
+      },
+
+      genid: function() {
+        return 'genid';
+      }
+    }, function(req, res) {
+      res.end(req.sessionID);
+    });
+
+    request(server)
+    .get('/')
+    .expect(200, 'genid', done);
+  })
+
+  describe('sessionId', function() {
+    var server, sessionId
+
+    beforeEach(function() {
+      server = createServer({
+        sessionId: {
+          set: function(res, name, val) {
+            res.setHeader('x-api-id', val)
+          },
+
+          get: function(req) {
+            return req.headers['x-api-id']
+          },
+
+          generate: function() {
+            return 'session_' + new Date().getTime()
+          }
+        }
+      }, function(req, res) {
+        sessionId = req.sessionID
+        req.session.time = req.session.time || +new Date()
+        res.end(req.session.time.toString())
+      })
+    })
+
+    it('should set session id to header', function(done) {
+      request(server)
+      .get('/')
+      .expect(function(res) {
+        if (res.headers['x-api-id'] !== sessionId) {
+          throw new Error('Value of the header does not equal to generated sessionID');
+        }
+      })
+      .end(done)
+    })
+
+    it('should use existing session with id specified in header', function(done) {
+      request(server)
+      .get('/')
+      .expect(200, function(err, initialResponse) {
+        if (err) return done(err)
+
+        request(server)
+        .get('/')
+        .set('x-api-id', initialResponse.headers['x-api-id'])
+        .expect(function(res) {
+          if (res.text !== initialResponse.text) {
+            throw new Error('Unable to retrieve existing session')
+          }
+        })
+        .end(done)
+      })
+    })
+
+    it('should generate session id according to specified method', function(done) {
+      request(server)
+      .get('/')
+      .expect(function(res) {
+        if (sessionId.indexOf('session_') !== 0) {
+          throw new Error('session id was not generated as specified.')
+        }
+      })
+      .end(done)
+    })
+  })
 })
 
 function cookie(res) {
