@@ -26,6 +26,7 @@
     "express": "~4.13.1",
     "istanbul": "0.3.17",
     "mocha": "2.2.5",
+    "sinon": "1.15.3",
     "supertest": "1.0.1"
   },
   "files": [

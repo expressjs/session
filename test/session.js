@@ -3,6 +3,7 @@ process.env.NO_DEPRECATION = 'express-session';
 
 var after = require('after')
 var assert = require('assert')
+var sinon = require('sinon')
 var express = require('express')
   , request = require('supertest')
   , cookieParser = require('cookie-parser')
@@ -49,6 +50,33 @@ describe('session()', function(){
     request(app)
     .get('/')
     .expect(200, '', done)
+  })
+
+  it('should expire sessions in memory store', function (done) {
+    var clock = sinon.useFakeTimers()
+    var store = new session.MemoryStore({ timeout: 1 })
+    var server = createServer({ store: store }, function (req, res) {
+      req.session.active = true
+      res.end('session active')
+    });
+
+    request(server)
+    .get('/')
+    .expect(shouldSetCookie('connect.sid'))
+    .expect(200, 'session active', function (err, res) {
+      if (err) return done(err)
+      store.length(function (err, len) {
+        if (err) return done(err)
+        assert.equal(len, 1)
+        clock.tick(3 * 60 * 1000)
+        store.length(function (err, len) {
+          if (err) return done(err)
+          assert.equal(len, 0)
+          done()
+        })
+      })
+    })
+    clock.restore()
   })
 
   it('should create a new session', function (done) {
