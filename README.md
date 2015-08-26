@@ -143,6 +143,10 @@ all the elements will be considered when verifying the signature in requests.
 
 The session store instance, defaults to a new `MemoryStore` instance.
 
+##### cacheLimit
+
+The limit on the size of the default `MemoryStore` instance, defaults to 1000 objects.
+
 ##### unset
 
 Control the result of unsetting `req.session` (through `delete`, setting to `null`,

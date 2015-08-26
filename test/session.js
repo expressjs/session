@@ -1993,6 +1993,68 @@ describe('session()', function(){
   })
 })
 
+describe('memoryStore', function(done){
+
+  it('should only contain 10 items', function(done){
+    var store = new session.MemoryStore({cacheLimit: 10})
+
+    for (var i = 0; i < 15; i++){
+      store.set(i, {cookie: { expires: new Date((new Date()).valueOf() + 60*10*1000) }})
+    }
+
+    store.length(function (err, length) {
+      if (err) return done(err)
+      assert.equal(length, 10)
+      done()
+    })
+  })
+
+  it('delete the first item', function(){
+    var store = new session.MemoryStore({cacheLimit: 10})
+
+    for (var i = 0; i < 15; i++){
+      store.set(i, {cookie: { expires: new Date((new Date()).valueOf() + 60*10*1000) }})
+    }
+
+    store.destroy(14)
+
+    store.length(function (err, length) {
+      if (err) return done(err)
+      assert.equal(length, 9)
+      done
+    })
+  })
+
+  it('delete the last item', function(){
+    var store = new session.MemoryStore({cacheLimit: 10})
+
+    for (var i = 0; i < 10; i++){
+      store.set(i, {cookie: { expires: new Date((new Date()).valueOf() + 60*10*1000) }})
+    }
+
+    store.destroy(0)
+    store.destroy(1)
+
+    store.length(function (err, length) {
+      if (err) return done(err)
+      assert.equal(length, 8)
+      done
+    })
+
+    for (var i = 10; i < 12; i++){
+      store.set(i, {cookie: { expires: new Date((new Date()).valueOf() + 60*10*1000) }})
+    }
+
+    store.length(function (err, length) {
+      if (err) return done(err)
+      assert.equal(length, 10)
+      done
+    })
+  })
+
+
+})
+
 function cookie(res) {
   var setCookie = res.headers['set-cookie'];
   return (setCookie && setCookie[0]) || undefined;
