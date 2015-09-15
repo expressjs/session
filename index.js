@@ -88,6 +88,7 @@ function session(options){
     , store = options.store || new MemoryStore
     , cookie = options.cookie || {}
     , trustProxy = options.proxy
+    , autoSecure = options.autoSecure || false
     , storeReady = true
     , rollingSessions = options.rolling || false;
   var resaveSession = options.resave;
@@ -140,6 +141,9 @@ function session(options){
     req.sessionID = generateId(req);
     req.session = new Session(req);
     req.session.cookie = new Cookie(cookie);
+    if (autoSecure) {
+      req.session.cookie.secure = issecure(req, trustProxy);
+    }
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';

@@ -579,6 +579,45 @@ describe('session()', function(){
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, done)
       })
+      describe('auto-set secure cookie', function() {
+        before(function () {
+          server = createServer({ proxy: true, autoSecure: true, cookie: { maxAge: 5 }})
+        })
+        it('should set secure cookie when X-Forwarded-Proto is https', function(done){
+          request(server)
+          .get('/')
+          .set('X-Forwarded-Proto', 'https')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'true', function(err, res) {
+            var val = cookie(res);
+            assert.notEqual(val.indexOf('Secure'), -1, 'should be Secure cookie')
+            done();
+          })
+        })
+
+        it('should trust X-Forwarded-Proto when comma-separated list', function(done){
+          request(server)
+          .get('/')
+          .set('X-Forwarded-Proto', 'https,http')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'true', function(err, res) {
+            var val = cookie(res);
+            assert.notEqual(val.indexOf('Secure'), -1, 'should be Secure cookie')
+            done();
+          })
+        })
+
+        it('should work when no header', function(done){
+          request(server)
+          .get('/')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'true', function(err, res) {
+            var val = cookie(res);
+            assert.equal(val.indexOf('Secure'), -1, 'should not be Secure cookie')
+            done();
+          })
+        })
+      })
     })
 
     describe('when disabled', function(){
@@ -607,6 +646,45 @@ describe('session()', function(){
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, 'true', done)
       })
+      describe('never auto-set secure cookie', function() {
+        before(function () {
+          server = createServer({ proxy: false, autoSecure: true, cookie: { maxAge: 5 }})
+        })
+        it('should set secure cookie when X-Forwarded-Proto is https', function(done){
+          request(server)
+          .get('/')
+          .set('X-Forwarded-Proto', 'https')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'true', function(err, res) {
+            var val = cookie(res);
+            assert.equal(val.indexOf('Secure'), -1, 'should not be a Secure cookie')
+            done();
+          })
+        })
+
+        it('should trust X-Forwarded-Proto when comma-separated list', function(done){
+          request(server)
+          .get('/')
+          .set('X-Forwarded-Proto', 'https,http')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'true', function(err, res) {
+            var val = cookie(res);
+            assert.equal(val.indexOf('Secure'), -1, 'should not be Secure cookie')
+            done();
+          })
+        })
+
+        it('should work when no header', function(done){
+          request(server)
+          .get('/')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'true', function(err, res) {
+            var val = cookie(res);
+            assert.equal(val.indexOf('Secure'), -1, 'should not be Secure cookie')
+            done();
+          })
+        })
+      })
     })
 
     describe('when unspecified', function(){
@@ -634,6 +712,49 @@ describe('session()', function(){
         .set('X-Forwarded-Proto', 'https')
         .expect(shouldSetCookie('connect.sid'))
         .expect(200, 'true', done)
+      })
+      describe('auto-set secure cookie', function() {
+        var app;
+        before(function () {
+          app = express()
+            .use(session({ secret: 'keyboard cat', autoSecure: true, cookie: { maxAge: min }}))
+            .use(function(req, res) { res.json(req.secure); });
+          app.enable('trust proxy');
+        })
+        it('should set secure cookie when X-Forwarded-Proto is https', function(done){
+          request(app)
+          .get('/')
+          .set('X-Forwarded-Proto', 'https')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'true', function(err, res) {
+            var val = cookie(res);
+            assert.notEqual(val.indexOf('Secure'), -1, 'should be Secure cookie')
+            done();
+          })
+        })
+
+        it('should trust X-Forwarded-Proto when comma-separated list', function(done){
+          request(app)
+          .get('/')
+          .set('X-Forwarded-Proto', 'https,http')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'true', function(err, res) {
+            var val = cookie(res);
+            assert.notEqual(val.indexOf('Secure'), -1, 'should be Secure cookie')
+            done();
+          })
+        })
+
+        it('should work when no header', function(done){
+          request(app)
+          .get('/')
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(200, 'true', function(err, res) {
+            var val = cookie(res);
+            assert.equal(val.indexOf('Secure'), -1, 'should not be Secure cookie')
+            done();
+          })
+        })
       })
     })
   })
