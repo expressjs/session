@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Support the value `'auto'` in the `cookie.secure` option
   * deps: cookie@0.2.2
     - Throw on invalid values provided to `serialize`
   * deps: depd@~1.1.0

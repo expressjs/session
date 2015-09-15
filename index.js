@@ -86,10 +86,10 @@ function session(options){
   //  name - previously "options.key"
     , name = options.name || options.key || 'connect.sid'
     , store = options.store || new MemoryStore
-    , cookie = options.cookie || {}
     , trustProxy = options.proxy
     , storeReady = true
     , rollingSessions = options.rolling || false;
+  var cookieOptions = options.cookie || {};
   var resaveSession = options.resave;
   var saveUninitializedSession = options.saveUninitialized;
   var secret = options.secret;
@@ -139,7 +139,11 @@ function session(options){
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    req.session.cookie = new Cookie(cookie);
+    req.session.cookie = new Cookie(cookieOptions);
+
+    if (cookieOptions.secure === 'auto') {
+      req.session.cookie.secure = issecure(req, trustProxy);
+    }
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
@@ -156,7 +160,7 @@ function session(options){
 
     // pathname mismatch
     var originalPath = parseUrl.original(req).pathname;
-    if (0 != originalPath.indexOf(cookie.path || '/')) return next();
+    if (originalPath.indexOf(cookieOptions.path || '/') !== 0) return next();
 
     // ensure a secret is available or bail
     if (!secret && !req.secret) {

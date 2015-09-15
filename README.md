@@ -192,6 +192,13 @@ if (app.get('env') === 'production') {
 app.use(session(sess))
 ```
 
+The `cookie.secure` option can also be set to the special value `'auto'` to have
+this setting automatically match the determined security of the connection. Be
+careful when using this setting if the site is available both as HTTP and HTTPS,
+as once the cookie is set on HTTPS, it will no longer be visible over HTTP. This
+is useful when the Express `"trust proxy"` setting is properly setup to simplify
+development vs production configuration.
+
 By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
 so the cookie becomes a browser-session cookie. When the user closes the
 browser the cookie (and session) will be removed.
