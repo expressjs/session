@@ -14,7 +14,7 @@
     "cookie-signature": "1.0.6",
     "crc": "3.3.0",
     "debug": "~2.2.0",
-    "depd": "~1.0.1",
+    "depd": "~1.1.0",
     "on-headers": "~1.0.1",
     "parseurl": "~1.3.0",
     "uid-safe": "~2.0.0",
