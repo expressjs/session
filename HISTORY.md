@@ -1,6 +1,8 @@
 unreleased
 ==========
 
+  * deps: cookie@0.2.2
+    - Throw on invalid values provided to `serialize`
   * deps: depd@~1.1.0
     - Enable strict mode in more places
     - Support web browser loading
