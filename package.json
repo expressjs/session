@@ -26,7 +26,7 @@
     "express": "~4.13.1",
     "istanbul": "0.3.17",
     "mocha": "2.3.3",
-    "supertest": "1.0.1"
+    "supertest": "1.1.0"
   },
   "files": [
     "session/",
