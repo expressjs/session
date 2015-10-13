@@ -117,12 +117,18 @@ function session(options){
   // TODO: switch to "destroy" on next major
   var unsetDestroy = options.unset === 'destroy';
 
-  if (Array.isArray(secret) && secret.length === 0) {
+  if (Array.isArray(secret)) {
+    if (secret.length === 0) {
+      throw new TypeError('secret option array must contain one or more strings');
+    }
+    // Make sure that we have a string for each item in the array.
+    for (var i = 0; i < secret.length; i++) {
+      if (typeof secret[i] !== 'string') {
+        throw new TypeError('secret option array must only contain strings');
+      }
+    }
+  } else if(typeof secret !== 'function' && (secret && typeof secret !== 'string')) {
     throw new TypeError('secret option array must contain one or more strings');
-  }
-
-  if (secret && !Array.isArray(secret)) {
-    secret = [secret];
   }
 
   if (!secret) {
@@ -166,7 +172,18 @@ function session(options){
 
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
-    var secrets = secret || [req.secret];
+    var secrets = typeof secret === 'function' ? secret(req) : (secret || [req.secret]);
+
+    if (!Array.isArray(secrets)) {
+      secrets = [secrets];
+    }
+
+    for (var i = 0; i < secrets.length; i++) {
+      if (typeof secrets[i] !== 'string') {
+        next(new Error('secret must be a string'));
+        return;
+      }
+    }
 
     var originalHash;
     var originalId;

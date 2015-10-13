@@ -135,9 +135,24 @@ it to be saved.
 **Required option**
 
 This is the secret used to sign the session ID cookie. This can be either a string
-for a single secret, or an array of multiple secrets. If an array of secrets is
+for a single secret, an array of multiple secrets, or a function. If an array of secrets is
 provided, only the first element will be used to sign the session ID cookie, while
-all the elements will be considered when verifying the signature in requests.
+all the elements will be considered when verifying the signature in requests. If a function
+is provided then it will be executed with `req` as the first parameter for each request.
+The function should return a string or array of strings to be used as the secret for 
+signing the cookie.
+
+```js
+app.use(function(req, res, next) {
+  var subdomain = subdomain[0];
+  req.clientSecret = getClientKey(subdomain);
+});
+app.use(session({
+  secret: function (req) { 
+    return 'Danger Zone!' + req.clientSecret;
+  }
+}))
+```
 
 ##### store
 
