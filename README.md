@@ -264,6 +264,11 @@ req.session.save(function(err) {
 Updates the `.maxAge` property. Typically this is
 not necessary to call, as the session middleware does this for you.
 
+### req.session.id
+
+Each session has a unique ID associated with it. This property will
+contain the session ID and cannot be modified.
+
 ### req.session.cookie
 
 Each session has a unique cookie object accompany it. This allows
