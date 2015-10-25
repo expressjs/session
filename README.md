@@ -86,6 +86,14 @@ The default value is `undefined`.
     if there is a direct TLS/SSL connection.
   - `undefined` Uses the "trust proxy" setting from express
 
+##### autoSecure
+
+Setting this option will turn the cookie into a secure cookie if the request is secure.
+It decides whether a request is secure based on the proxy setting. This setting overrides
+the "secure" cookie option.
+
+The default value is `false`.
+
 ##### resave
 
 Forces the session to be saved back to the session store, even if the session
