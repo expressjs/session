@@ -1,5 +1,5 @@
-unreleased
-==========
+1.12.0 / 2015-10-25
+===================
 
   * Support the value `'auto'` in the `cookie.secure` option
   * deps: cookie@0.2.2
