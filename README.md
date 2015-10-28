@@ -438,6 +438,10 @@ and other multi-core embedded devices).
 [connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
 [connect-session-sequelize-image]: https://img.shields.io/github/stars/mweibel/connect-session-sequelize.svg?label=%E2%98%85
 
+[![Github Stars][express-nedb-session-image] express-nedb-session][express-nedb-session-url] A NeDB-based session store.
+[express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
+[express-nedb-session-image]: https://img.shields.io/github/stars/louischatriot/express-nedb-session.svg?label=%E2%98%85
+
 [![Github Stars][level-session-store-image] level-session-store][level-session-store-url] A LevelDB-based session store.
 [level-session-store-url]: https://www.npmjs.com/package/level-session-store
 [level-session-store-image]: https://img.shields.io/github/stars/scriptollc/level-session-store.svg?label=%E2%98%85
