@@ -416,6 +416,9 @@ and other multi-core embedded devices).
 [connect-mongo-url]: https://www.npmjs.com/package/connect-mongo
 [connect-mongo-image]: https://img.shields.io/github/stars/kcbanner/connect-mongo.svg?label=%E2%98%85
 
+[express-nedb-session][express-nedb-session-url] A NeDB-based session store.
+[express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
+
 [![Github Stars][connect-mongodb-session-image] connect-mongodb-session][connect-mongodb-session-url] Lightweight MongoDB-based session store built and maintained by MongoDB.
 [connect-mongodb-session-url]: https://www.npmjs.com/package/connect-mongodb-session
 [connect-mongodb-session-image]: https://img.shields.io/github/stars/mongodb-js/connect-mongodb-session.svg?label=%E2%98%85
