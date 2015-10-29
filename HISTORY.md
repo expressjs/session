@@ -1,5 +1,5 @@
-unreleased
-==========
+1.12.1 / 2015-10-29
+===================
 
   * deps: cookie@0.2.3
     - Fix cookie `Max-Age` to never be a floating point number
