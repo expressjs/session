@@ -21,7 +21,6 @@ var uid = require('uid-safe').sync
   , signature = require('cookie-signature')
 
 var Session = require('./session/session')
-  , MemoryStore = require('./session/memory')
   , Cookie = require('./session/cookie')
   , Store = require('./session/store')
 
@@ -42,6 +41,15 @@ exports = module.exports = session;
 exports.Store = Store;
 exports.Cookie = Cookie;
 exports.Session = Session;
+
+/**
+ * Create a MemoryStore constructor for express-session
+ */
+var MemoryStore = (require('./session/memory'))(exports)
+
+/**
+ * Export the MemoryStore constructor
+ */
 exports.MemoryStore = MemoryStore;
 
 /**

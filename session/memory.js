@@ -11,8 +11,7 @@
  * @private
  */
 
-var Store = require('./store')
-var util = require('util')
+var util = require("util");
 
 /**
  * Shim setImmediate for node.js < 0.10
@@ -21,163 +20,307 @@ var util = require('util')
 
 /* istanbul ignore next */
 var defer = typeof setImmediate === 'function'
-  ? setImmediate
-  : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
+    ? setImmediate
+    : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) };
 
 /**
- * Module exports.
+ * Determines whether a session is expired. If it is expired - the session will be deleted.
+ * @param {MemoryStore} store
+ * @param {String} sid
+ * @param {Object} session
+ * @param {Number} when
+ * @returns {boolean} true if the session has expired
  */
+var checkSessionExpired = function (store, sid, session, when) {
 
-module.exports = MemoryStore
+  if (!session) return true;
 
-/**
- * A session store in memory.
- * @public
- */
+  var expires = session.cookie ?
+      typeof session.cookie.expires === 'string'
+          ? new Date(session.cookie.expires)
+          : session.cookie.expires :
+      null;
 
-function MemoryStore() {
-  Store.call(this)
-  this.sessions = Object.create(null)
-}
+  if (session.cookie && !expires) {
 
-/**
- * Inherit from Store.
- */
+    // There IS a cookie, but the cookie is a browser-session cookie.
+    // So let's figure out the TTL for this session.
 
-util.inherits(MemoryStore, Store)
-
-/**
- * Get all active sessions.
- *
- * @param {function} callback
- * @public
- */
-
-MemoryStore.prototype.all = function all(callback) {
-  var sessionIds = Object.keys(this.sessions)
-  var sessions = Object.create(null)
-
-  for (var i = 0; i < sessionIds.length; i++) {
-    var sessionId = sessionIds[i]
-    var session = getSession.call(this, sessionId)
-
-    if (session) {
-      sessions[sessionId] = session;
+    if (!store.disableTTL && store._sessionsAccessStore[sid]) {
+      expires = store._sessionsAccessStore[sid] + store.ttl;
     }
+
   }
 
-  callback && defer(callback, null, sessions)
-}
-
-/**
- * Clear all sessions.
- *
- * @param {function} callback
- * @public
- */
-
-MemoryStore.prototype.clear = function clear(callback) {
-  this.sessions = Object.create(null)
-  callback && defer(callback)
-}
-
-/**
- * Destroy the session associated with the given session ID.
- *
- * @param {string} sessionId
- * @public
- */
-
-MemoryStore.prototype.destroy = function destroy(sessionId, callback) {
-  delete this.sessions[sessionId]
-  callback && defer(callback)
-}
-
-/**
- * Fetch session by the given session ID.
- *
- * @param {string} sessionId
- * @param {function} callback
- * @public
- */
-
-MemoryStore.prototype.get = function get(sessionId, callback) {
-  defer(callback, null, getSession.call(this, sessionId))
-}
-
-/**
- * Commit the given session associated with the given sessionId to the store.
- *
- * @param {string} sessionId
- * @param {object} session
- * @param {function} callback
- * @public
- */
-
-/**
- * Get number of active sessions.
- *
- * @param {function} callback
- * @public
- */
-
-MemoryStore.prototype.length = function length(callback) {
-  this.all(function (err, sessions) {
-    if (err) return callback(err)
-    callback(null, Object.keys(sessions).length)
-  })
-}
-
-MemoryStore.prototype.set = function set(sessionId, session, callback) {
-  this.sessions[sessionId] = JSON.stringify(session)
-  callback && defer(callback)
-}
-
-/**
- * Touch the given session object associated with the given session ID.
- *
- * @param {string} sessionId
- * @param {object} session
- * @param {function} callback
- * @public
- */
-
-MemoryStore.prototype.touch = function touch(sessionId, session, callback) {
-  var currentSession = getSession.call(this, sessionId)
-
-  if (currentSession) {
-    // update expiration
-    currentSession.cookie = session.cookie
-    this.sessions[sessionId] = JSON.stringify(currentSession)
+  if (!expires || expires <= when) {
+    delete store._sessions[sid];
+    delete store._sessionsAccessStore[sid];
+    return true;
   }
 
-  callback && defer(callback)
-}
+  return false;
+};
 
 /**
- * Get session from the store.
- * @private
+ * https://github.com/expressjs/session#session-store-implementation
+ *
+ * @param {object} session  express session
+ * @return {Function} the `FileStore` extending `express`'s session Store
+ *
+ * @api public
  */
+module.exports = function (session) {
 
-function getSession(sessionId) {
-  var sess = this.sessions[sessionId]
+  /**
+   * Express' session Store.
+   */
 
-  if (!sess) {
-    return
-  }
+  var Store = session.Store;
 
-  // parse
-  sess = JSON.parse(sess)
+  /**
+   * Initialize MemoryStore with the given `options`
+   *
+   * @param {Object} options (optional)
+   * @param {Number=3600} options.ttl - How many seconds to keep a session alive since the last access to it, in case the cookie is a browser-session.
+   * @param {Boolean=false} options.disableTTL - Should ttl be disabled
+   * @param {Number|Boolean=1800} options.automaticExpiration - Interval in seconds for checking for expired sessions. Set to 0 or false to disable.
+   * @api public
+   */
 
-  var expires = typeof sess.cookie.expires === 'string'
-    ? new Date(sess.cookie.expires)
-    : sess.cookie.expires
+  var MemoryStore = function (options) {
+    var that = this;
 
-  // destroy expired session
-  if (expires && expires <= Date.now()) {
-    delete this.sessions[sessionId]
-    return
-  }
+    options = options || {};
+    Store.call(that, options);
 
-  return sess
-}
+    /**
+     * This is where the serialized sessions are stored
+     * @type {Object.<String, String>}
+     * @private
+     */
+    that._sessions = {};
+
+    /**
+     * This is where the session last access time is saved
+     * @type {Object.<String, Number>}
+     * @private
+     */
+    that._sessionsAccessStore = {};
+
+    that.ttl = (options.ttl || 3600) * 1000;
+    that.disableTTL = !!options.disableTTL;
+    that.automaticExpiration = options.automaticExpiration == null ? true : options.automaticExpiration;
+
+    if (that.automaticExpiration && typeof that.automaticExpiration !== 'number') {
+      that.automaticExpiration = 1800;
+    }
+
+    if (that.automaticExpiration) {
+      setInterval(function () {
+
+        /* istanbul ignore next */
+        that._checkForExpiredSessions();
+
+      }, 1000 * that.automaticExpiration);
+    }
+  };
+
+  /**
+   * Inherit from `Store`.
+   */
+
+  util.inherits(MemoryStore, Store);
+
+  /**
+   * Attempt to fetch session by the given `sid`.
+   *
+   * @param {String} sid
+   * @param {Function} fn
+   * @api public
+   */
+
+  MemoryStore.prototype.get = function (sid, fn) {
+    var session = this._sessions[sid];
+
+    if (!session) {
+      /* istanbul ignore next */
+      return fn && defer(fn, null, null)
+    }
+
+    var now = Date.now();
+
+    // Parse session
+    session = JSON.parse(session);
+
+    if (checkSessionExpired(this, sid, session, now)) {
+      /* istanbul ignore next */
+      fn && defer(fn, null, null);
+    }
+
+    if (!this.disableTTL) {
+      this._sessionsAccessStore[sid] = Math.max(this._sessionsAccessStore[sid] || 0, now);
+    }
+
+    fn && defer(fn, null, session);
+  };
+
+  /**
+   * Commit the given `sess` object associated with the given `sid`.
+   *
+   * @param {String} sid
+   * @param {Session} session
+   * @param {Function} fn
+   * @api public
+   */
+
+  MemoryStore.prototype.set = function (sid, session, fn) {
+
+    try {
+      var serializedSession = JSON.stringify(session);
+    }
+    catch (err) {
+      /* istanbul ignore next */
+      return fn && defer(fn, err);
+    }
+
+    this._sessions[sid] = serializedSession;
+
+    if (!this.disableTTL) {
+      this._sessionsAccessStore[sid] = Math.max(this._sessionsAccessStore[sid] || 0, Date.now());
+    }
+
+    fn && defer(fn, null);
+  };
+
+  /**
+   * Destroy the session associated with the given `sid`.
+   *
+   * @param {String} sid
+   * @param {Function} fn
+   * @api public
+   */
+
+  MemoryStore.prototype.destroy = function (sid, fn) {
+
+    delete this._sessions[sid];
+    delete this._sessionsAccessStore[sid];
+
+    fn && defer(fn, null);
+  };
+
+  /**
+   * Refresh the time-to-live for the session with the given `sid`.
+   *
+   * @param {String} sid
+   * @param {Session} session
+   * @param {Function} fn
+   * @api public
+   */
+
+  MemoryStore.prototype.touch = function (sid, session, fn) {
+
+    var now = Date.now();
+
+    /**
+     * @type {String|{cookie: ?}}
+     */
+    var currentSession = this._sessions[sid];
+
+    if (!currentSession) {
+      /* istanbul ignore next */
+      return fn && defer(fn, null);
+    }
+
+    // Parse session
+    currentSession = JSON.parse(currentSession);
+
+    if (checkSessionExpired(this, sid, currentSession, now)) {
+      /* istanbul ignore next */
+      return fn && defer(fn, null);
+    }
+
+    if (!this.disableTTL) {
+      this._sessionsAccessStore[sid] = Math.max(this._sessionsAccessStore[sid] || 0, now);
+    }
+
+    currentSession.cookie = session.cookie;
+    this._sessions[sid] = JSON.stringify(currentSession);
+
+    fn && defer(fn, null);
+  };
+
+  /**
+   * Fetches the count of all sessions in the store.
+   *
+   * @param {Function} fn
+   * @api public
+   */
+
+  MemoryStore.prototype.length = function (fn) {
+    fn && defer(fn, null, Object.keys(this._sessions).length);
+  };
+
+  /**
+   * Delete all sessions from the store
+   *
+   * @param {Function} fn
+   * @api public
+   */
+
+  MemoryStore.prototype.clear = function (fn) {
+
+    this._sessions = {};
+    this._sessionsAccessStore = {};
+
+    fn && defer(fn, null);
+  };
+
+  /**
+   * Get all active sessions.
+   *
+   * @param {function} fn
+   * @public
+   */
+
+  MemoryStore.prototype.all = function (fn) {
+
+    var sessionIds = Object.keys(this._sessions);
+    var sessions = {};
+
+    var now = Date.now();
+
+    for (var i = 0; i < sessionIds.length; i++) {
+      var sid = sessionIds[i];
+      var session = JSON.parse(this._sessions[sid]);
+
+      if (!checkSessionExpired(this, sid, session, now)) {
+        sessions[sid] = session;
+      }
+    }
+
+    fn && defer(fn, null, sessions);
+  };
+
+  /**
+   * Check for expired sessions.
+   *
+   */
+
+  /* istanbul ignore next */
+  MemoryStore.prototype._checkForExpiredSessions = function () {
+
+    var sessionIds = Object.keys(this._sessions);
+
+    var now = Date.now();
+
+    for (var i = 0; i < sessionIds.length; i++) {
+      var sid = sessionIds[i];
+      var session = JSON.parse(this._sessions[sid]);
+
+      checkSessionExpired(this, sid, session, now);
+    }
+
+  };
+
+  return MemoryStore;
+};
