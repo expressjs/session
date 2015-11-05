@@ -91,6 +91,10 @@ Session.prototype.reload = function(fn){
     if (err) return fn(err);
     if (!sess) return fn(new Error('failed to load session'));
     store.createSession(req, sess);
+    fn = (typeof fn === 'function')
+       ? fn
+       : function() {};
+       
     fn();
   });
   return this;
@@ -106,7 +110,7 @@ Session.prototype.reload = function(fn){
 
 Session.prototype.destroy = function(fn){
   delete this.req.session;
-  this.req.sessionStore.destroy(this.id, fn);
+  this.req.sessionStore.destroy(this.id, fn || function(){});
   return this;
 };
 
@@ -119,6 +123,6 @@ Session.prototype.destroy = function(fn){
  */
 
 Session.prototype.regenerate = function(fn){
-  this.req.sessionStore.regenerate(this.req, fn);
+  this.req.sessionStore.regenerate(this.req, fn || function(){});
   return this;
 };
