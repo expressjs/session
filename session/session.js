@@ -85,6 +85,9 @@ Session.prototype.save = function(fn){
  */
 
 Session.prototype.reload = function(fn){
+  fn = (typeof fn === 'function')
+   ? fn
+   : function() {};
   var req = this.req
     , store = this.req.sessionStore;
   store.get(this.id, function(err, sess){
@@ -106,7 +109,7 @@ Session.prototype.reload = function(fn){
 
 Session.prototype.destroy = function(fn){
   delete this.req.session;
-  this.req.sessionStore.destroy(this.id, fn);
+  this.req.sessionStore.destroy(this.id, fn || function(){});
   return this;
 };
 
@@ -119,6 +122,6 @@ Session.prototype.destroy = function(fn){
  */
 
 Session.prototype.regenerate = function(fn){
-  this.req.sessionStore.regenerate(this.req, fn);
+  this.req.sessionStore.regenerate(this.req, fn || function(){});
   return this;
 };
