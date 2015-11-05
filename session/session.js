@@ -85,16 +85,15 @@ Session.prototype.save = function(fn){
  */
 
 Session.prototype.reload = function(fn){
+  fn = (typeof fn === 'function')
+   ? fn
+   : function() {};
   var req = this.req
     , store = this.req.sessionStore;
   store.get(this.id, function(err, sess){
     if (err) return fn(err);
     if (!sess) return fn(new Error('failed to load session'));
     store.createSession(req, sess);
-    fn = (typeof fn === 'function')
-       ? fn
-       : function() {};
-       
     fn();
   });
   return this;
