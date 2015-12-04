@@ -74,6 +74,10 @@ Store.prototype.load = function(sid, fn){
  */
 
 Store.prototype.createSession = function(req, sess){
+  if(typeof sess.cookie == 'undefined') {
+  	sess.cookie = {};
+  }
+
   var expires = sess.cookie.expires
     , orig = sess.cookie.originalMaxAge;
   sess.cookie = new Cookie(sess.cookie);
