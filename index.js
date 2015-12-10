@@ -385,14 +385,9 @@ function session(options){
         return false;
       }
 
-      // in case of rolling session, always reset the cookie
-      if (rollingSessions) {
-        return true;
-      }
-
       return cookieId != req.sessionID
         ? saveUninitializedSession || isModified(req.session)
-        : req.session.cookie.expires != null && isModified(req.session);
+        : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
     }
 
     // generate a session if the browser doesn't send a sessionID
