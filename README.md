@@ -450,6 +450,10 @@ and other multi-core embedded devices).
 [mssql-session-store-url]: https://www.npmjs.com/package/mssql-session-store
 [mssql-session-store-image]: https://img.shields.io/github/stars/jwathen/mssql-session-store.svg?label=%E2%98%85
 
+[![Github Stars][nedb-session-store-image] nedb-session-store][nedb-session-store-url] An alternate NeDB-based (either in-memory or file-persisted) session store.
+[nedb-session-store-url]: https://www.npmjs.com/package/nedb-session-store
+[nedb-session-store-image]: https://img.shields.io/github/stars/JamesMGreene/nedb-session-store.svg?label=%E2%98%85
+
 [![Github Stars][session-file-store-image] session-file-store][session-file-store-url] A file system-based session store.
 [session-file-store-url]: https://www.npmjs.com/package/session-file-store
 [session-file-store-image]: https://img.shields.io/github/stars/valery-barysok/session-file-store.svg?label=%E2%98%85
