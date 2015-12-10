@@ -108,9 +108,11 @@ likely need `resave: true`.
 
 ##### rolling
 
-Force a cookie to be set on every response. This resets the expiration date.
+Force a cookie to be set with its [`maxAge`](#cookiemaxage) reset to its original value on every response, thus continually extending the expiration date.
 
 The default value is `false`.
+
+**Note** When this option is set to `true` but the [`saveUnitialized` option](#saveUnitialized) is set to `false`, the cookie will only be set on responses _after_ the session has been saved for the first time.
 
 ##### saveUninitialized
 

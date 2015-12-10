@@ -760,7 +760,6 @@ describe('session()', function(){
       var app = express();
       app.use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}));
       app.use(function(req, res, next){
-        var save = req.session.save;
         req.session.user = 'bob';
         res.end();
       });
@@ -782,7 +781,6 @@ describe('session()', function(){
       var app = express();
       app.use(session({ rolling: true, secret: 'keyboard cat', cookie: { maxAge: min }}));
       app.use(function(req, res, next){
-        var save = req.session.save;
         req.session.user = 'bob';
         res.end();
       });
@@ -798,6 +796,71 @@ describe('session()', function(){
         .expect(shouldSetCookie('connect.sid'))
         .expect(200, done)
       });
+    });
+
+    it('should not force cookie on uninitialized session if saveUninitialized option is set to false', function(done){
+      var count = 0;
+      var app = express();
+      app.use(session({ rolling: true, saveUninitialized: false, secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        res.setHeader('x-count', count);
+        req.session.save = function(fn){
+          res.setHeader('x-count', ++count);
+          return save.call(this, fn);
+        };
+        res.end();
+      });
+
+      request(app)
+      .get('/')
+      .expect('x-count', '0')
+      .expect(shouldNotHaveHeader('Set-Cookie'))
+      .expect(200, done)
+    });
+
+    it('should force cookie and save uninitialized session if saveUninitialized option is set to true', function(done){
+      var count = 0;
+      var app = express();
+      app.use(session({ rolling: true, saveUninitialized: true, secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        res.setHeader('x-count', count);
+        req.session.save = function(fn){
+          res.setHeader('x-count', ++count);
+          return save.call(this, fn);
+        };
+        res.end();
+      });
+
+      request(app)
+      .get('/')
+      .expect('x-count', '1')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, done)
+    });
+
+    it('should force cookie and save modified session even if saveUninitialized option is set to false', function(done){
+      var count = 0;
+      var app = express();
+      app.use(session({ rolling: true, saveUninitialized: false, secret: 'keyboard cat', cookie: { maxAge: min }}));
+      app.use(function(req, res, next){
+        var save = req.session.save;
+        res.setHeader('x-count', count);
+        req.session.count = count;
+        req.session.user = 'bob';
+        req.session.save = function(fn){
+          res.setHeader('x-count', ++count);
+          return save.call(this, fn);
+        };
+        res.end();
+      });
+
+      request(app)
+      .get('/')
+      .expect('x-count', '1')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, done);
     });
   });
 
