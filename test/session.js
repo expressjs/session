@@ -256,21 +256,13 @@ describe('session()', function(){
   })
 
   describe('when response ended', function () {
-    it('should not remove the last byte', function (done) {
-      var store = new session.MemoryStore();
-      // async
-      store.touch = function (sid, sess, fn) {
-        setTimeout(function () {
-          fn()
-        }, 5 * 1000)
-      };
+    it('should not remove the last byte when errors', function (done) {
       var app = express()
         .use(session({
-          store: store,
+          store: new session.MemoryStore(),
           secret: 'keyboard cat',
           resave: false
         }))
-
       var msg = 'I am the message. Don\'t strip my last byte'
       app.get('/', function (req, res, next) {
         // The following instrumentation is useful to debug
