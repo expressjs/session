@@ -256,6 +256,82 @@ describe('session()', function(){
   })
 
   describe('when response ended', function () {
+    it('should not remove the last byte', function (done) {
+      var store = new session.MemoryStore();
+      // async
+      store.touch = function (sid, sess, fn) {
+        setTimeout(function () {
+          fn()
+        }, 5 * 1000)
+      };
+      var app = express()
+        .use(session({
+          store: store,
+          secret: 'keyboard cat',
+          resave: false
+        }))
+
+      var msg = 'I am the message. Don\'t strip my last byte'
+      app.get('/', function (req, res, next) {
+        // The following instrumentation is useful to debug
+        // It shows how _writeRaw will be called after
+        // res.connection is .destroyed()
+        // res.end = (function (og) {
+        //   return function () {
+        //     console.log("begin res.end")
+        //     var result = og.apply(this, arguments);
+        //     console.log('end res.end')
+        //     return result;
+        //   }
+        // }(res.end))
+        // res.connection.destroy = (function (og) {
+        //   return function () {
+        //     console.log("destroy")
+        //     return og.apply(this, arguments);
+        //   }
+        // }(res.connection.destroy))
+        // res._writeRaw = (function (og) {
+        //   return function (chunk) {
+        //     console.log("_writeRaw", chunk && chunk.toString)
+        //     return og.apply(this, arguments);
+        //   }
+        // }(res._writeRaw))
+
+        var err = new Error(msg);
+        next(err)
+      });
+      // err handler
+      app.use(function (err, req, res, next) {
+        if ( ! err) return next();
+        res.status(500).send(err.message)
+        next(err)
+      })
+      var cookie;
+
+      // request one to get cookie
+      request(app).get('/').expect(500)
+      .expect(function (res) {
+        cookie = res.get('set-cookie')[0]
+        if (typeof cookie === 'string') {
+          cookie = cookie.split(';')[0];
+        }
+      }).end(doRequestTwo)
+
+      // request two sent with cookie
+      function doRequestTwo(err) {
+        request(app).get('/')
+        .set('cookie', cookie)
+        .expect(function (res) {
+          if (res.get('content-length') !== Buffer.byteLength(res.text)) {
+            throw new Error("Content-Lenght is incorrect!")
+          }
+          if (res.text !== msg) {
+            throw new Error("Response body last byte was stripped!")
+          }
+        })
+        .end(done)
+      }
+    })
     it('should have saved session', function (done) {
       var saved = false
       var store = new session.MemoryStore()
