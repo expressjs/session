@@ -2,6 +2,11 @@ var debug = require('debug')('express-session');
 var signature = require('cookie-signature');
 var crc = require('crc').crc32;
 
+/* istanbul ignore next */
+var defer = typeof setImmediate === 'function'
+  ? setImmediate
+  : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
+
 module.exports = function(store, options) {
 
 	return function(req, res, next) {
