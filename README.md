@@ -50,7 +50,7 @@ a string that will be used as a session ID. The function is given `req` as the
 first argument if you want to use some value attached to `req` when generating
 the ID.
 
-The default value is a function which uses the `uid2` library to generate IDs.
+The default value is a function which uses the `uid-safe` library to generate IDs.
 
 **NOTE** be careful to generate unique IDs so your sessions do not conflict.
 
