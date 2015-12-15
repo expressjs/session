@@ -760,7 +760,6 @@ describe('session()', function(){
       var app = express();
       app.use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}));
       app.use(function(req, res, next){
-        var save = req.session.save;
         req.session.user = 'bob';
         res.end();
       });
@@ -782,7 +781,6 @@ describe('session()', function(){
       var app = express();
       app.use(session({ rolling: true, secret: 'keyboard cat', cookie: { maxAge: min }}));
       app.use(function(req, res, next){
-        var save = req.session.save;
         req.session.user = 'bob';
         res.end();
       });
