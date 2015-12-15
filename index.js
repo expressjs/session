@@ -385,14 +385,18 @@ function session(options){
         return false;
       }
 
-      // in case of rolling session, always reset the cookie
-      if (rollingSessions) {
-        return true;
+      // For new sessions...
+      if (cookieId != req.sessionID) {
+        return saveUninitializedSession || isModified(req.session);
       }
-
-      return cookieId != req.sessionID
-        ? saveUninitializedSession || isModified(req.session)
-        : req.session.cookie.expires != null && isModified(req.session);
+      // For existing sessions...
+      else {
+        // In case of rolling sessions, always extend the cookie's expiration date
+        if (rollingSessions) {
+          return true;
+        }
+        return req.session.cookie.expires != null && isModified(req.session);
+      }
     }
 
     // generate a session if the browser doesn't send a sessionID
