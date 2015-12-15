@@ -216,9 +216,11 @@ which is (generally) serialized as JSON by the store, so nested objects
 are typically fine. For example below is a user-specific view counter:
 
 ```js
+// Use the session middleware
 app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
 
-app.use(function(req, res, next) {
+// Access the session as req.session
+app.get('/', function(req, res, next) {
   var sess = req.session
   if (sess.views) {
     sess.views++
