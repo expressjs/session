@@ -436,6 +436,10 @@ and other multi-core embedded devices).
 [connect-redis-url]: https://www.npmjs.com/package/connect-redis
 [connect-redis-image]: https://img.shields.io/github/stars/tj/connect-redis.svg?label=%E2%98%85
 
+[![Github Stars][connect-memcached-image] connect-memcached][connect-memcached-url] A memcached-based session store.
+[connect-memcached-url]: https://www.npmjs.com/package/connect-memcached
+[connect-memcached-image]: https://img.shields.io/github/stars/balor/connect-memcached.svg?label=%E2%98%85
+
 [![Github Stars][connect-session-knex-image] connect-session-knex][connect-session-knex-url] A session store using
 [Knex.js](http://knexjs.org/), which is a SQL query builder for PostgreSQL, MySQL, MariaDB, SQLite3, and Oracle.
 [connect-session-knex-url]: https://www.npmjs.com/package/connect-session-knex
