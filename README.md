@@ -446,6 +446,11 @@ and other multi-core embedded devices).
 [connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
 [connect-session-sequelize-image]: https://img.shields.io/github/stars/mweibel/connect-session-sequelize.svg?label=%E2%98%85
 
+[![Github Stars][sequelstore-connect-image] sequelstore-connect][sequelstore-connect-url] A session store using
+[Sequelize.js](http://sequelizejs.com/), in ES6, and compatible for Node 0.12 to 5.
+[sequelstore-connect-url]: https://www.npmjs.com/package/sequelstore-connect
+[sequelstore-connect-image]: https://img.shields.io/github/stars/MattMcFarland/sequelstore-connect.svg?label=%E2%98%85
+
 [![Github Stars][connect-sqlite3-image] connect-sqlite3][connect-sqlite3-url] A [SQLite3](https://github.com/mapbox/node-sqlite3) session store modeled after the TJ's `connect-redis` store.
 [connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
 [connect-sqlite3-image]: https://img.shields.io/github/stars/rawberg/connect-sqlite3.svg?label=%E2%98%85
