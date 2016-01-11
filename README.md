@@ -398,87 +398,87 @@ potentially resetting the idle timer.
 The following modules implement a session store that is compatible with this
 module. Please make a PR to add additional modules :)
 
-[![Github Stars][cassandra-store-image] cassandra-store][cassandra-store-url] An Apache Cassandra-based session store.
+[![★][cassandra-store-image] cassandra-store][cassandra-store-url] An Apache Cassandra-based session store.
 [cassandra-store-url]: https://www.npmjs.com/package/cassandra-store
 [cassandra-store-image]: https://img.shields.io/github/stars/webcc/cassandra-store.svg?label=%E2%98%85
 
-[![Github Stars][cluster-store-image] cluster-store][cluster-store-url] A wrapper for using in-process / embedded
+[![★][cluster-store-image] cluster-store][cluster-store-url] A wrapper for using in-process / embedded
 stores - such as SQLite (via knex), leveldb, files, or memory - with node cluster (desirable for Raspberry Pi 2
 and other multi-core embedded devices).
 [cluster-store-url]: https://www.npmjs.com/package/cluster-store
 [cluster-store-image]: https://img.shields.io/github/stars/coolaj86/cluster-store.svg?label=%E2%98%85
 
-[![Github Stars][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](http://www.couchbase.com/)-based session store.
+[![★][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](http://www.couchbase.com/)-based session store.
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
 [connect-couchbase-image]: https://img.shields.io/github/stars/christophermina/connect-couchbase.svg?label=%E2%98%85
 
-[![Github Stars][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
+[![★][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
 [connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
 [connect-mssql-image]: https://img.shields.io/github/stars/patriksimek/connect-mssql.svg?label=%E2%98%85
 
-[![Github Stars][connect-monetdb-image] connect-monetdb][connect-monetdb-url] A MonetDB-based session store.
+[![★][connect-monetdb-image] connect-monetdb][connect-monetdb-url] A MonetDB-based session store.
 [connect-monetdb-url]: https://www.npmjs.com/package/connect-monetdb
 [connect-monetdb-image]: https://img.shields.io/github/stars/MonetDB/npm-connect-monetdb.svg?label=%E2%98%85
 
-[![Github Stars][connect-mongo-image] connect-mongo][connect-mongo-url] A MongoDB-based session store.
+[![★][connect-mongo-image] connect-mongo][connect-mongo-url] A MongoDB-based session store.
 [connect-mongo-url]: https://www.npmjs.com/package/connect-mongo
 [connect-mongo-image]: https://img.shields.io/github/stars/kcbanner/connect-mongo.svg?label=%E2%98%85
 
-[![Github Stars][connect-mongodb-session-image] connect-mongodb-session][connect-mongodb-session-url] Lightweight MongoDB-based session store built and maintained by MongoDB.
+[![★][connect-mongodb-session-image] connect-mongodb-session][connect-mongodb-session-url] Lightweight MongoDB-based session store built and maintained by MongoDB.
 [connect-mongodb-session-url]: https://www.npmjs.com/package/connect-mongodb-session
 [connect-mongodb-session-image]: https://img.shields.io/github/stars/mongodb-js/connect-mongodb-session.svg?label=%E2%98%85
 
-[![Github Stars][connect-pg-simple-image] connect-pg-simple][connect-pg-simple-url] A PostgreSQL-based session store.
+[![★][connect-pg-simple-image] connect-pg-simple][connect-pg-simple-url] A PostgreSQL-based session store.
 [connect-pg-simple-url]: https://www.npmjs.com/package/connect-pg-simple
 [connect-pg-simple-image]: https://img.shields.io/github/stars/voxpelli/node-connect-pg-simple.svg?label=%E2%98%85
 
-[![Github Stars][connect-redis-image] connect-redis][connect-redis-url] A Redis-based session store.
+[![★][connect-redis-image] connect-redis][connect-redis-url] A Redis-based session store.
 [connect-redis-url]: https://www.npmjs.com/package/connect-redis
 [connect-redis-image]: https://img.shields.io/github/stars/tj/connect-redis.svg?label=%E2%98%85
 
-[![Github Stars][connect-memcached-image] connect-memcached][connect-memcached-url] A memcached-based session store.
+[![★][connect-memcached-image] connect-memcached][connect-memcached-url] A memcached-based session store.
 [connect-memcached-url]: https://www.npmjs.com/package/connect-memcached
 [connect-memcached-image]: https://img.shields.io/github/stars/balor/connect-memcached.svg?label=%E2%98%85
 
-[![Github Stars][connect-session-knex-image] connect-session-knex][connect-session-knex-url] A session store using
+[![★][connect-session-knex-image] connect-session-knex][connect-session-knex-url] A session store using
 [Knex.js](http://knexjs.org/), which is a SQL query builder for PostgreSQL, MySQL, MariaDB, SQLite3, and Oracle.
 [connect-session-knex-url]: https://www.npmjs.com/package/connect-session-knex
 [connect-session-knex-image]: https://img.shields.io/github/stars/llambda/connect-session-knex.svg?label=%E2%98%85
 
-[![Github Stars][connect-session-sequelize-image] connect-session-sequelize][connect-session-sequelize-url] A session store using
+[![★][connect-session-sequelize-image] connect-session-sequelize][connect-session-sequelize-url] A session store using
 [Sequelize.js](http://sequelizejs.com/), which is a Node.js / io.js ORM for PostgreSQL, MySQL, SQLite and MSSQL.
 [connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
 [connect-session-sequelize-image]: https://img.shields.io/github/stars/mweibel/connect-session-sequelize.svg?label=%E2%98%85
 
-[![Github Stars][connect-sqlite3-image] connect-sqlite3][connect-sqlite3-url] A [SQLite3](https://github.com/mapbox/node-sqlite3) session store modeled after the TJ's `connect-redis` store.
+[![★][connect-sqlite3-image] connect-sqlite3][connect-sqlite3-url] A [SQLite3](https://github.com/mapbox/node-sqlite3) session store modeled after the TJ's `connect-redis` store.
 [connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
 [connect-sqlite3-image]: https://img.shields.io/github/stars/rawberg/connect-sqlite3.svg?label=%E2%98%85
 
-[![Github Stars][express-nedb-session-image] express-nedb-session][express-nedb-session-url] A NeDB-based session store.
+[![★][express-nedb-session-image] express-nedb-session][express-nedb-session-url] A NeDB-based session store.
 [express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
 [express-nedb-session-image]: https://img.shields.io/github/stars/louischatriot/express-nedb-session.svg?label=%E2%98%85
 
-[![Github Stars][level-session-store-image] level-session-store][level-session-store-url] A LevelDB-based session store.
+[![★][level-session-store-image] level-session-store][level-session-store-url] A LevelDB-based session store.
 [level-session-store-url]: https://www.npmjs.com/package/level-session-store
 [level-session-store-image]: https://img.shields.io/github/stars/scriptollc/level-session-store.svg?label=%E2%98%85
 
-[![Github Stars][mssql-session-store-image] mssql-session-store][mssql-session-store-url] A SQL Server-based session store.
+[![★][mssql-session-store-image] mssql-session-store][mssql-session-store-url] A SQL Server-based session store.
 [mssql-session-store-url]: https://www.npmjs.com/package/mssql-session-store
 [mssql-session-store-image]: https://img.shields.io/github/stars/jwathen/mssql-session-store.svg?label=%E2%98%85
 
-[![Github Stars][nedb-session-store-image] nedb-session-store][nedb-session-store-url] An alternate NeDB-based (either in-memory or file-persisted) session store.
+[![★][nedb-session-store-image] nedb-session-store][nedb-session-store-url] An alternate NeDB-based (either in-memory or file-persisted) session store.
 [nedb-session-store-url]: https://www.npmjs.com/package/nedb-session-store
 [nedb-session-store-image]: https://img.shields.io/github/stars/JamesMGreene/nedb-session-store.svg?label=%E2%98%85
 
-[![Github Stars][sequelstore-connect-image] sequelstore-connect][sequelstore-connect-url] A session store using [Sequelize.js](http://sequelizejs.com/).
+[![★][sequelstore-connect-image] sequelstore-connect][sequelstore-connect-url] A session store using [Sequelize.js](http://sequelizejs.com/).
 [sequelstore-connect-url]: https://www.npmjs.com/package/sequelstore-connect
 [sequelstore-connect-image]: https://img.shields.io/github/stars/MattMcFarland/sequelstore-connect.svg?label=%E2%98%85
 
-[![Github Stars][session-file-store-image] session-file-store][session-file-store-url] A file system-based session store.
+[![★][session-file-store-image] session-file-store][session-file-store-url] A file system-based session store.
 [session-file-store-url]: https://www.npmjs.com/package/session-file-store
 [session-file-store-image]: https://img.shields.io/github/stars/valery-barysok/session-file-store.svg?label=%E2%98%85
 
-[![Github Stars][session-rethinkdb-image] session-rethinkdb][session-rethinkdb-url] A [RethinkDB](http://rethinkdb.com/)-based session store.
+[![★][session-rethinkdb-image] session-rethinkdb][session-rethinkdb-url] A [RethinkDB](http://rethinkdb.com/)-based session store.
 [session-rethinkdb-url]: https://www.npmjs.com/package/session-rethinkdb
 [session-rethinkdb-image]: https://img.shields.io/github/stars/llambda/session-rethinkdb.svg?label=%E2%98%85
 
