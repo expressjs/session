@@ -1,5 +1,5 @@
-unreleased
-==========
+1.13.0 / 2016-01-10
+===================
 
   * Fix `rolling: true` to not set cookie when no session exists
     - Better `saveUninitialized: false` + `rolling: true` behavior
