@@ -268,6 +268,18 @@ req.session.reload(function(err) {
 
 #### Session.save()
 
+Save the session back to the store, replacing the contents on the store with the
+contents in memory (though a store may do something else--consult the store's
+documentation for exact behavior).
+
+This method is automatically called at the end of the HTTP response if the
+session data has been altered (though this behavior can be altered with various
+options in the middleware constructor). Because of this, typically this method
+does not need to be called.
+
+There are some cases where it is useful to call this method, for example, long-
+lived requests or in WebSockets.
+
 ```js
 req.session.save(function(err) {
   // session saved
