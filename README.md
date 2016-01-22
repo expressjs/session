@@ -70,7 +70,7 @@ request).
 
 The default value is `'connect.sid'`.
 
-**Note** if you have multiple apps running on the same host (hostname + port),
+**Note** if you have multiple apps running on the same hostname,
 then you need to separate the session cookies from each other. The simplest
 method is to simply set different `name`s per app.
 
