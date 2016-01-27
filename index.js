@@ -160,6 +160,9 @@ function session(options){
 
     // pathname mismatch
     var originalPath = parseUrl.original(req).pathname;
+    if(cookieOptions.baseUrlField){
+      cookieOptions.path = req.baseUrl;
+    };
     if (originalPath.indexOf(cookieOptions.path || '/') !== 0) return next();
 
     // ensure a secret is available or bail
