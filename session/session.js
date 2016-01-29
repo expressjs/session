@@ -1,10 +1,11 @@
-
 /*!
  * Connect - session - Session
  * Copyright(c) 2010 Sencha Inc.
  * Copyright(c) 2011 TJ Holowaychuk
  * MIT Licensed
  */
+
+'use strict';
 
 /**
  * Expose Session.

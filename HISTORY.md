@@ -5,6 +5,7 @@ unreleased
     - perf: enable strict mode
   * deps: uid-safe@~2.1.0
     - Use `random-bytes` for byte source
+  * perf: enable strict mode
 
 1.13.0 / 2016-01-10
 ===================
