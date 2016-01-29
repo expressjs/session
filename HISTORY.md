@@ -3,6 +3,8 @@ unreleased
 
   * deps: parseurl@~1.3.1
     - perf: enable strict mode
+  * deps: uid-safe@~2.1.0
+    - Use `random-bytes` for byte source
 
 1.13.0 / 2016-01-10
 ===================
