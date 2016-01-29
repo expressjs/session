@@ -425,6 +425,10 @@ and other multi-core embedded devices).
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
 [connect-couchbase-image]: https://img.shields.io/github/stars/christophermina/connect-couchbase.svg?label=%E2%98%85
 
+[![★][connect-dynamodb-image] connect-dynamodb][connect-dynamodb-url] A DynamoDB-based session store.
+[connect-dynamodb-url]: https://github.com/ca98am79/connect-dynamodb
+[connect-dynamodb-image]: https://img.shields.io/github/stars/ca98am79/connect-dynamodb.svg?label=%E2%98%85
+
 [![★][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
 [connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
 [connect-mssql-image]: https://img.shields.io/github/stars/patriksimek/connect-mssql.svg?label=%E2%98%85
