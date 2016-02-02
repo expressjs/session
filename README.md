@@ -485,6 +485,12 @@ and other multi-core embedded devices).
 [connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
 [connect-session-sequelize-image]: https://img.shields.io/github/stars/mweibel/connect-session-sequelize.svg?label=%E2%98%85
 
+[![★][express-mysql-session-image] express-mysql-session][express-mysql-session-url] A session store using native
+[MySQL](https://www.mysql.com/) via the [node-mysql](https://github.com/felixge/node-mysql) module.
+
+[express-mysql-session-url]: https://www.npmjs.com/package/express-mysql-session
+[express-mysql-session-image]: https://img.shields.io/github/stars/chill117/express-mysql-session.svg?label=%E2%98%85
+
 [![★][connect-sqlite3-image] connect-sqlite3][connect-sqlite3-url] A [SQLite3](https://github.com/mapbox/node-sqlite3) session store modeled after the TJ's `connect-redis` store.
 
 [connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
