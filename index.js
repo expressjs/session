@@ -203,6 +203,7 @@ function session(options){
         return;
       }
 
+      cookie.originalMaxAge > 0 && (cookie.expires = new Date(Date.now() + cookie.originalMaxAge));
       setcookie(res, name, req.sessionID, secrets[0], cookie.data);
     });
 
