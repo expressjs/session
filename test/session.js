@@ -2115,6 +2115,54 @@ describe('session()', function(){
       })
     })
   })
+
+  describe('cookie.expire', function(){
+    this.timeout(86400000);
+    var val;
+
+    var app = express()
+        .use(session({ secret: 'keyboard cat', cookie: { maxAge: 10000 }}))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0;
+          req.session.count++;
+          res.write(req.session.count.toString());  //this is very important. If use res.end(...) then no bug
+          res.end('');
+        });
+
+    it('should be Now + .maxAge  (first test)', function(done){
+      request(app)
+          .get('/')
+          .expect(200, '1', function (err, res) {
+            var a = new Date(expires(res))
+            var b = new Date
+            var delta = a.valueOf() - b.valueOf()
+
+            val = cookie(res).split(';')[0];
+
+            assert.ok(delta > 9000 && delta <= 10000, "cookie.expire is too short as expected");
+            done();
+          });
+    });
+
+    it('should be Now + .maxAge (second test)', function(done){
+      setTimeout(function() {
+        request(app)
+            .get('/')
+            .set('Cookie', val)
+            .expect(200, '2', function (err, res) {
+              var a = new Date(expires(res))
+              var b = new Date
+              var delta = a.valueOf() - b.valueOf()
+
+              var thisCookie = cookie(res).split(';')[0];
+              assert.equal(thisCookie, val, "cookie value itself should be same");
+
+              assert.ok(delta > 9000 && delta <= 10000, "cookie.expire is too short as expected");
+              done();
+            });
+      }, 6000);
+    });
+  });
 })
 
 function cookie(res) {
