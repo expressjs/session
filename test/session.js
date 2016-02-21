@@ -2117,7 +2117,7 @@ describe('session()', function(){
   })
 
   describe('cookie.expire', function(){
-    this.timeout(86400000);
+    this.timeout(12000);
     var val;
 
     var app = express()
