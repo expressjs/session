@@ -24,7 +24,6 @@ module.exports = Session;
 function Session(req, data) {
   Object.defineProperty(this, 'req', { value: req });
   Object.defineProperty(this, 'id', { value: req.sessionID });
-  Object.defineProperty(this, 'cookie', { value: undefined, writable: true })
 
   if (typeof data === 'object' && data !== null) {
     // merge data into this, ignoring prototype properties
