@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Methods are no longer enumerable on `req.session` object
+
 1.13.1 / 2016-01-29
 ===================
 
