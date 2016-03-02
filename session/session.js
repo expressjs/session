@@ -24,6 +24,7 @@ module.exports = Session;
 function Session(req, data) {
   Object.defineProperty(this, 'req', { value: req });
   Object.defineProperty(this, 'id', { value: req.sessionID });
+  Object.defineProperty(this, 'cookie', { value: undefined, writable: true })
 
   if (typeof data === 'object' && data !== null) {
     // merge data into this, ignoring prototype properties
@@ -44,9 +45,9 @@ function Session(req, data) {
  * @api public
  */
 
-Session.prototype.touch = function(){
+Object.defineProperty(Session.prototype, 'touch', { value: function(){
   return this.resetMaxAge();
-};
+} });
 
 /**
  * Reset `.maxAge` to `.originalMaxAge`.
@@ -55,10 +56,10 @@ Session.prototype.touch = function(){
  * @api public
  */
 
-Session.prototype.resetMaxAge = function(){
+Object.defineProperty(Session.prototype, 'resetMaxAge', { value: function(){
   this.cookie.maxAge = this.cookie.originalMaxAge;
   return this;
-};
+} });
 
 /**
  * Save the session data with optional callback `fn(err)`.
@@ -68,10 +69,10 @@ Session.prototype.resetMaxAge = function(){
  * @api public
  */
 
-Session.prototype.save = function(fn){
+Object.defineProperty(Session.prototype, 'save', { value: function(fn){
   this.req.sessionStore.set(this.id, this, fn || function(){});
   return this;
-};
+} });
 
 /**
  * Re-loads the session data _without_ altering
@@ -85,7 +86,7 @@ Session.prototype.save = function(fn){
  * @api public
  */
 
-Session.prototype.reload = function(fn){
+Object.defineProperty(Session.prototype, 'reload', { value: function(fn){
   var req = this.req
     , store = this.req.sessionStore;
   store.get(this.id, function(err, sess){
@@ -95,7 +96,7 @@ Session.prototype.reload = function(fn){
     fn();
   });
   return this;
-};
+} });
 
 /**
  * Destroy `this` session.
@@ -105,11 +106,11 @@ Session.prototype.reload = function(fn){
  * @api public
  */
 
-Session.prototype.destroy = function(fn){
+Object.defineProperty(Session.prototype, 'destroy', { value: function(fn){
   delete this.req.session;
   this.req.sessionStore.destroy(this.id, fn);
   return this;
-};
+} });
 
 /**
  * Regenerate this request's session.
@@ -119,7 +120,7 @@ Session.prototype.destroy = function(fn){
  * @api public
  */
 
-Session.prototype.regenerate = function(fn){
+Object.defineProperty(Session.prototype, 'regenerate', { value: function(fn){
   this.req.sessionStore.regenerate(this.req, fn);
   return this;
-};
+} });
