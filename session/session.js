@@ -44,7 +44,10 @@ function Session(req, data) {
  * @api public
  */
 
-Object.defineProperty(Session.prototype, 'touch', { value: function(){
+Object.defineProperty(Session.prototype, 'touch', { configurable: true,
+                                                    writable: true,
+                                                    enumerable: false,
+                                                    value: function(){
   return this.resetMaxAge();
 } });
 
@@ -55,7 +58,10 @@ Object.defineProperty(Session.prototype, 'touch', { value: function(){
  * @api public
  */
 
-Object.defineProperty(Session.prototype, 'resetMaxAge', { value: function(){
+Object.defineProperty(Session.prototype, 'resetMaxAge', { configurable: true,
+                                                          writable: true,
+                                                          enumerable: false,
+                                                          value: function(){
   this.cookie.maxAge = this.cookie.originalMaxAge;
   return this;
 } });
@@ -68,7 +74,10 @@ Object.defineProperty(Session.prototype, 'resetMaxAge', { value: function(){
  * @api public
  */
 
-Object.defineProperty(Session.prototype, 'save', { value: function(fn){
+Object.defineProperty(Session.prototype, 'save', { configurable: true,
+                                                   writable: true,
+                                                   enumerable: false,
+                                                   value: function(fn){
   this.req.sessionStore.set(this.id, this, fn || function(){});
   return this;
 } });
@@ -85,7 +94,10 @@ Object.defineProperty(Session.prototype, 'save', { value: function(fn){
  * @api public
  */
 
-Object.defineProperty(Session.prototype, 'reload', { value: function(fn){
+Object.defineProperty(Session.prototype, 'reload', { configurable: true,
+                                                     writable: true,
+                                                     enumerable: false,
+                                                     value: function(fn){
   var req = this.req
     , store = this.req.sessionStore;
   store.get(this.id, function(err, sess){
@@ -105,7 +117,10 @@ Object.defineProperty(Session.prototype, 'reload', { value: function(fn){
  * @api public
  */
 
-Object.defineProperty(Session.prototype, 'destroy', { value: function(fn){
+Object.defineProperty(Session.prototype, 'destroy', { configurable: true,
+                                                      writable: true,
+                                                      enumerable: false,
+                                                      value: function(fn){
   delete this.req.session;
   this.req.sessionStore.destroy(this.id, fn);
   return this;
@@ -119,7 +134,10 @@ Object.defineProperty(Session.prototype, 'destroy', { value: function(fn){
  * @api public
  */
 
-Object.defineProperty(Session.prototype, 'regenerate', { value: function(fn){
+Object.defineProperty(Session.prototype, 'regenerate', { configurable: true,
+                                                         writable: true,
+                                                         enumerable: false,
+                                                         value: function(fn){
   this.req.sessionStore.regenerate(this.req, fn);
   return this;
 } });
