@@ -1,10 +1,11 @@
-
 /*!
  * Connect - session - Session
  * Copyright(c) 2010 Sencha Inc.
  * Copyright(c) 2011 TJ Holowaychuk
  * MIT Licensed
  */
+
+'use strict';
 
 /**
  * Expose Session.
@@ -43,9 +44,9 @@ function Session(req, data) {
  * @api public
  */
 
-Session.prototype.touch = function(){
+defineMethod(Session.prototype, 'touch', function touch() {
   return this.resetMaxAge();
-};
+});
 
 /**
  * Reset `.maxAge` to `.originalMaxAge`.
@@ -54,10 +55,10 @@ Session.prototype.touch = function(){
  * @api public
  */
 
-Session.prototype.resetMaxAge = function(){
+defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
   this.cookie.maxAge = this.cookie.originalMaxAge;
   return this;
-};
+});
 
 /**
  * Save the session data with optional callback `fn(err)`.
@@ -67,10 +68,10 @@ Session.prototype.resetMaxAge = function(){
  * @api public
  */
 
-Session.prototype.save = function(fn){
+defineMethod(Session.prototype, 'save', function save(fn) {
   this.req.sessionStore.set(this.id, this, fn || function(){});
   return this;
-};
+});
 
 /**
  * Re-loads the session data _without_ altering
@@ -84,7 +85,7 @@ Session.prototype.save = function(fn){
  * @api public
  */
 
-Session.prototype.reload = function(fn){
+defineMethod(Session.prototype, 'reload', function reload(fn) {
   var req = this.req
     , store = this.req.sessionStore;
   store.get(this.id, function(err, sess){
@@ -94,7 +95,7 @@ Session.prototype.reload = function(fn){
     fn();
   });
   return this;
-};
+});
 
 /**
  * Destroy `this` session.
@@ -104,11 +105,11 @@ Session.prototype.reload = function(fn){
  * @api public
  */
 
-Session.prototype.destroy = function(fn){
+defineMethod(Session.prototype, 'destroy', function destroy(fn) {
   delete this.req.session;
   this.req.sessionStore.destroy(this.id, fn);
   return this;
-};
+});
 
 /**
  * Regenerate this request's session.
@@ -118,7 +119,24 @@ Session.prototype.destroy = function(fn){
  * @api public
  */
 
-Session.prototype.regenerate = function(fn){
+defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
   this.req.sessionStore.regenerate(this.req, fn);
   return this;
+});
+
+/**
+ * Helper function for creating a method on a prototype.
+ *
+ * @param {Object} obj
+ * @param {String} name
+ * @param {Function} fn
+ * @private
+ */
+function defineMethod(obj, name, fn) {
+  Object.defineProperty(obj, name, {
+    configurable: true,
+    enumerable: false,
+    value: fn,
+    writable: true
+  });
 };
