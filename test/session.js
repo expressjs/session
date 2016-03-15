@@ -20,6 +20,7 @@ describe('session()', function(){
     assert.equal(typeof session.Store, 'function')
     assert.equal(typeof session.MemoryStore, 'function')
   })
+  
   it('should session only exists in the baseUrl', function(done) {
     var ctrl_sess = session({
       secret: 'keyboard cat',
