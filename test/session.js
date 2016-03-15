@@ -20,6 +20,37 @@ describe('session()', function(){
     assert.equal(typeof session.Store, 'function')
     assert.equal(typeof session.MemoryStore, 'function')
   })
+  it('should session only exists in the baseUrl', function(done) {
+    var ctrl_sess = session({
+      secret: 'keyboard cat',
+      cookie: {
+        httpOnly: true,
+        baseUrlField: true
+      }
+    });
+    var ctrl_corp = function(req, res, next) {
+      if (!req.session.corp) {
+        req.session.corp = req.params.corp;
+        res.send(req.session.corp);
+      } else if (req.session.corp !== req.params.corp) {
+        res.send('oh no, session is across.');
+      } else {
+        res.send(req.session.corp);
+      }
+    };
+
+    var app = express();
+    app.use('/:corp', ctrl_sess, ctrl_corp);
+
+    request(app)
+      .get('/github')
+      .expect(200, 'github', function(err, res) {
+        if (err) return done(err)
+        request(app)
+          .get('/google')
+          .expect(200, 'google', done);
+      });
+  })
 
   it('should do nothing if req.session exists', function(done){
     var app = express()
