@@ -202,7 +202,8 @@ function session(options){
       if (!shouldSetCookie(req)) {
         return;
       }
-
+      // touch session
+      req.session.touch();
       setcookie(res, name, req.sessionID, secrets[0], cookie.data);
     });
 
@@ -283,9 +284,6 @@ function session(options){
         debug('no session');
         return _end.call(res, chunk, encoding);
       }
-
-      // touch session
-      req.session.touch();
 
       if (shouldSave(req)) {
         req.session.save(function onsave(err) {
