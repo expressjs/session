@@ -862,6 +862,32 @@ describe('session()', function(){
       .expect(shouldSetCookie('connect.sid'))
       .expect(200, done);
     });
+
+    it('should have updated the session before setting the cookie', function(done) {
+      var app = express()
+      .use(function(req, res, next){ req.secret = 'keyboard cat'; next(); })
+      .use(session({ cookie: { maxAge: min }, rolling: true }))
+      .use(function(req, res) {
+        var sess = req.session
+        res.write('');
+        setTimeout(function() { res.end(); }, 100);
+      });
+      var agent = request.agent(app);
+      agent.get('/')
+      .end(function(err, res) {
+        var timestamp1 = res.headers['set-cookie'][0].match(/\d\d\:\d\d:\d\d/)[0];
+        setTimeout(
+          /* give 'expires' at least a second to change */
+          function() { 
+            agent.get('/')
+            .end(function(err, res) {
+              var timestamp2 = res.headers['set-cookie'][0].match(/\d\d\:\d\d:\d\d/)[0];
+              assert.notEqual(timestamp1, timestamp2);
+              done();
+            }) 
+          }, 1000)
+      });
+    })
   });
 
   describe('resave option', function(){
