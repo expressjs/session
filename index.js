@@ -184,136 +184,135 @@ function session(options){
     // get the session ID from the cookie
     var cookieId = req.sessionID = getcookie(req, name, secrets);
 
-    // set-cookie
-    onHeaders(res, function(){
-      if (!req.session) {
-        debug('no session');
-        return;
+    var _callback = null;
+    /**
+     * Commits the session. 
+     * May be called multiple times and ensures it only runs once, 
+     * Returns true if all commit related tasks are complete when the function returns.
+     * Returns false it it has async tasks pending.
+     * If _callback is defined, it is called without arguments once all async tasks are complete.
+     */
+    var commitSession = (function() {
+      var started = false,
+        finished = false;
+      function done() {
+        finished = true;
+        if (_callback) {
+          _callback();
+        }
       }
+      return function() {
+        if (started) {
+          return finished;
+        }
+        started = true;
+        if (shouldDestroy(req)) {
+          // destroy session
+          debug('destroying');
+          store.destroy(req.sessionID, function ondestroy(err) {
+            if (err) {
+              defer(next, err);
+            }
+            debug('destroyed');
+            done();
+          });
+          return finished;
+        }
+        if (!req.session) {
+          debug('no session');
+          done();
+          return finished;
+        }
+        // touch session
+        req.session.touch();
 
-      var cookie = req.session.cookie;
+        // only send secure cookies via https
+        var cookie = req.session.cookie;
+        if (cookie.secure && !issecure(req, trustProxy)) {
+          debug('not secured');
+        } else if (shouldSetCookie(req)) {
+          setcookie(res, name, req.sessionID, secrets[0], cookie.data);
+        }
 
-      // only send secure cookies via https
-      if (cookie.secure && !issecure(req, trustProxy)) {
-        debug('not secured');
-        return;
+        if (shouldSave(req)) {
+          req.session.save(function onsave(err) {
+            if (err) {
+              defer(next, err);
+            }
+            done();
+          });
+        } 
+        else if (storeImplementsTouch && shouldTouch(req)) {
+          // store implements touch method
+          debug('touching');
+          store.touch(req.sessionID, req.session, function ontouch(err) {
+            if (err) {
+              defer(next, err);
+            }
+            debug('touched');
+            done();
+          });
+        } else {
+          done();
+        }
+        return finished;
       }
+    })();
 
-      if (!shouldSetCookie(req)) {
-        return;
-      }
-      // touch session
-      req.session.touch();
-      setcookie(res, name, req.sessionID, secrets[0], cookie.data);
-    });
+
+    // commit the session - can be called before or after res.end()
+    onHeaders(res, commitSession);
 
     // proxy end() to commit the session
     var _end = res.end;
     var _write = res.write;
     var ended = false;
+
     res.end = function end(chunk, encoding) {
       if (ended) {
+        // end has already been called
         return false;
       }
-
       ended = true;
 
-      var ret;
-      var sync = true;
+      // commit the session and get the commit status
+      var committed = commitSession();
 
-      function writeend() {
-        if (sync) {
-          ret = _end.call(res, chunk, encoding);
-          sync = false;
-          return;
-        }
-
-        _end.call(res);
-      }
-
-      function writetop() {
-        if (!sync) {
-          return ret;
-        }
-
-        if (chunk == null) {
-          ret = true;
-          return ret;
-        }
-
-        var contentLength = Number(res.getHeader('Content-Length'));
-
-        if (!isNaN(contentLength) && contentLength > 0) {
-          // measure chunk
-          chunk = !Buffer.isBuffer(chunk)
-            ? new Buffer(chunk, encoding)
-            : chunk;
-          encoding = undefined;
-
-          if (chunk.length !== 0) {
-            debug('split response');
-            ret = _write.call(res, chunk.slice(0, chunk.length - 1));
-            chunk = chunk.slice(chunk.length - 1, chunk.length);
-            return ret;
-          }
-        }
-
-        ret = _write.call(res, chunk, encoding);
-        sync = false;
-
-        return ret;
-      }
-
-      if (shouldDestroy(req)) {
-        // destroy session
-        debug('destroying');
-        store.destroy(req.sessionID, function ondestroy(err) {
-          if (err) {
-            defer(next, err);
-          }
-
-          debug('destroyed');
-          writeend();
-        });
-
-        return writetop();
-      }
-
-      // no session to save
-      if (!req.session) {
-        debug('no session');
+      if (committed) {
+        // all commit activities have completed
         return _end.call(res, chunk, encoding);
       }
 
-      // touch session
-      req.session.touch();
-
-      if (shouldSave(req)) {
-        req.session.save(function onsave(err) {
-          if (err) {
-            defer(next, err);
-          }
-
-          writeend();
-        });
-
-        return writetop();
-      } else if (storeImplementsTouch && shouldTouch(req)) {
-        // store implements touch method
-        debug('touching');
-        store.touch(req.sessionID, req.session, function ontouch(err) {
-          if (err) {
-            defer(next, err);
-          }
-
-          debug('touched');
-          writeend();
-        });
-
-        return writetop();
+      /*
+       * commit is still running
+       */
+      
+      // provide a callback to write data
+      _callback = function() {
+        _end.call(res, chunk, encoding);
       }
 
-      return _end.call(res, chunk, encoding);
+      if (chunk == null) {
+        // nothing to do - wait for commit to call the callback
+        return;
+      }
+
+      // write as much data as possible while the commit is running
+      var ret;
+      var contentLength = Number(res.getHeader('Content-Length'));
+      if (!isNaN(contentLength) && contentLength > 0 && chunk.length !== 0) {
+        // send everything but the last character
+        chunk = !Buffer.isBuffer(chunk) ? new Buffer(chunk, encoding) : chunk;
+        encoding = undefined;
+        debug('split response');
+        ret = _write.call(res, chunk.slice(0, chunk.length - 1));
+        chunk = chunk.slice(chunk.length - 1, chunk.length);
+      } else {
+        // send everything and change callback
+        ret = _write.call(res, chunk, encoding);
+        _callback = _end.bind(res);
+      }
+      return ret;
     };
 
     // generate the session
