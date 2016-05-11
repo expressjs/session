@@ -27,6 +27,7 @@ var Session = require('./session/session')
   , Cookie = require('./session/cookie')
   , Store = require('./session/store')
 
+var parseDomain = require('parse-domain');
 // environment
 
 var env = process.env.NODE_ENV;
@@ -145,6 +146,13 @@ function session(options){
 
     if (cookieOptions.secure === 'auto') {
       req.session.cookie.secure = issecure(req, trustProxy);
+    }
+
+    if (cookieOptions.autoSubDomain) {
+      var parsedDomain = parseDomain(req.headers.host);
+      if (parsedDomain && parsedDomain.domain) {
+        req.session.cookie.domain = '.' + parsedDomain.domain + '.' + parsedDomain.tld;
+      }
     }
   };
 
