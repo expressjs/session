@@ -135,7 +135,7 @@ choose what is appropriate to your use-case.
 **Note** if you are using Session in conjunction with PassportJS, Passport
 will add an empty Passport object to the session for use after a user is
 authenticated, which will be treated as a modification to the session, causing
-it to be saved.
+it to be saved. *This has been fixed in PassportJS 0.3.0*
 
 ##### secret
 
