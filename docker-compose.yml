@@ -1,0 +1,12 @@
+version: '2'
+services:
+  session:
+    build: .
+    environment:
+      NODE_ENV: coyote_testing
+    volumes_from:
+      - nodesecurity
+
+  nodesecurity:
+    image: aboutdotme/nodesecurity:latest
+
