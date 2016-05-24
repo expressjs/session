@@ -1,5 +1,5 @@
 {
-  "name": "me-express-session",
+  "name": "@aboutdotme/express-session",
   "version": "1.10.0",
   "description": "Simple session middleware for Express",
   "author": "Nigel Kibodeaux",
@@ -38,8 +38,5 @@
     "test": "mocha --bail --reporter spec --colors test/",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot test/",
     "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec test/"
-  },
-  "publishConfig": {
-    "registry": "https://aboutdotme.registry.nodejitsu.com"
   }
 }
