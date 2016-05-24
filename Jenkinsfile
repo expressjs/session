@@ -1,5 +1,5 @@
 node {
-    service = 'search'
+    service = 'session'
     build.init {}
 
     stage 'Build'
