@@ -7,5 +7,7 @@ node {
 
     stage 'Test'
     compose.test {}
+
+    build.success {}
 }
 
