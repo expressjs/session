@@ -9,7 +9,7 @@
     "cookie": "0.1.2",
     "cookie-signature": "1.0.5",
     "crc": "3.0.0",
-    "debug": "~2.1.0",
+    "debug": "~2.2.0",
     "depd": "~1.0.0",
     "on-headers": "~1.0.0",
     "parseurl": "~1.3.0",
@@ -35,7 +35,7 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
-    "test": "mocha --bail --reporter spec test/",
+    "test": "mocha --bail --reporter spec --colors test/",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot test/",
     "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec test/"
   },
