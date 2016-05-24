@@ -1,6 +1,6 @@
 {
   "name": "me-express-session",
-  "version": "1.0.1",
+  "version": "1.9.1",
   "description": "Simple session middleware for Express",
   "author": "Nigel Kibodeaux",
   "repository": "https://github.com/aboutdotme/session.git",
