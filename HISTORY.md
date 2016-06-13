@@ -2,6 +2,13 @@ unreleased
 ==========
 
   * Methods are no longer enumerable on `req.session` object
+  * deps: cookie@0.3.1
+    - Add `sameSite` option
+    - Improve error message when `encode` is not a function
+    - Improve error message when `expires` is not a `Date`
+    - perf: enable strict mode
+    - perf: use for loop in parse
+    - perf: use string concatination for serialization
   * deps: parseurl@~1.3.1
     - perf: enable strict mode
   * deps: uid-safe@~2.1.0
