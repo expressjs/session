@@ -1420,6 +1420,24 @@ describe('session()', function(){
       });
     })
 
+    it('should not have enumerable methods', function (done) {
+      var app = express()
+        .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
+        .use(function(req, res, next) {
+          req.session.foo = 'foo';
+          req.session.bar = 'bar';
+          var keys = [];
+          for (var key in req.session) {
+            keys.push(key);
+          }
+          res.end(keys.sort().join(','));
+        });
+
+      request(app)
+      .get('/')
+      .expect(200, 'bar,cookie,foo', done);
+    });
+
     describe('.destroy()', function(){
       it('should destroy the previous session', function(done){
         var app = express()

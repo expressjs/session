@@ -1,6 +1,11 @@
 unreleased
 ==========
 
+  * Methods are no longer enumerable on `req.session` object
+
+1.13.1 / 2016-01-29
+===================
+
   * deps: parseurl@~1.3.1
     - perf: enable strict mode
   * deps: uid-safe@~2.1.0
