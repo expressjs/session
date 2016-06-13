@@ -25,6 +25,11 @@ Create a session middleware with the given `options`.
 **Note** Session data is _not_ saved in the cookie itself, just the session ID.
 Session data is stored server-side.
 
+**Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
+no longer needs to be used for this module to work. This module now directly reads
+and writes cookies on `req`/`res`. Using `cookie-parser` may result in issues
+if the `secret` is not the same between this module and `cookie-parser`.
+
 **Warning** The default server-side session storage, `MemoryStore`, is _purposely_
 not designed for a production environment. It will leak memory under most
 conditions, does not scale past a single process, and is meant for debugging and
@@ -162,11 +167,6 @@ The default value is `'keep'`.
     the request are ignored and not saved.
 
 #### Cookie options
-
-**Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
-no longer needs to be used for this module to work. This module now directly reads
-and writes cookies on `req`/`res`. Using `cookie-parser` may result in issues
-if the `secret` is not the same between this module and `cookie-parser`.
 
 Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
 If `secure` is set, and you access your site over HTTP, the cookie will not be set. If you have your node.js behind a proxy and are using `secure: true`, you need to set "trust proxy" in express:
