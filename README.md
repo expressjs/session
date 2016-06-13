@@ -43,10 +43,55 @@ For a list of stores, see [compatible session stores](#compatible-session-stores
 
 ##### cookie
 
-Settings for the session ID cookie. See the "Cookie options" section below for
-more information on the different values.
+Settings for the session ID cookie.
 
 The default value is `{ path: '/', httpOnly: true, secure: false, maxAge: null }`.
+
+Please note that `secure: true` is a **recommended** option. However, it requires
+an https-enabled website, i.e., HTTPS is necessary for secure cookies. If `secure`
+is set, and you access your site over HTTP, the cookie will not be set. If you
+have your node.js behind a proxy and are using `secure: true`, you need to set
+"trust proxy" in express:
+
+```js
+var app = express()
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}))
+```
+
+For using secure cookies in production, but allowing for testing in development,
+the following is an example of enabling this setup based on `NODE_ENV` in express:
+
+```js
+var app = express()
+var sess = {
+  secret: 'keyboard cat',
+  cookie: {}
+}
+
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  sess.cookie.secure = true // serve secure cookies
+}
+
+app.use(session(sess))
+```
+
+The `cookie.secure` option can also be set to the special value `'auto'` to have
+this setting automatically match the determined security of the connection. Be
+careful when using this setting if the site is available both as HTTP and HTTPS,
+as once the cookie is set on HTTPS, it will no longer be visible over HTTP. This
+is useful when the Express `"trust proxy"` setting is properly setup to simplify
+development vs production configuration.
+
+By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
+so the cookie becomes a browser-session cookie. When the user closes the
+browser the cookie (and session) will be removed.
 
 ##### genid
 
@@ -165,50 +210,6 @@ The default value is `'keep'`.
   - `'destroy'` The session will be destroyed (deleted) when the response ends.
   - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
-
-#### Cookie options
-
-Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
-If `secure` is set, and you access your site over HTTP, the cookie will not be set. If you have your node.js behind a proxy and are using `secure: true`, you need to set "trust proxy" in express:
-
-```js
-var app = express()
-app.set('trust proxy', 1) // trust first proxy
-app.use(session({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
-}))
-```
-
-For using secure cookies in production, but allowing for testing in development, the following is an example of enabling this setup based on `NODE_ENV` in express:
-
-```js
-var app = express()
-var sess = {
-  secret: 'keyboard cat',
-  cookie: {}
-}
-
-if (app.get('env') === 'production') {
-  app.set('trust proxy', 1) // trust first proxy
-  sess.cookie.secure = true // serve secure cookies
-}
-
-app.use(session(sess))
-```
-
-The `cookie.secure` option can also be set to the special value `'auto'` to have
-this setting automatically match the determined security of the connection. Be
-careful when using this setting if the site is available both as HTTP and HTTPS,
-as once the cookie is set on HTTPS, it will no longer be visible over HTTP. This
-is useful when the Express `"trust proxy"` setting is properly setup to simplify
-development vs production configuration.
-
-By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
-so the cookie becomes a browser-session cookie. When the user closes the
-browser the cookie (and session) will be removed.
 
 ### req.session
 
