@@ -43,9 +43,77 @@ For a list of stores, see [compatible session stores](#compatible-session-stores
 
 ##### cookie
 
-Settings for the session ID cookie.
+Settings object for the session ID cookie. The default value is
+`{ path: '/', httpOnly: true, secure: false, maxAge: null }`.
 
-The default value is `{ path: '/', httpOnly: true, secure: false, maxAge: null }`.
+The following are options that can be set in this object.
+
+###### domain
+
+Specifies the value for the `Domain` `Set-Cookie` attribute. By default, no domain
+is set, and most clients will consider the cookie to apply to only the current
+domain.
+
+###### expires
+
+Specifies the `Date` object to be the value for the `Expires` `Set-Cookie` attribute.
+By default, no expiration is set, and most clients will consider this a
+"non-persistent cookie" and will delete it on a condition like exiting a web browser
+application.
+
+**Note** The cookie storage model specification states that if both `expires` and
+`magAge` are set, then `maxAge` takes precedence, but it is possiblke not all
+clients by obey this, so if both are set, they should point to the same date and
+time.
+
+###### httpOnly
+
+Specifies the `boolean` value for the `HttpOnly` `Set-Cookie` attribute. When truthy,
+the `HttpOnly` attribute is set, otherwise it is not. By default, the `HttpOnly`
+attribute is set.
+
+**Note** be careful when setting this to `true`, as compliant clients will not allow
+client-side JavaScript to see the cookie in `document.cookie`.
+
+###### maxAge
+
+Specifies the `number` (in seconds) to be the value for the `Max-Age` `Set-Cookie` attribute.
+The given number will be converted to an integer by rounding down. By default, no maximum
+age is set.
+
+**Note** the cookie storage model specification states that if both `expires` and `magAge`
+are set, then `maxAge` takes precedence, but it is possible not all clients by obey this,
+so if both are set, they should point to the same date and time.
+
+###### path
+
+Specifies the value for the `Path` `Set-Cookie`. By default, this is set to `'/'`, which
+is the root path of the domain.
+
+###### sameSite
+
+Specifies the `boolean` or `string` to be the value for the `SameSite` `Set-Cookie` attribute.
+
+  - `true` will set the `SameSite` attribute to `Strict` for strict same site enforcement.
+  - `false` will not set the `SameSite` attribute.
+  - `'lax'` will set the `SameSite` attribute to `Lax` for lax same site enforcement.
+  - `'strict'` will set the `SameSite` attribute to `Strict` for strict same site enforcement.
+
+More information about the different enforcement levels can be found in the specification
+https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1.1
+
+**Note** This is an attribute that has not yet been fully standardized, and may change in
+the future. This also means many clients may ignore this attribute until they understand it.
+
+###### secure
+
+Specifies the `boolean` value for the `Secure` `Set-Cookie` attribute. When truthy,
+the `Secure` attribute is set, otherwise it is not. By default, the `Secure`
+attribute is not set.
+
+**Note** be careful when setting this to `true`, as compliant clients will not send
+the cookie back to the server in the future if the browser does not have an HTTPS
+connection.
 
 Please note that `secure: true` is a **recommended** option. However, it requires
 an https-enabled website, i.e., HTTPS is necessary for secure cookies. If `secure`
@@ -88,10 +156,6 @@ careful when using this setting if the site is available both as HTTP and HTTPS,
 as once the cookie is set on HTTPS, it will no longer be visible over HTTP. This
 is useful when the Express `"trust proxy"` setting is properly setup to simplify
 development vs production configuration.
-
-By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
-so the cookie becomes a browser-session cookie. When the user closes the
-browser the cookie (and session) will be removed.
 
 ##### genid
 
