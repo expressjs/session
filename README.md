@@ -62,7 +62,7 @@ By default, no expiration is set, and most clients will consider this a
 application.
 
 **Note** The cookie storage model specification states that if both `expires` and
-`magAge` are set, then `maxAge` takes precedence, but it is possiblke not all
+`magAge` are set, then `maxAge` takes precedence, but it is possible not all
 clients by obey this, so if both are set, they should point to the same date and
 time.
 
