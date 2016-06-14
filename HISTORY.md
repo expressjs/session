@@ -1,5 +1,5 @@
-unreleased
-==========
+1.13.1 / 2016-01-29
+===================
 
   * Methods are no longer enumerable on `req.session` object
   * deps: cookie@0.3.1
