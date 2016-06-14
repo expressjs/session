@@ -192,19 +192,21 @@ function session(options){
         return;
       }
 
-      var cookie = req.session.cookie;
-
-      // only send secure cookies via https
-      if (cookie.secure && !issecure(req, trustProxy)) {
-        debug('not secured');
-        return;
-      }
-
       if (!shouldSetCookie(req)) {
         return;
       }
 
-      setcookie(res, name, req.sessionID, secrets[0], cookie.data);
+      // only send secure cookies via https
+      if (req.session.cookie.secure && !issecure(req, trustProxy)) {
+        debug('not secured');
+        return;
+      }
+
+      // touch session
+      req.session.touch();
+
+      // set cookie
+      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
     });
 
     // proxy end() to commit the session
@@ -284,9 +286,6 @@ function session(options){
         debug('no session');
         return _end.call(res, chunk, encoding);
       }
-
-      // touch session
-      req.session.touch();
 
       if (shouldSave(req)) {
         req.session.save(function onsave(err) {

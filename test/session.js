@@ -255,6 +255,34 @@ describe('session()', function(){
     })
   })
 
+  it('should update cookie expiration when slow write', function (done) {
+    var app = express();
+    app.use(session({ rolling: true, secret: 'keyboard cat', cookie: { maxAge: min }}));
+    app.use(function (req, res, next) {
+      req.session.user = 'bob';
+      res.write('hello, ');
+      setTimeout(function () {
+        res.end('world!');
+      }, 200);
+    });
+
+    request(app)
+    .get('/')
+    .expect(shouldSetCookie('connect.sid'))
+    .expect(200, function (err, res) {
+      if (err) return done(err);
+      var originalExpires = expires(res);
+      setTimeout(function () {
+        request(app)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(function (res) { assert.notEqual(originalExpires, expires(res)); })
+        .expect(200, done);
+      }, (1000 - (Date.now() % 1000) + 200));
+    });
+  });
+
   describe('when response ended', function () {
     it('should have saved session', function (done) {
       var saved = false

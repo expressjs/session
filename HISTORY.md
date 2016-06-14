@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Fix issue where `Set-Cookie` `Expires` was not always updated
   * Methods are no longer enumerable on `req.session` object
   * deps: cookie@0.3.1
     - Add `sameSite` option
