@@ -5,7 +5,7 @@
  * MIT Licensed
  */
 
-'use strict';
+'use strict'
 
 /**
  * Module dependencies.
@@ -22,10 +22,10 @@ var deprecate = require('depd')('express-session')
  * @api private
  */
 
-var Cookie = module.exports = function Cookie(options) {
-  this.path = '/';
-  this.maxAge = null;
-  this.httpOnly = true;
+var Cookie = module.exports = function Cookie (options) {
+  this.path = '/'
+  this.maxAge = null
+  this.httpOnly = true
 
   if (options) {
     if (typeof options !== 'object') {
@@ -42,7 +42,7 @@ var Cookie = module.exports = function Cookie(options) {
   if (this.originalMaxAge === undefined || this.originalMaxAge === null) {
     this.originalMaxAge = this.maxAge
   }
-};
+}
 
 /*!
  * Prototype.
@@ -57,9 +57,9 @@ Cookie.prototype = {
    * @api public
    */
 
-  set expires(date) {
-    this._expires = date;
-    this.originalMaxAge = this.maxAge;
+  set expires (date) {
+    this._expires = date
+    this.originalMaxAge = this.maxAge
   },
 
   /**
@@ -69,8 +69,8 @@ Cookie.prototype = {
    * @api public
    */
 
-  get expires() {
-    return this._expires;
+  get expires () {
+    return this._expires
   },
 
   /**
@@ -80,7 +80,7 @@ Cookie.prototype = {
    * @api public
    */
 
-  set maxAge(ms) {
+  set maxAge (ms) {
     if (ms && typeof ms !== 'number' && !(ms instanceof Date)) {
       throw new TypeError('maxAge must be a number or Date')
     }
@@ -91,7 +91,7 @@ Cookie.prototype = {
 
     this.expires = typeof ms === 'number'
       ? new Date(Date.now() + ms)
-      : ms;
+      : ms
   },
 
   /**
@@ -101,10 +101,10 @@ Cookie.prototype = {
    * @api public
    */
 
-  get maxAge() {
+  get maxAge () {
     return this.expires instanceof Date
       ? this.expires.valueOf() - Date.now()
-      : this.expires;
+      : this.expires
   },
 
   /**
@@ -114,15 +114,15 @@ Cookie.prototype = {
    * @api private
    */
 
-  get data() {
+  get data () {
     return {
-      originalMaxAge: this.originalMaxAge
-      , expires: this._expires
-      , secure: this.secure
-      , httpOnly: this.httpOnly
-      , domain: this.domain
-      , path: this.path
-      , sameSite: this.sameSite
+      originalMaxAge: this.originalMaxAge,
+      expires: this._expires,
+      secure: this.secure,
+      httpOnly: this.httpOnly,
+      domain: this.domain,
+      path: this.path,
+      sameSite: this.sameSite
     }
   },
 
@@ -133,8 +133,8 @@ Cookie.prototype = {
    * @api public
    */
 
-  serialize: function(name, val){
-    return cookie.serialize(name, val, this.data);
+  serialize: function (name, val) {
+    return cookie.serialize(name, val, this.data)
   },
 
   /**
@@ -144,7 +144,7 @@ Cookie.prototype = {
    * @api private
    */
 
-  toJSON: function(){
-    return this.data;
+  toJSON: function () {
+    return this.data
   }
-};
+}

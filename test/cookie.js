@@ -33,10 +33,10 @@ describe('new Cookie()', function () {
     })
 
     it('should reject non-objects', function () {
-      assert.throws(function () { new Cookie(42) }, /argument options/)
-      assert.throws(function () { new Cookie('foo') }, /argument options/)
-      assert.throws(function () { new Cookie(true) }, /argument options/)
-      assert.throws(function () { new Cookie(function () {}) }, /argument options/)
+      assert.throws(function () { return new Cookie(42) }, /argument options/)
+      assert.throws(function () { return new Cookie('foo') }, /argument options/)
+      assert.throws(function () { return new Cookie(true) }, /argument options/)
+      assert.throws(function () { return new Cookie(function () {}) }, /argument options/)
     })
 
     it('should ignore "data" option', function () {
@@ -100,10 +100,10 @@ describe('new Cookie()', function () {
         assert.ok(maxAge.getTime() - Date.now() + 1000 >= cookie.maxAge)
       })
 
-      it('should reject invalid types', function() {
-        assert.throws(function() { new Cookie({ maxAge: '42' }) }, /maxAge/)
-        assert.throws(function() { new Cookie({ maxAge: true }) }, /maxAge/)
-        assert.throws(function() { new Cookie({ maxAge: function () {} }) }, /maxAge/)
+      it('should reject invalid types', function () {
+        assert.throws(function () { return new Cookie({ maxAge: '42' }) }, /maxAge/)
+        assert.throws(function () { return new Cookie({ maxAge: true }) }, /maxAge/)
+        assert.throws(function () { return new Cookie({ maxAge: function () {} }) }, /maxAge/)
       })
     })
 

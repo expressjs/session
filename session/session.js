@@ -5,13 +5,13 @@
  * MIT Licensed
  */
 
-'use strict';
+'use strict'
 
 /**
  * Expose Session.
  */
 
-module.exports = Session;
+module.exports = Session
 
 /**
  * Create a new `Session` with the given request and `data`.
@@ -21,9 +21,9 @@ module.exports = Session;
  * @api private
  */
 
-function Session(req, data) {
-  Object.defineProperty(this, 'req', { value: req });
-  Object.defineProperty(this, 'id', { value: req.sessionID });
+function Session (req, data) {
+  Object.defineProperty(this, 'req', { value: req })
+  Object.defineProperty(this, 'id', { value: req.sessionID })
 
   if (typeof data === 'object' && data !== null) {
     // merge data into this, ignoring prototype properties
@@ -44,9 +44,9 @@ function Session(req, data) {
  * @api public
  */
 
-defineMethod(Session.prototype, 'touch', function touch() {
-  return this.resetMaxAge();
-});
+defineMethod(Session.prototype, 'touch', function touch () {
+  return this.resetMaxAge()
+})
 
 /**
  * Reset `.maxAge` to `.originalMaxAge`.
@@ -55,10 +55,10 @@ defineMethod(Session.prototype, 'touch', function touch() {
  * @api public
  */
 
-defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
-  this.cookie.maxAge = this.cookie.originalMaxAge;
-  return this;
-});
+defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge () {
+  this.cookie.maxAge = this.cookie.originalMaxAge
+  return this
+})
 
 /**
  * Save the session data with optional callback `fn(err)`.
@@ -68,10 +68,10 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
  * @api public
  */
 
-defineMethod(Session.prototype, 'save', function save(fn) {
-  this.req.sessionStore.set(this.id, this, fn || function(){});
-  return this;
-});
+defineMethod(Session.prototype, 'save', function save (fn) {
+  this.req.sessionStore.set(this.id, this, fn || function () {})
+  return this
+})
 
 /**
  * Re-loads the session data _without_ altering
@@ -85,18 +85,19 @@ defineMethod(Session.prototype, 'save', function save(fn) {
  * @api public
  */
 
-defineMethod(Session.prototype, 'reload', function reload(fn) {
+defineMethod(Session.prototype, 'reload', function reload (fn) {
   var req = this.req
   var store = this.req.sessionStore
 
-  store.get(this.id, function(err, sess){
-    if (err) return fn(err);
-    if (!sess) return fn(new Error('failed to load session'));
-    store.createSession(req, sess);
-    fn();
-  });
-  return this;
-});
+  store.get(this.id, function (err, sess) {
+    if (err) return fn(err)
+    if (!sess) return fn(new Error('failed to load session'))
+    store.createSession(req, sess)
+    fn()
+  })
+
+  return this
+})
 
 /**
  * Destroy `this` session.
@@ -106,11 +107,11 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
  * @api public
  */
 
-defineMethod(Session.prototype, 'destroy', function destroy(fn) {
-  delete this.req.session;
-  this.req.sessionStore.destroy(this.id, fn);
-  return this;
-});
+defineMethod(Session.prototype, 'destroy', function destroy (fn) {
+  delete this.req.session
+  this.req.sessionStore.destroy(this.id, fn)
+  return this
+})
 
 /**
  * Regenerate this request's session.
@@ -120,10 +121,10 @@ defineMethod(Session.prototype, 'destroy', function destroy(fn) {
  * @api public
  */
 
-defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
-  this.req.sessionStore.regenerate(this.req, fn);
-  return this;
-});
+defineMethod(Session.prototype, 'regenerate', function regenerate (fn) {
+  this.req.sessionStore.regenerate(this.req, fn)
+  return this
+})
 
 /**
  * Helper function for creating a method on a prototype.
@@ -133,11 +134,11 @@ defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
  * @param {Function} fn
  * @private
  */
-function defineMethod(obj, name, fn) {
+function defineMethod (obj, name, fn) {
   Object.defineProperty(obj, name, {
     configurable: true,
     enumerable: false,
     value: fn,
     writable: true
-  });
-};
+  })
+}

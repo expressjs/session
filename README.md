@@ -17,6 +17,8 @@ $ npm install express-session
 
 ## API
 
+<!-- eslint-disable no-unused-vars -->
+
 ```js
 var session = require('express-session')
 ```
@@ -132,6 +134,9 @@ have your node.js behind a proxy and are using `secure: true`, you need to set
 "trust proxy" in express:
 
 ```js
+var express = require('express')
+var session = require('express-session')
+
 var app = express()
 app.set('trust proxy', 1) // trust first proxy
 app.use(session({
@@ -146,6 +151,9 @@ For using secure cookies in production, but allowing for testing in development,
 the following is an example of enabling this setup based on `NODE_ENV` in express:
 
 ```js
+var express = require('express')
+var session = require('express-session')
+
 var app = express()
 var sess = {
   secret: 'keyboard cat',
@@ -180,7 +188,7 @@ The default value is a function which uses the `uid-safe` library to generate ID
 
 ```js
 app.use(session({
-  genid: function(req) {
+  genid: function (req) {
     return genuuid() // use UUIDs for session IDs
   },
   secret: 'keyboard cat'
@@ -317,10 +325,10 @@ are typically fine. For example below is a user-specific view counter:
 
 ```js
 // Use the session middleware
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 } }))
 
 // Access the session as req.session
-app.get('/', function(req, res, next) {
+app.get('/', function (req, res, next) {
   if (req.session.views) {
     req.session.views++
     res.setHeader('Content-Type', 'text/html')
@@ -341,8 +349,12 @@ a new SID and `Session` instance will be initialized at `req.session`
 and the `callback` will be invoked.
 
 ```js
-req.session.regenerate(function(err) {
-  // will have a new session here
+req.session.regenerate(function (err) {
+  if (err) {
+    // error regenerating
+  } else {
+    // will have a new session here in req.session
+  }
 })
 ```
 
@@ -352,8 +364,12 @@ Destroys the session and will unset the `req.session` property.
 Once complete, the `callback` will be invoked.
 
 ```js
-req.session.destroy(function(err) {
-  // cannot access session here
+req.session.destroy(function (err) {
+  if (err) {
+    // error destroying
+  } else {
+    // cannot access session here
+  }
 })
 ```
 
@@ -363,8 +379,12 @@ Reloads the session data from the store and re-populates the
 `req.session` object. Once complete, the `callback` will be invoked.
 
 ```js
-req.session.reload(function(err) {
-  // session updated
+req.session.reload(function (err) {
+  if (err) {
+    // error reloading
+  } else {
+    // session updated in req.session
+  }
 })
 ```
 
@@ -383,8 +403,12 @@ There are some cases where it is useful to call this method, for example,
 redirects, long-lived requests or in WebSockets.
 
 ```js
-req.session.save(function(err) {
-  // session saved
+req.session.save(function (err) {
+  if (err) {
+    // error saving
+  } else {
+    // session saved
+  }
 })
 ```
 

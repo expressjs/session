@@ -1,5 +1,6 @@
 root: true
 extends:
+  - standard
   - plugin:markdown/recommended
 plugins:
   - markdown
