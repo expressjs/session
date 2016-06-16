@@ -11,6 +11,7 @@ var express = require('express')
 var fs = require('fs')
 var http = require('http')
 var https = require('https')
+var util = require('util')
 
 var min = 60 * 1000;
 
@@ -2289,11 +2290,12 @@ function writePatch() {
   }
 }
 
-function SyncStore() {
-  this.sessions = Object.create(null);
+function SyncStore () {
+  session.Store.call(this)
+  this.sessions = Object.create(null)
 }
 
-SyncStore.prototype.__proto__ = session.Store.prototype;
+util.inherits(SyncStore, session.Store)
 
 SyncStore.prototype.destroy = function destroy(sid, callback) {
   delete this.sessions[sid];

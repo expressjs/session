@@ -9,25 +9,35 @@
 
 /**
  * Module dependencies.
+ * @private
  */
 
+var Cookie = require('./cookie')
 var EventEmitter = require('events').EventEmitter
-  , Session = require('./session')
-  , Cookie = require('./cookie');
+var Session = require('./session')
+var util = require('util')
 
 /**
- * Initialize abstract `Store`.
- *
- * @api private
+ * Module exports.
+ * @public
  */
 
-var Store = module.exports = function Store(options){};
+module.exports = Store
 
 /**
- * Inherit from `EventEmitter.prototype`.
+ * Abstract base class for session stores.
+ * @public
  */
 
-Store.prototype.__proto__ = EventEmitter.prototype;
+function Store () {
+  EventEmitter.call(this)
+}
+
+/**
+ * Inherit from EventEmitter.
+ */
+
+util.inherits(Store, EventEmitter)
 
 /**
  * Re-generate the given requests's session.
