@@ -12,8 +12,9 @@ unreleased
     - perf: use string concatination for serialization
   * deps: parseurl@~1.3.1
     - perf: enable strict mode
-  * deps: uid-safe@~2.1.0
+  * deps: uid-safe@~2.1.1
     - Use `random-bytes` for byte source
+    - deps: base64-url@1.2.2
   * perf: enable strict mode
 
 1.13.0 / 2016-01-10
