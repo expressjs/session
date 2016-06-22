@@ -1509,7 +1509,7 @@ describe('session()', function(){
           .use(session({ secret: 'keyboard cat' }))
           .use(function(req, res, next){
             req.session.destroy(function(err){
-              if (err) throw err;
+              if (err) return next(err)
               assert(!req.session, 'req.session after destroy');
               res.end();
             });
@@ -1529,7 +1529,7 @@ describe('session()', function(){
           .use(function(req, res, next){
             var id = req.session.id;
             req.session.regenerate(function(err){
-              if (err) throw err;
+              if (err) return next(err)
               assert.notEqual(id, req.session.id)
               res.end();
             });
@@ -1936,6 +1936,7 @@ describe('session()', function(){
           request(app)
           .get('/')
           .expect(200, '1', function (err, res) {
+            if (err) return done(err)
             var a = new Date(expires(res))
             var b = new Date
             var delta = a.valueOf() - b.valueOf()
@@ -1952,6 +1953,7 @@ describe('session()', function(){
           .get('/')
           .set('Cookie', val)
           .expect(200, '2', function (err, res) {
+            if (err) return done(err)
             var a = new Date(expires(res))
             var b = new Date
             var delta = a.valueOf() - b.valueOf()
@@ -1968,6 +1970,7 @@ describe('session()', function(){
           .get('/')
           .set('Cookie', val)
           .expect(200, '3', function (err, res) {
+            if (err) return done(err)
             var a = new Date(expires(res))
             var b = new Date
             var delta = a.valueOf() - b.valueOf()
