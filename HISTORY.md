@@ -17,6 +17,7 @@ unreleased
     - Use `random-bytes` for byte source
     - deps: base64-url@1.2.2
   * perf: enable strict mode
+  * perf: remove argument reassignment
 
 1.13.0 / 2016-01-10
 ===================
