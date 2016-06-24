@@ -24,7 +24,7 @@
     "after": "0.8.1",
     "cookie-parser": "1.4.3",
     "express": "4.14.0",
-    "istanbul": "0.4.3",
+    "istanbul": "0.4.4",
     "mocha": "2.5.3",
     "supertest": "1.1.0"
   },
