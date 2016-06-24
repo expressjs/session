@@ -1467,6 +1467,42 @@ describe('session()', function(){
       .expect(200, 'bar,cookie,foo', done);
     });
 
+    it('should not be set if store is disconnected', function (done) {
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        res.end(typeof req.session)
+      })
+
+      store.emit('disconnect')
+
+      request(server)
+      .get('/')
+      .expect(shouldNotHaveHeader('Set-Cookie'))
+      .expect(200, 'undefined', done)
+    })
+
+    it('should be set when store reconnects', function (done) {
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        res.end(typeof req.session)
+      })
+
+      store.emit('disconnect')
+
+      request(server)
+      .get('/')
+      .expect(shouldNotHaveHeader('Set-Cookie'))
+      .expect(200, 'undefined', function (err) {
+        if (err) return done(err)
+
+        store.emit('connect')
+
+        request(server)
+        .get('/')
+        .expect(200, 'object', done)
+      })
+    })
+
     describe('.destroy()', function(){
       it('should destroy the previous session', function(done){
         var app = express()
