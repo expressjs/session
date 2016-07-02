@@ -1,5 +1,5 @@
-unreleased
-==========
+1.14.0 / 2016-07-01
+===================
 
   * Correctly inherit from `EventEmitter` class in `Store` base class
   * Fix issue where `Set-Cookie` `Expires` was not always updated
