@@ -477,6 +477,11 @@ potentially resetting the idle timer.
 The following modules implement a session store that is compatible with this
 module. Please make a PR to add additional modules :)
 
+[![★][aerospike-session-store-image] aerospike-session-store][aerospike-session-store-url] A session store using [Aerospike](http://www.aerospike.com/).
+
+[aerospike-session-store-url]: https://www.npmjs.com/package/aerospike-session-store
+[aerospike-session-store-image]: https://img.shields.io/github/stars/aerospike/aerospike-session-store-expressjs.svg?label=%E2%98%85
+
 [![★][cassandra-store-image] cassandra-store][cassandra-store-url] An Apache Cassandra-based session store.
 
 [cassandra-store-url]: https://www.npmjs.com/package/cassandra-store
