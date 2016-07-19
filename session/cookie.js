@@ -102,6 +102,7 @@ Cookie.prototype = {
       , httpOnly: this.httpOnly
       , domain: this.domain
       , path: this.path
+      , sameSite: this.sameSite
     }
   },
 

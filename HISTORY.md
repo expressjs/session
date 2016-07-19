@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Fix the cookie `sameSite` option to actually alter the `Set-Cookie`
   * deps: uid-safe@~2.1.2
     - deps: base64-url@1.3.2
 
