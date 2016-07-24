@@ -504,6 +504,11 @@ and other multi-core embedded devices).
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
 [connect-couchbase-image]: https://img.shields.io/github/stars/christophermina/connect-couchbase.svg?label=%E2%98%85
 
+[![★][connect-db2-image] connect-db2][connect-db2-url] An IBM DB2-based session store built using [ibm_db](https://www.npmjs.com/package/ibm_db) module.
+
+[connect-db2-url]: https://www.npmjs.com/package/connect-db2
+[connect-db2-image]: https://img.shields.io/github/stars/wallali/connect-db2.svg?label=%E2%98%85
+
 [![★][connect-dynamodb-image] connect-dynamodb][connect-dynamodb-url] A DynamoDB-based session store.
 
 [connect-dynamodb-url]: https://github.com/ca98am79/connect-dynamodb
