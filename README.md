@@ -12,49 +12,53 @@
 $ npm install express-session
 ```
 
-## API
-
+## Usage
 ```js
+var express = require('express')
 var session = require('express-session')
+var MongoStore = require('connect-mongo')(session);
+
+var app = express()
+
+app.use(session({
+  secret: 'your-secure-text-used-to-sign-session-id',
+  store: new MongoStore(your_session_store_options),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 86400000,
+    secure: true,
+    domain: '.example.org',
+    httpOnly: true
+  }
+}))
 ```
 
-### session(options)
-
-Create a session middleware with the given `options`.
-
-**Note** Session data is _not_ saved in the cookie itself, just the session ID.
-Session data is stored server-side.
-
-**Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
-no longer needs to be used for this module to work. This module now directly reads
-and writes cookies on `req`/`res`. Using `cookie-parser` may result in issues
-if the `secret` is not the same between this module and `cookie-parser`.
-
-**Warning** The default server-side session storage, `MemoryStore`, is _purposely_
-not designed for a production environment. It will leak memory under most
-conditions, does not scale past a single process, and is meant for debugging and
-developing.
-
-For a list of stores, see [compatible session stores](#compatible-session-stores).
-
-#### Options
+## Configuration
 
 `express-session` accepts these properties in the options object.
 
-##### cookie
+### secret
+
+**Required option** This is the secret used to sign the session ID cookie. This can be either a string
+for a single secret, or an array of multiple secrets. If an array of secrets is
+provided, only the first element will be used to sign the session ID cookie, while
+all the elements will be considered when verifying the signature in requests.
+
+### cookie
 
 Settings object for the session ID cookie. The default value is
 `{ path: '/', httpOnly: true, secure: false, maxAge: null }`.
 
 The following are options that can be set in this object.
 
-###### domain
+##### domain
 
 Specifies the value for the `Domain` `Set-Cookie` attribute. By default, no domain
 is set, and most clients will consider the cookie to apply to only the current
 domain.
 
-###### expires
+##### expires
 
 Specifies the `Date` object to be the value for the `Expires` `Set-Cookie` attribute.
 By default, no expiration is set, and most clients will consider this a
@@ -67,7 +71,7 @@ defined in the object is what is used.
 **Note** The `expires` option should not be set directly; instead only use the `maxAge`
 option.
 
-###### httpOnly
+##### httpOnly
 
 Specifies the `boolean` value for the `HttpOnly` `Set-Cookie` attribute. When truthy,
 the `HttpOnly` attribute is set, otherwise it is not. By default, the `HttpOnly`
@@ -76,7 +80,7 @@ attribute is set.
 **Note** be careful when setting this to `true`, as compliant clients will not allow
 client-side JavaScript to see the cookie in `document.cookie`.
 
-###### maxAge
+##### maxAge
 
 Specifies the `number` (in milliseconds) to use when calculating the `Expires`
 `Set-Cookie` attribute. This is done by taking the current server time and adding
@@ -86,12 +90,12 @@ no maximum age is set.
 **Note** If both `expires` and `maxAge` are set in the options, then the last one
 defined in the object is what is used.
 
-###### path
+##### path
 
 Specifies the value for the `Path` `Set-Cookie`. By default, this is set to `'/'`, which
 is the root path of the domain.
 
-###### sameSite
+##### sameSite
 
 Specifies the `boolean` or `string` to be the value for the `SameSite` `Set-Cookie` attribute.
 
@@ -106,7 +110,7 @@ https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1.1
 **Note** This is an attribute that has not yet been fully standardized, and may change in
 the future. This also means many clients may ignore this attribute until they understand it.
 
-###### secure
+##### secure
 
 Specifies the `boolean` value for the `Secure` `Set-Cookie` attribute. When truthy,
 the `Secure` attribute is set, otherwise it is not. By default, the `Secure`
@@ -158,7 +162,7 @@ as once the cookie is set on HTTPS, it will no longer be visible over HTTP. This
 is useful when the Express `"trust proxy"` setting is properly setup to simplify
 development vs production configuration.
 
-##### genid
+### genid
 
 Function to call to generate a new session ID. Provide a function that returns
 a string that will be used as a session ID. The function is given `req` as the
@@ -178,7 +182,7 @@ app.use(session({
 }))
 ```
 
-##### name
+### name
 
 The name of the session ID cookie to set in the response (and read from in the
 request).
@@ -190,7 +194,7 @@ the name, i.e. `localhost` or `127.0.0.1`; different schemes and ports do not
 name a different hostname), then you need to separate the session cookies from
 each other. The simplest method is to simply set different `name`s per app.
 
-##### proxy
+### proxy
 
 Trust the reverse proxy when setting secure cookies (via the "X-Forwarded-Proto"
 header).
@@ -202,7 +206,7 @@ The default value is `undefined`.
     if there is a direct TLS/SSL connection.
   - `undefined` Uses the "trust proxy" setting from express
 
-##### resave
+### resave
 
 Forces the session to be saved back to the session store, even if the session
 was never modified during the request. Depending on your store this may be
@@ -222,7 +226,7 @@ you can safely set `resave: false`. If it does not implement the `touch`
 method and your store sets an expiration date on stored sessions, then you
 likely need `resave: true`.
 
-##### rolling
+### rolling
 
 Force a session identifier cookie to be set on every response. The expiration
 is reset to the original [`maxAge`](#cookiemaxage), resetting the expiration
@@ -234,7 +238,7 @@ The default value is `false`.
 set to `false`, the cookie will not be set on a response with an uninitialized
 session.
 
-##### saveUninitialized
+### saveUninitialized
 
 Forces a session that is "uninitialized" to be saved to the store. A session is
 uninitialized when it is new but not modified. Choosing `false` is useful for
@@ -252,20 +256,11 @@ will add an empty Passport object to the session for use after a user is
 authenticated, which will be treated as a modification to the session, causing
 it to be saved. *This has been fixed in PassportJS 0.3.0*
 
-##### secret
-
-**Required option**
-
-This is the secret used to sign the session ID cookie. This can be either a string
-for a single secret, or an array of multiple secrets. If an array of secrets is
-provided, only the first element will be used to sign the session ID cookie, while
-all the elements will be considered when verifying the signature in requests.
-
-##### store
+### store
 
 The session store instance, defaults to a new `MemoryStore` instance.
 
-##### unset
+### unset
 
 Control the result of unsetting `req.session` (through `delete`, setting to `null`,
 etc.).
@@ -275,6 +270,31 @@ The default value is `'keep'`.
   - `'destroy'` The session will be destroyed (deleted) when the response ends.
   - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
+
+## API
+
+```js
+var session = require('express-session')
+```
+
+### session(options)
+
+Create a session middleware with the given `options`.
+
+**Note** Session data is _not_ saved in the cookie itself, just the session ID.
+Session data is stored server-side.
+
+**Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
+no longer needs to be used for this module to work. This module now directly reads
+and writes cookies on `req`/`res`. Using `cookie-parser` may result in issues
+if the `secret` is not the same between this module and `cookie-parser`.
+
+**Warning** The default server-side session storage, `MemoryStore`, is _purposely_
+not designed for a production environment. It will leak memory under most
+conditions, does not scale past a single process, and is meant for debugging and
+developing.
+
+For a list of stores, see [compatible session stores](#compatible-session-stores).
 
 ### req.session
 
