@@ -745,7 +745,7 @@ describe('session()', function(){
 
       request(createServer({ genid: genid }))
       .get('/')
-      .expect(shouldSetCookieToValue('connect.sid', 's%3Aapple.D8Y%2BpkTAmeR0PobOhY4G97PRW%2Bj7bUnP%2F5m6%2FOn1MCU'))
+      .expect(shouldSetCookieToValue('connect.sid', 'apple.D8Y%2BpkTAmeR0PobOhY4G97PRW%2Bj7bUnP%2F5m6%2FOn1MCU'))
       .expect(200, done)
     });
 
@@ -754,7 +754,7 @@ describe('session()', function(){
 
       request(createServer({ genid: genid }))
       .get('/')
-      .expect(shouldSetCookieToValue('connect.sid', 's%3A%25.kzQ6x52kKVdF35Qh62AWk4ZekS28K5XYCXKa%2FOTZ01g'))
+      .expect(shouldSetCookieToValue('connect.sid', '%25.kzQ6x52kKVdF35Qh62AWk4ZekS28K5XYCXKa%2FOTZ01g'))
       .expect(200, done)
     });
 
@@ -763,7 +763,7 @@ describe('session()', function(){
 
       request(createServer({ genid: genid }))
       .get('/foo')
-      .expect(shouldSetCookieToValue('connect.sid', 's%3A%2Ffoo.paEKBtAHbV5s1IB8B2zPnzAgYmmnRPIqObW4VRYj%2FMQ'))
+      .expect(shouldSetCookieToValue('connect.sid', '%2Ffoo.paEKBtAHbV5s1IB8B2zPnzAgYmmnRPIqObW4VRYj%2FMQ'))
       .expect(200, done)
     });
   });
@@ -2179,6 +2179,40 @@ describe('session()', function(){
       })
     })
 
+    it('should use a custom signature object if passed in', function(done){
+      var app = express()
+        .use(cookieParser())
+        .use(function(req, res, next){ req.headers.cookie = 'foo=bar'; next() })
+        .use(session({ 
+          secret: 'keyboard cat',
+          key: 'sessid',
+          signature: {
+            sign: function(val, secret) {
+              return secret + val + secret;
+            },
+            unsign: function(val, secret) {
+              return val.replace(/secret/g, '')
+            }
+          }
+        }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0
+          req.session.count++
+          res.end(req.session.count.toString())
+        })
+
+      request(app)
+      .get('/')
+      .expect(200, '1', function (err, res) {
+        if (err) return done(err)
+        var val = cookie(res).replace(/...\./, '.')
+        request(app)
+        .get('/')
+        .set('Cookie', val)
+        .expect(200, '1', done)
+      })
+    })
+
     it('should read from req.signedCookies', function(done){
       var app = express()
         .use(cookieParser('keyboard cat'))
@@ -2301,7 +2335,7 @@ function shouldSetSecureCookie(name) {
 }
 
 function sid(res) {
-  var match = /^[^=]+=s%3A([^;\.]+)[\.;]/.exec(cookie(res))
+  var match = /^[^=]+=([^;\.]+)[\.;]/.exec(cookie(res))
   var val = match ? match[1] : undefined
   return val
 }
