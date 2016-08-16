@@ -2179,6 +2179,10 @@ describe('session()', function(){
       })
     })
 
+    it('should reject invalid custom signature objects', function(){
+      assert.throws(session.bind(null, { signature: { sign: 'bogus!' } }), /signature.*sign.*unsign/)
+    });
+
     it('should use a custom signature object if passed in', function(done){
       var app = express()
         .use(cookieParser())
