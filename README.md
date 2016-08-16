@@ -585,7 +585,7 @@ and other multi-core embedded devices).
 [![★][medea-session-store-image] medea-session-store][medea-session-store-url] A Medea-based session store.
 
 [medea-session-store-url]: https://www.npmjs.com/package/medea-session-store
-[medea-session-store-image]: https://img.shields.io/github/stars/scriptollc/medea-session-store.svg?label=%E2%98%85
+[medea-session-store-image]: https://img.shields.io/github/stars/benjaminvadant/medea-session-store.svg?label=%E2%98%85
 
 [![★][mssql-session-store-image] mssql-session-store][mssql-session-store-url] A SQL Server-based session store.
 
