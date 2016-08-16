@@ -281,7 +281,7 @@ The default value is `'keep'`.
 Pass in your own cookie signing object/module here that implements the
 `sign(value, secret)` and `unsign(value, secret)` functions.
 
-The default value is the `node-cookie-signature` module.
+The default value is the [`cookie-signature`](https://github.com/tj/node-cookie-signature) module.
 
 ### req.session
 

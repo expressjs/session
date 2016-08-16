@@ -78,8 +78,8 @@ var defer = typeof setImmediate === 'function'
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
- * @param {Object} [options.signature] Object that has the same API as node-cookie-signature
-   if you need to implement your own signing mechanism
+ * @param {Object} [options.signature=cookie-signature] Object that has two functions,
+ * sign(val, secret) and unsign(val, secret). Compatible with cookie-signature
  * @param {String} [options.unset]
  * @return {Function} middleware
  * @public
