@@ -20,7 +20,7 @@ var deprecate = require('depd')('express-session');
 var parseUrl = require('parseurl');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
-  , signature = require('cookie-signature')
+  , cookiesignature = require('cookie-signature')
 
 var Session = require('./session/session')
   , MemoryStore = require('./session/memory')
@@ -64,6 +64,22 @@ var warning = 'Warning: connect.session() MemoryStore is not\n'
 var defer = typeof setImmediate === 'function'
   ? setImmediate
   : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
+
+/**
+ * Updated signature that prefixes s: to signed cookies. Done for compatibility
+ * with previous version of session
+ */
+var signature = {
+  sign: function(val, sig) {
+    return 's:' + cookiesignature.sign(val, sig);
+  },
+  unsign: function(val, sig) {
+    if (val.substr(0, 2) === 's:')
+      return cookiesignature.unsign(val.slice(2), sig);
+    else
+      return false;
+  }
+};
 
 /**
  * Setup session store with the given `options`.
