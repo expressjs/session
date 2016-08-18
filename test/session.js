@@ -2278,19 +2278,6 @@ function sid(res) {
   return val
 }
 
-function subdomains(hostname) {
-  if (!hostname) {
-    return [];
-  }
-
-  var offset = 2;
-  return hostname.split('.').reverse().slice(offset);
-}
-
-function hostname(req) {
-  return req.headers.host;
-}
-
 function writePatch() {
   var ended = false
   return function addWritePatch(req, res, next) {
