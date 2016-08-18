@@ -143,13 +143,21 @@ The function should return a string or array of strings to be used as the secret
 signing the cookie.
 
 ```js
+var rotatingSecretKey;
+function rotateKey() {
+    rotatingSecretKey = Math.random();
+}
+// Initial rotation.
+rotateKey();
+
+setInterval(rotateKey, 60 * 60 * 1000) // Rotate the key at least once an hour.
 app.use(function(req, res, next) {
   var subdomain = subdomain[0];
-  req.clientSecret = getClientKey(subdomain);
 });
+
 app.use(session({
-  secret: function (req) { 
-    return 'Danger Zone!' + req.clientSecret;
+  secret: function () { 
+    return rotatingSecretKey;
   }
 }))
 ```

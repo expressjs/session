@@ -1094,9 +1094,22 @@ describe('session()', function(){
     });
 
     describe('when a function', function () {
+      var rotatingSecretKey;
+
+      function rotateKey() {
+        rotatingSecretKey = Math.random() + '';
+      }
+
+      rotateKey();
+      var rotateIntervalId = setInterval(rotateKey, 5000);
+
+      after(function() {
+        clearInterval(rotateIntervalId);
+      });
+
       it('should sign cookie with secret from function', function (done) {
-        var server = createServer({ secret: function(req) {
-          return 'Danger Zone!' + subdomains(hostname(req));
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
         }}, function (req, res) {
           req.session.user = 'bob';
           res.end(req.session.user);
@@ -1104,15 +1117,14 @@ describe('session()', function(){
 
         request(server)
         .get('/')
-        .set('Host', 'test1.doamin.com')
         .expect(shouldSetCookie('connect.sid'))
         .expect(200, 'bob', done);
       });
 
       it('should load session from cookie sid', function (done) {
         var count = 0;
-        var server = createServer({ secret: function(req) {
-          return 'Danger Zone!' + subdomains(hostname(req));
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
         }}, function (req, res) {
           req.session.num = req.session.num || ++count;
           res.end('session ' + req.session.num)
@@ -1120,13 +1132,11 @@ describe('session()', function(){
 
         request(server)
             .get('/')
-            .set('Host', 'test1.doamin.com')
             .expect(shouldSetCookie('connect.sid'))
             .expect(200, 'session 1', function (err, res) {
               if (err) return done(err);
               request(server)
                   .get('/')
-                  .set('Host', 'test1.doamin.com')
                   .set('Cookie', cookie(res))
                   .expect(200, 'session 1', done)
             })
@@ -1134,8 +1144,8 @@ describe('session()', function(){
 
       it('should not load session from cookie sid when secret is different', function (done) {
         var count = 0;
-        var server = createServer({ secret: function(req) {
-          return 'Danger Zone!' + subdomains(hostname(req));
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
         }}, function (req, res) {
           req.session.num = req.session.num || ++count;
           res.end('session ' + req.session.num)
@@ -1147,17 +1157,19 @@ describe('session()', function(){
             .expect(shouldSetCookie('connect.sid'))
             .expect(200, 'session 1', function (err, res) {
               if (err) return done(err);
+
+              rotateKey(); // Rotate the key so the old session is now invalid.
+
               request(server)
                   .get('/')
-                  .set('Host', 'test2.doamin.com')
                   .set('Cookie', cookie(res))
                   .expect(200, 'session 2', done)
             })
       });
 
       it('should sign cookie with secret from function', function (done) {
-        var server = createServer({ secret: function(req) {
-          return 'Danger Zone!' + subdomains(hostname(req));
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
         }}, function (req, res) {
           req.session.user = 'bob';
           res.end(req.session.user);
@@ -1165,14 +1177,13 @@ describe('session()', function(){
 
         request(server)
         .get('/')
-        .set('Host', 'test1.doamin.com')
         .expect(shouldSetCookie('connect.sid'))
         .expect(200, 'bob', done);
       });
 
       it('should sign cookies with different session ids', function (done) {
-        var server = createServer({ secret: function(req) {
-          return 'Danger Zone!' + subdomains(hostname(req));
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
         } }, function (req, res) {
           req.session.user = 'bob';
           res.end(req.session.user);
@@ -1180,17 +1191,21 @@ describe('session()', function(){
 
         request(server)
         .get('/test1')
-        .set('Host', 'test1.doamin.com')
         .expect(shouldSetCookie('connect.sid'))
-        .expect(200, 'bob', function (err, test1Res) {
-              if (err) return done(err);
+            .expect(200, 'bob', function (err, test1Res) {
+              if (err) {
+                return done(err);
+              }
+
+              rotateKey(); // Rotate the key so we generate a session id with a new signature.
               request(server)
                   .get('/test2')
-                  .set('Host', 'test2.doamin.com')
                   .set('Cookie', cookie(test1Res))
                   .expect(shouldSetCookie('connect.sid'))
                   .expect(200, 'bob', function (err, test2Res) {
-                    if (err) return done(err);
+                    if (err) {
+                      return done(err);
+                    }
                     var test1Sid = sid(test1Res);
                     var test2Sid = sid(test2Res);
                     assert.ok(test1Sid !== test2Sid, 'session ids should not be equal for different secrets');
@@ -1200,7 +1215,7 @@ describe('session()', function(){
       });
 
       it('shouldn\'t sign when function doesn\'t return string', function (done) {
-        var server = createServer({ secret: function(req) {
+        var server = createServer({ secret: function() {
           return {};
         }}, function (req, res) {
           req.session.user = 'bob';
@@ -1209,7 +1224,6 @@ describe('session()', function(){
 
         request(server)
             .get('/')
-            .set('Host', 'test1.doamin.com')
             .expect(shouldNotHaveHeader('cookie'))
             .expect(500, /secret must be a string/, done);
       });
@@ -1217,7 +1231,7 @@ describe('session()', function(){
       it('should sign cookies with first element', function (done) {
         var store = new session.MemoryStore();
 
-        var server1 = createServer({ secret: function(req) { return [ 'Danger Zone!' + subdomains(hostname(req)), 'keyboard cat' ] }, store: store }, function (req, res) {
+        var server1 = createServer({ secret: function() { return [ rotatingSecretKey, 'keyboard cat' ] }, store: store }, function (req, res) {
           req.session.user = 'bob';
           res.end(req.session.user);
         });
@@ -1246,7 +1260,7 @@ describe('session()', function(){
           res.end(req.session.user);
         });
 
-        var server2 = createServer({ secret: function(req) { return [ 'Danger Zone!' + subdomains(hostname(req)), 'nyan cat' ] }, store: store }, function (req, res) {
+        var server2 = createServer({ secret: function() { return [ rotatingSecretKey, 'nyan cat' ] }, store: store }, function (req, res) {
           res.end(String(req.session.user));
         });
 
