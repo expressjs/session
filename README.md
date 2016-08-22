@@ -514,6 +514,11 @@ and other multi-core embedded devices).
 [connect-dynamodb-url]: https://github.com/ca98am79/connect-dynamodb
 [connect-dynamodb-image]: https://img.shields.io/github/stars/ca98am79/connect-dynamodb.svg?label=%E2%98%85
 
+[![★][connect-loki-image] connect-loki][connect-loki-url] A Loki.js-based session store.
+
+[connect-loki-url]: https://www.npmjs.com/package/connect-loki
+[connect-loki-image]: https://img.shields.io/github/stars/Requarks/connect-loki.svg?label=%E2%98%85
+
 [![★][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
 
 [connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
