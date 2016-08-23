@@ -554,6 +554,8 @@ and other multi-core embedded devices).
 [connect-memcached-url]: https://www.npmjs.com/package/connect-memcached
 [connect-memcached-image]: https://img.shields.io/github/stars/balor/connect-memcached.svg?label=%E2%98%85
 
+[express-sessions]: Double mode session storage with native Redis/MongoDB support https://www.npmjs.com/package/express-sessions
+
 [![★][connect-session-knex-image] connect-session-knex][connect-session-knex-url] A session store using
 [Knex.js](http://knexjs.org/), which is a SQL query builder for PostgreSQL, MySQL, MariaDB, SQLite3, and Oracle.
 
