@@ -207,6 +207,7 @@ function session(options) {
     var originalHash;
     var originalId;
     var savedHash;
+    var touched = false
 
     // expose store
     req.sessionStore = store;
@@ -231,8 +232,11 @@ function session(options) {
         return;
       }
 
-      // touch session
-      req.session.touch();
+      if (!touched) {
+        // touch session
+        req.session.touch()
+        touched = true
+      }
 
       // set cookie
       setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
@@ -314,6 +318,12 @@ function session(options) {
       if (!req.session) {
         debug('no session');
         return _end.call(res, chunk, encoding);
+      }
+
+      if (!touched) {
+        // touch session
+        req.session.touch()
+        touched = true
       }
 
       if (shouldSave(req)) {
