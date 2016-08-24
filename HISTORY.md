@@ -1,5 +1,5 @@
-unreleased
-==========
+1.14.1 / 2016-08-24
+===================
 
   * Fix not always resetting session max age before session save
   * Fix the cookie `sameSite` option to actually alter the `Set-Cookie`
