@@ -21,7 +21,7 @@
     "utils-merge": "1.0.0"
   },
   "devDependencies": {
-    "after": "0.8.1",
+    "after": "0.8.2",
     "cookie-parser": "1.4.3",
     "express": "4.14.0",
     "istanbul": "0.4.4",
