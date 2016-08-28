@@ -580,7 +580,7 @@ and other multi-core embedded devices).
 [![★][documentdb-session-image] documentdb-session][documentdb-session-url] A session store for Microsoft Azure's  [DocumentDB](https://azure.microsoft.com/en-us/services/documentdb/) NoSQL database service.
 
 [documentdb-session-url]: https://www.npmjs.com/package/documentdb-session
-[connect-sqlite3-image]: https://img.shields.io/github/stars/dwhieb/documentdb-session.svg?label=%E2%98%85
+[documentdb-session-image]: https://img.shields.io/github/stars/dwhieb/documentdb-session.svg?label=%E2%98%85
 
 [![★][express-nedb-session-image] express-nedb-session][express-nedb-session-url] A NeDB-based session store.
 
