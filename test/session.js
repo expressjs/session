@@ -422,6 +422,7 @@ describe('session()', function(){
             .expect(200, function (err, res) {
               if (err) return done(err)
               store.get(id, function (err, sess) {
+                if (err) return done(err)
                 assert.equal(res.text, id)
                 assert.ok(sess, 'session still in store')
                 assert.notEqual(new Date(sess.cookie.expires).toUTCString(), exp.toUTCString(), 'session cookie expiration updated')
