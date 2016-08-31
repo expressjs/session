@@ -582,6 +582,11 @@ and other multi-core embedded devices).
 [express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
 [express-nedb-session-image]: https://img.shields.io/github/stars/louischatriot/express-nedb-session.svg?label=%E2%98%85
 
+[![★][express-session-level-image] express-session-level][express-session-level-url] A [LevelDB](https://github.com/Level/levelup) based session store.
+
+[express-session-level-url]: https://www.npmjs.com/package/express-session-level
+[express-session-level-image]: https://img.shields.io/github/stars/tgohn/express-session-level.svg?label=%E2%98%85
+
 [![★][level-session-store-image] level-session-store][level-session-store-url] A LevelDB-based session store.
 
 [level-session-store-url]: https://www.npmjs.com/package/level-session-store
