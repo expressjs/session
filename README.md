@@ -54,6 +54,8 @@ Specifies the value for the `Domain` `Set-Cookie` attribute. By default, no doma
 is set, and most clients will consider the cookie to apply to only the current
 domain.
 
+**Note:** Some browsers will not set a cookie on `localhost` is the `domain` attribute is set, so you should omit this setting when testing on `localhost`.
+
 ###### expires
 
 Specifies the `Date` object to be the value for the `Expires` `Set-Cookie` attribute.
@@ -410,6 +412,37 @@ and **optional**.
   * Optional methods are ones this module does not call at all, but helps
     present uniform stores to users.
 
+Some methods (`createSession`, `load`, and `regenerate`) are already available from the `express-session` module. These methods are marked as "available from `express-session`" below. Instead of writing these methods yourself, it is recommended that you pass the `express-session` object to your store on initialization, and extend your store from `expressSession.Store`. See below for an example:
+
+In `app.js/server.js/index.js/etc.`:
+
+```
+const expressSession = require('express-session');
+const MyStore = require('my-store')(expressSession);
+
+app.use(expressSession({
+  store: new MyStore(options),
+  secret: 'mycookiesecret'
+}));
+```
+
+In your store's `index.js` (main) file:
+```
+module.exports = expressSession => {
+
+  const Store = expressSession.Store;
+
+  class MyStore extends Store {
+    constructor(options) {
+      /* your store logic */
+    }
+  }
+
+  return MyStore;
+
+};
+```
+
 For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
 
 ### store.all(callback)
@@ -434,6 +467,12 @@ the session is destroyed.
 This optional method is used to delete all sessions from the store. The
 `callback` should be called as `callback(error)` once the store is cleared.
 
+### store.createSession(req, session)
+
+**Required** (available from `express-session`)
+
+This required method is used to create a session from JSON `session` data, set `session.cookie`, and set `req.session`. It should return the new session object. This method will need to utilize `express-session`'s `Cookie` and `Session` objects.
+
 ### store.length(callback)
 
 **Optional**
@@ -451,6 +490,18 @@ ID (`sid`). The `callback` should be called as `callback(error, session)`.
 The `session` argument should be a session if found, otherwise `null` or
 `undefined` if the session was not found (and there was no error). A special
 case is made when `error.code === 'ENOENT'` to act like `callback(null, null)`.
+
+### store.load(sid, callback)
+
+**Required** (available from `express-session`)
+
+This required method is used to load a `Session` instance via the given session ID (`sid`). The `callback` should be called as `callback(error, session)`. This method calls `store.createSession` internally.
+
+### store.regenerate(req, callback)
+
+**Required** (available from `express-session`)
+
+This required method is used to regenerate the given request's (`req`) session. The `callback` should be called as `callback(error)`.
 
 ### store.set(sid, session, callback)
 
@@ -577,7 +628,7 @@ and other multi-core embedded devices).
 [connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
 [connect-sqlite3-image]: https://img.shields.io/github/stars/rawberg/connect-sqlite3.svg?label=%E2%98%85
 
-[![★][documentdb-session-image] documentdb-session][documentdb-session-url] A session store for Microsoft Azure's [DocumentDB](https://azure.microsoft.com/en-us/services/documentdb/) NoSQL database service.
+[![★][documentdb-session-image] documentdb-session][documentdb-session-url] A session store for Microsoft Azure's  [DocumentDB](https://azure.microsoft.com/en-us/services/documentdb/) NoSQL database service.
 
 [documentdb-session-url]: https://www.npmjs.com/package/documentdb-session
 [documentdb-session-image]: https://img.shields.io/github/stars/dwhieb/documentdb-session.svg?label=%E2%98%85
