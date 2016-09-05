@@ -500,13 +500,15 @@ case is made when `error.code === 'ENOENT'` to act like `callback(null, null)`.
 
 This required method is used to load a `Session` instance via the given session ID (`sid`), and then create the new session object by calling `store.createSession`. The `callback` should be called as `callback(error, session)`.
 
-For an example implementation of this method, see `express-session`'s [`store.load`](https://github.com/expressjs/session/blob/master/session/store.js#L67).
+For an example implementation, see `express-session`'s [`store.load` method](https://github.com/expressjs/session/blob/master/session/store.js#L67).
 
 ### store.regenerate(req, callback)
 
 **Required** (available from `express-session`)
 
-This required method is used to regenerate the given request's (`req`) session. The `callback` should be called as `callback(error)`.
+This required method is used to regenerate the given request's (`req`) session, by first calling `store.destroy` and then `store.generate`. The `callback` should be called as `callback(error)`.
+
+For an example implementation see `express-session`'s [`store.regenerate` method](https://github.com/expressjs/session/blob/master/session/store.js#L50).
 
 ### store.set(sid, session, callback)
 
@@ -633,7 +635,7 @@ and other multi-core embedded devices).
 [connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
 [connect-sqlite3-image]: https://img.shields.io/github/stars/rawberg/connect-sqlite3.svg?label=%E2%98%85
 
-[![★][documentdb-session-image] documentdb-session][documentdb-session-url] A session store for Microsoft Azure's  [DocumentDB](https://azure.microsoft.com/en-us/services/documentdb/) NoSQL database service.
+[![★][documentdb-session-image] documentdb-session][documentdb-session-url] A session store for Microsoft Azure's [DocumentDB](https://azure.microsoft.com/en-us/services/documentdb/) NoSQL database service.
 
 [documentdb-session-url]: https://www.npmjs.com/package/documentdb-session
 [documentdb-session-image]: https://img.shields.io/github/stars/dwhieb/documentdb-session.svg?label=%E2%98%85
