@@ -470,7 +470,11 @@ This optional method is used to delete all sessions from the store. The
 
 **Required** (available from `express-session`)
 
-This required method is used to create a session from JSON `session` data, set `session.cookie`, and set `req.session`. It should return the new session object. This method will need to utilize `express-session`'s `Cookie` and `Session` objects.
+This required method is used to create a session from JSON `session` data, set `session.cookie`, and set `req.session`. It should return the new session object.
+
+For an example implementation of `session.cookie`, see `express-session`'s [cookie module](https://github.com/expressjs/session/blob/master/session/cookie.js).
+
+For an example implementation of `req.session`, see `express-session`'s [session module](https://github.com/expressjs/session/blob/master/session/session.js).
 
 ### store.length(callback)
 
