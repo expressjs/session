@@ -54,8 +54,6 @@ Specifies the value for the `Domain` `Set-Cookie` attribute. By default, no doma
 is set, and most clients will consider the cookie to apply to only the current
 domain.
 
-**Note:** Some browsers will not set a cookie on `localhost` is the `domain` attribute is set, so you should omit this setting when testing on `localhost`.
-
 ###### expires
 
 Specifies the `Date` object to be the value for the `Expires` `Set-Cookie` attribute.
