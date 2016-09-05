@@ -414,7 +414,7 @@ Some methods (`createSession`, `load`, and `regenerate`) are already available f
 
 In `app.js/server.js/index.js/etc.`:
 
-```
+```js
 const expressSession = require('express-session');
 const MyStore = require('my-store')(expressSession);
 
@@ -425,7 +425,8 @@ app.use(expressSession({
 ```
 
 In your store's `index.js` (main) file:
-```
+
+```js
 module.exports = expressSession => {
 
   const Store = expressSession.Store;
