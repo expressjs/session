@@ -498,7 +498,9 @@ case is made when `error.code === 'ENOENT'` to act like `callback(null, null)`.
 
 **Required** (available from `express-session`)
 
-This required method is used to load a `Session` instance via the given session ID (`sid`). The `callback` should be called as `callback(error, session)`. This method calls `store.createSession` internally.
+This required method is used to load a `Session` instance via the given session ID (`sid`), and then create the new session object by calling `store.createSession`. The `callback` should be called as `callback(error, session)`.
+
+For an example implementation of this method, see `express-session`'s [`store.load`](https://github.com/expressjs/session/blob/master/session/store.js#L67).
 
 ### store.regenerate(req, callback)
 
