@@ -592,6 +592,11 @@ and other multi-core embedded devices).
 [express-session-level-url]: https://www.npmjs.com/package/express-session-level
 [express-session-level-image]: https://img.shields.io/github/stars/tgohn/express-session-level.svg?label=%E2%98%85
 
+[![★][express-etcd-image] express-etcd][express-etcd-url] An [etcd](https://github.com/stianeikeland/node-etcd) based session store.
+
+[express-etcd-url]: https://www.npmjs.com/package/express-etcd
+[express-etcd-image]: https://img.shields.io/github/stars/gildean/express-etcd.svg?label=%E2%98%85
+
 [![★][hazelcast-store-image] hazelcast-store][hazelcast-store-url] A Hazelcast-based session store built on the [Hazelcast Node Client](https://www.npmjs.com/package/hazelcast-client).
 
 [hazelcast-store-url]: https://www.npmjs.com/package/hazelcast-store
