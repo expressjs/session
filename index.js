@@ -157,11 +157,7 @@ function session(options) {
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    req.session.cookie = new Cookie(cookieOptions);
-
-    if (cookieOptions.secure === 'auto') {
-      req.session.cookie.secure = issecure(req, trustProxy);
-    }
+    req.session.cookie = createCookie(cookieOptions, req, trustProxy);
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
@@ -217,29 +213,47 @@ function session(options) {
 
     // set-cookie
     onHeaders(res, function(){
+
+      // Is this an existing session that is being destroyed?
+      var isDestroying = isBeingDestroyed(req);
+
       if (!req.session) {
         debug('no session');
-        return;
+        if (!isDestroying || isInitialSession(req)) {
+          return;
+        }
       }
 
-      if (!shouldSetCookie(req)) {
-        return;
+      var cookie = req.session ? req.session.cookie : undefined;
+      if (isDestroying) {
+        if (cookie == null) {
+          debug('creating expired cookie');
+          cookie = createCookie(cookieOptions, req, trustProxy);
+        }
+
+        // Set the cookie to immediately expire on the client
+        cookie.maxAge = 0;
       }
 
       // only send secure cookies via https
-      if (req.session.cookie.secure && !issecure(req, trustProxy)) {
+      if (cookie.secure && !issecure(req, trustProxy)) {
         debug('not secured');
         return;
       }
 
-      if (!touched) {
-        // touch session
-        req.session.touch()
-        touched = true
+      if (!isDestroying) {
+        if (!shouldSetCookie(req)) {
+          return;
+        }
+        else if (!touched) {
+          // touch session
+          req.session.touch();
+          touched = true;
+        }
       }
 
       // set cookie
-      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
+      setcookie(res, name, req.sessionID, secrets[0], cookie.data);
     });
 
     // proxy end() to commit the session
@@ -396,6 +410,16 @@ function session(options) {
       });
     }
 
+    // check if session has been or is being destroyed
+    function isBeingDestroyed(req) {
+      return req.sessionID && req.session == null;
+    }
+
+    // check if session is the initial session
+    function isInitialSession(req) {
+      return req.sessionID && cookieId != req.sessionID;
+    }
+
     // check if session has been modified
     function isModified(sess) {
       return originalId !== sess.id || originalHash !== hash(sess);
@@ -437,8 +461,8 @@ function session(options) {
 
     // determine if cookie should be set on response
     function shouldSetCookie(req) {
-      // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
+      // cannot set cookie without a session ID and a session
+      if (typeof req.sessionID !== 'string' || !req.session) {
         return false;
       }
 
@@ -490,6 +514,25 @@ function session(options) {
     });
   };
 };
+
+/**
+ * Create a new Cookie for this request.
+ *
+ * @param {Object} cookieOptions
+ * @param {Object} req
+ * @param {Boolean} [trustProxy]
+ * @return {Cookie}
+ * @private
+ */
+function createCookie(cookieOptions, req, trustProxy) {
+  var cookieOpts = cookieOptions || {};
+
+  var cookie = new Cookie(cookieOpts);
+  if (cookieOpts.secure === 'auto') {
+    cookie.secure = issecure(req, trustProxy);
+  }
+  return cookie;
+}
 
 /**
  * Generate a session ID for a new session.

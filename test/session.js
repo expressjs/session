@@ -1,4 +1,3 @@
-
 process.env.NO_DEPRECATION = 'express-session';
 
 var after = require('after')
@@ -1258,8 +1257,272 @@ describe('session()', function(){
       });
     });
 
+    it('should set expired cookie to override persistent cookie on req.session = null', function(done){
+      var store = new session.MemoryStore()
+      var app = express()
+        .use(session({ store: store, unset: 'destroy', secret: 'keyboard cat', cookie: { maxAge: min } }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0
+          req.session.count++
+          if (req.session.count === 2) req.session = null
+          res.end()
+        })
+
+      request(app)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err)
+
+        var now = new Date()
+
+        var expiry = expires(res)
+        assert.ok(expiry)
+
+        var a = new Date(expiry)
+
+        var delta = a.valueOf() - now.valueOf()
+        assert.ok(delta > (min - 1000) && delta <= min)
+
+        request(app)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err)
+
+          now = new Date()
+
+          expiry = expires(res)
+          assert.ok(expiry)
+
+          var b = new Date(expiry)
+
+          delta = b.valueOf() - a.valueOf()
+          assert.ok(delta <= 0)
+
+          delta = b.valueOf() - now.valueOf()
+          assert.ok(delta <= 0)
+
+          done()
+        })
+      })
+    })
+
+    it('should set expired cookie to override session cookie on req.session = null', function(done){
+      var store = new session.MemoryStore()
+      var app = express()
+        .use(session({ store: store, unset: 'destroy', secret: 'keyboard cat' }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0
+          req.session.count++
+          if (req.session.count === 2) req.session = null
+          res.end()
+        });
+
+      request(app)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err)
+
+        assert.ok(!expires(res))
+
+        request(app)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err)
+
+          var now = new Date()
+
+          var expiry = expires(res)
+          assert.ok(expiry)
+
+          var b = new Date(expiry)
+
+          var delta = b.valueOf() - now.valueOf()
+          assert.ok(delta <= 0)
+
+          done()
+        })
+      })
+    })
+
+    it('should set expired cookie to override persistent cookie on req.session.destroy()', function(done) {
+      var store = new session.MemoryStore()
+      var app = express()
+        .use(session({ store: store, unset: 'destroy', secret: 'keyboard cat', cookie: { maxAge: min } }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0
+          req.session.count++
+          if (req.session.count === 2) {
+            req.session.destroy(function(err) {
+              if (err) return next(err)
+              res.end()
+            })
+          } else {
+            res.end()
+          }
+        })
+
+      request(app)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err)
+
+        var now = new Date()
+
+        var expiry = expires(res)
+        assert.ok(expiry)
+
+        var a = new Date(expiry)
+
+        var delta = a.valueOf() - now.valueOf()
+        assert.ok(delta > (min - 1000) && delta <= min)
+
+        request(app)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err)
+
+          now = new Date()
+
+          expiry = expires(res)
+          assert.ok(expiry)
+
+          var b = new Date(expiry)
+
+          delta = b.valueOf() - a.valueOf()
+          assert.ok(delta <= 0)
+
+          delta = b.valueOf() - now.valueOf()
+          assert.ok(delta <= 0)
+
+          done()
+        })
+      })
+    })
+
+    it('should set expired cookie to override session cookie on req.session.destroy()', function(done) {
+      var store = new session.MemoryStore()
+      var app = express()
+        .use(session({ store: store, unset: 'destroy', secret: 'keyboard cat' }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0
+          req.session.count++
+          if (req.session.count === 2) {
+            req.session.destroy(function(err) {
+              if (err) return next(err)
+              res.end()
+            })
+          } else {
+            res.end()
+          }
+        })
+
+      request(app)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err)
+
+        assert.ok(!expires(res))
+
+        request(app)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err)
+
+          var now = new Date()
+
+          var expiry = expires(res)
+          assert.ok(expiry)
+
+          var b = new Date(expiry)
+
+          var delta = b.valueOf() - now.valueOf()
+          assert.ok(delta <= 0)
+
+          done()
+        })
+      })
+    })
+
+    it('should not set an expired cookie on destroyed session if session is regenerated', function(done){
+      var store = new session.MemoryStore()
+      var app = express()
+        .use(session({ store: store, unset: 'destroy', secret: 'keyboard cat', cookie: { maxAge: min } }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0
+          req.session.count++
+          if (req.session.count === 2) {
+            req.session.destroy(function(err) {
+              if (err) return done(err)
+
+              req.sessionStore.regenerate(req, function(err) {
+                if (err) return done(err)
+
+                req.session.now = Date.now()
+                res.end()
+              })
+            })
+          }
+          else {
+            res.end()
+          }
+        })
+
+      request(app)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err)
+
+        var now = new Date()
+
+        var expiry = expires(res)
+        assert.ok(expiry)
+
+        var a = new Date(expiry)
+
+        var delta = a.valueOf() - now.valueOf()
+        assert.ok(delta > (min - 1000) && delta <= min)
+
+        request(app)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err)
+
+          now = new Date()
+
+          expiry = expires(res)
+          assert.ok(expiry)
+
+          var b = new Date(expiry)
+
+          // The session regenerated so the expiration date should be the same as the original
+          delta = b.valueOf() - a.valueOf()
+          assert.equal(delta, 0)
+
+          delta = b.valueOf() - now.valueOf()
+          assert.ok(delta > 0)
+
+          done()
+        })
+      })
+    })
+
     it('should not set cookie if initial session destroyed', function(done){
-      var store = new session.MemoryStore();
+      var store = new session.MemoryStore()
       var server = createServer({ store: store, unset: 'destroy' }, function (req, res) {
         req.session = null
         res.end()
@@ -1269,14 +1532,14 @@ describe('session()', function(){
       .get('/')
       .expect(shouldNotHaveHeader('Set-Cookie'))
       .expect(200, function(err, res){
-        if (err) return done(err);
+        if (err) return done(err)
         store.length(function(err, len){
-          if (err) return done(err);
+          if (err) return done(err)
           assert.equal(len, 0)
-          done();
-        });
-      });
-    });
+          done()
+        })
+      })
+    })
 
     it('should pass session destroy error', function (done) {
       var cb = after(2, done)
@@ -1300,7 +1563,7 @@ describe('session()', function(){
       .get('/')
       .expect(200, 'session destroyed', cb)
     })
-  });
+  })
 
   describe('res.end patch', function () {
     it('should correctly handle res.end/res.write patched prior', function (done) {
@@ -1462,6 +1725,111 @@ describe('session()', function(){
         .get('/')
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, 'undefined', done)
+      })
+
+      it('should set expired cookie to override persistent cookie', function(done) {
+        var store = new session.MemoryStore()
+        var app = express()
+          .use(session({ store: store, secret: 'keyboard cat', cookie: { maxAge: min } }))
+          .use(function(req, res, next){
+            req.session.count = req.session.count || 0;
+            req.session.count++;
+            if (req.session.count === 2) {
+              req.session.destroy(function(err) {
+                if (err) return next(err)
+                res.end()
+              });
+            } else {
+              res.end()
+            }
+          })
+
+        request(app)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err)
+
+          var now = new Date()
+
+          var expiry = expires(res)
+          assert.ok(expiry)
+
+          var a = new Date(expiry)
+
+          var delta = a.valueOf() - now.valueOf()
+          assert.ok(delta > (min - 1000) && delta <= min)
+
+          request(app)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, function(err, res){
+            if (err) return done(err)
+
+            now = new Date()
+
+            expiry = expires(res)
+            assert.ok(expiry)
+
+            var b = new Date(expiry)
+
+            delta = b.valueOf() - a.valueOf()
+            assert.ok(delta <= 0)
+
+            delta = b.valueOf() - now.valueOf()
+            assert.ok(delta <= 0)
+
+            done()
+          })
+        })
+      })
+
+      it('should set expired cookie to override session cookie', function(done) {
+        var store = new session.MemoryStore()
+        var app = express()
+          .use(session({ store: store, secret: 'keyboard cat' }))
+          .use(function(req, res, next){
+            req.session.count = req.session.count || 0
+            req.session.count++
+            if (req.session.count === 2) {
+              req.session.destroy(function(err) {
+                if (err) return next(err)
+                res.end()
+              });
+            } else {
+              res.end()
+            }
+          })
+
+        request(app)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err)
+
+          assert.ok(!expires(res))
+
+          request(app)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, function(err, res){
+            if (err) return done(err)
+
+            var now = new Date()
+
+            var expiry = expires(res)
+            assert.ok(expiry)
+
+            var b = new Date(expiry)
+
+            var delta = b.valueOf() - now.valueOf()
+            assert.ok(delta <= 0)
+
+            done()
+          })
+        })
       })
     })
 
