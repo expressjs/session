@@ -413,43 +413,6 @@ describe('session()', function(){
         done()
       })
     })
-
-    it('should have saved session with updated cookie expiration', function (done) {
-      var store = new session.MemoryStore()
-      var server = createServer({ cookie: { maxAge: min }, store: store }, function (req, res) {
-        req.session.user = 'bob'
-        res.end(req.session.id)
-      })
-
-      request(server)
-      .get('/')
-      .expect(shouldSetCookie('connect.sid'))
-      .expect(200, function (err, res) {
-        if (err) return done(err)
-        var id = res.text
-        store.get(id, function (err, sess) {
-          if (err) return done(err)
-          assert.ok(sess, 'session saved to store')
-          var exp = new Date(sess.cookie.expires)
-          assert.equal(exp.toUTCString(), expires(res))
-          setTimeout(function () {
-            request(server)
-            .get('/')
-            .set('Cookie', cookie(res))
-            .expect(200, function (err, res) {
-              if (err) return done(err)
-              store.get(id, function (err, sess) {
-                if (err) return done(err)
-                assert.equal(res.text, id)
-                assert.ok(sess, 'session still in store')
-                assert.notEqual(new Date(sess.cookie.expires).toUTCString(), exp.toUTCString(), 'session cookie expiration updated')
-                done()
-              })
-            })
-          }, (1000 - (Date.now() % 1000) + 200))
-        })
-      })
-    })
   })
 
   describe('when sid not in store', function () {
