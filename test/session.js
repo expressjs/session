@@ -74,7 +74,7 @@ describe('session()', function(){
 
   it('should generate req.sessionID asynchronously', function (done) {
     var sessionID = Math.random().toString(16)
-    var server = createServer({ async: true, genid: function(req, callback) { setImmediate(callback.bind(null, null, sessionID)) } }, function (req, res) {
+    var server = createServer({ async: true, genid: function(req, callback) { setTimeout(callback.bind(null, null, sessionID), 10) } }, function (req, res) {
       res.end(req.sessionID)
     });
 
