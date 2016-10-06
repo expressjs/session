@@ -72,6 +72,23 @@ describe('session()', function(){
     })
   })
 
+  it('should generate req.sessionID asynchronously', function (done) {
+    var sessionID = Math.random().toString(16)
+    var server = createServer({ async: true, genid: function(req, callback) { setImmediate(callback.bind(null, null, sessionID)) } }, function (req, res) {
+      res.end(req.sessionID)
+    });
+
+    request(server)
+    .get('/')
+    .expect(shouldSetCookie('connect.sid'))
+    .expect(200, sessionID, function (err, res) {
+      if (err) return done(err)
+      shouldSetCookie(res)
+      assert(res.headers['set-cookie'][0].indexOf(sessionID) > -1)
+      done()
+    })
+  })
+
   it('should load session from cookie sid', function (done) {
     var count = 0
     var server = createServer(null, function (req, res) {
@@ -394,43 +411,6 @@ describe('session()', function(){
         if (err) return done(err)
         assert.ok(saved)
         done()
-      })
-    })
-
-    it('should have saved session with updated cookie expiration', function (done) {
-      var store = new session.MemoryStore()
-      var server = createServer({ cookie: { maxAge: min }, store: store }, function (req, res) {
-        req.session.user = 'bob'
-        res.end(req.session.id)
-      })
-
-      request(server)
-      .get('/')
-      .expect(shouldSetCookie('connect.sid'))
-      .expect(200, function (err, res) {
-        if (err) return done(err)
-        var id = res.text
-        store.get(id, function (err, sess) {
-          if (err) return done(err)
-          assert.ok(sess, 'session saved to store')
-          var exp = new Date(sess.cookie.expires)
-          assert.equal(exp.toUTCString(), expires(res))
-          setTimeout(function () {
-            request(server)
-            .get('/')
-            .set('Cookie', cookie(res))
-            .expect(200, function (err, res) {
-              if (err) return done(err)
-              store.get(id, function (err, sess) {
-                if (err) return done(err)
-                assert.equal(res.text, id)
-                assert.ok(sess, 'session still in store')
-                assert.notEqual(new Date(sess.cookie.expires).toUTCString(), exp.toUTCString(), 'session cookie expiration updated')
-                done()
-              })
-            })
-          }, (1000 - (Date.now() % 1000) + 200))
-        })
       })
     })
   })
