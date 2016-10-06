@@ -72,6 +72,23 @@ describe('session()', function(){
     })
   })
 
+  it('should generate req.sessionID asynchronously', function (done) {
+    var sessionID = Math.random().toString(16)
+    var server = createServer({ async: true, genid: function(req, callback) { setTimeout(callback.bind(null, null, sessionID), 10) } }, function (req, res) {
+      res.end(req.sessionID)
+    });
+
+    request(server)
+    .get('/')
+    .expect(shouldSetCookie('connect.sid'))
+    .expect(200, sessionID, function (err, res) {
+      if (err) return done(err)
+      shouldSetCookie(res)
+      assert(res.headers['set-cookie'][0].indexOf(sessionID) > -1)
+      done()
+    })
+  })
+
   it('should load session from cookie sid', function (done) {
     var count = 0
     var server = createServer(null, function (req, res) {
