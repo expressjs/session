@@ -504,6 +504,11 @@ and other multi-core embedded devices).
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
 [connect-couchbase-image]: https://img.shields.io/github/stars/christophermina/connect-couchbase.svg?label=%E2%98%85
 
+[![★][connect-datacache-image] connect-datacache][connect-datacache-url] An [IBM Bluemix Data Cache](http://www.ibm.com/cloud-computing/bluemix/)-based session store.
+
+[connect-datacache-url]: https://www.npmjs.com/package/connect-datacache
+[connect-datacache-image]: https://img.shields.io/github/stars/adriantanasa/connect-datacache.svg?label=%E2%98%85
+
 [![★][connect-db2-image] connect-db2][connect-db2-url] An IBM DB2-based session store built using [ibm_db](https://www.npmjs.com/package/ibm_db) module.
 
 [connect-db2-url]: https://www.npmjs.com/package/connect-db2
