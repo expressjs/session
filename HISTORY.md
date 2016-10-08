@@ -5,6 +5,7 @@ unreleased
   * deps: debug@2.3.2
     - Fix error when running under React Native
     - deps: ms@0.7.2
+  * perf: remove unreachable branch in set-cookie method
 
 1.14.2 / 2016-10-30
 ===================
