@@ -619,9 +619,7 @@ function setcookie(res, name, val, secret, options) {
   debug('set-cookie %s', data);
 
   var prev = res.getHeader('set-cookie') || [];
-  var header = Array.isArray(prev) ? prev.concat(data)
-    : Array.isArray(data) ? [prev].concat(data)
-    : [prev, data];
+  var header = Array.isArray(prev) ? prev.push(data) : [prev, data];
 
   res.setHeader('set-cookie', header)
 }
