@@ -524,6 +524,11 @@ and other multi-core embedded devices).
 [connect-loki-url]: https://www.npmjs.com/package/connect-loki
 [connect-loki-image]: https://img.shields.io/github/stars/Requarks/connect-loki.svg?label=%E2%98%85
 
+[![★][connect-ml-image] connect-ml][connect-ml-url] A MarkLogic Server-based session store.
+
+[connect-ml-url]: https://www.npmjs.com/package/connect-ml
+[connect-ml-image]: https://img.shields.io/github/stars/bluetorch/connect-ml.svg?label=%E2%98%85
+
 [![★][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
 
 [connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
