@@ -428,7 +428,7 @@ function session(options) {
 
       return cookieId != req.sessionID
         ? saveUninitializedSession || isModified(req.session)
-        : rollingSessions && req.session.cookie.expires && isModified(req.session);
+        : rollingSessions || req.session.cookie.expires && isModified(req.session);
     }
 
     // generate a session if the browser doesn't send a sessionID
