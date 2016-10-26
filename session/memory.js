@@ -149,7 +149,6 @@ MemoryStore.prototype.touch = function touch(sessionId, session, callback) {
 
   if (currentSession) {
     // update expiration
-    console.log("THIS IS SEESSSSION COOKIEEE", session.cookie)
     currentSession.cookie = session.cookie
     this.sessions[sessionId] = JSON.stringify(currentSession)
   }
