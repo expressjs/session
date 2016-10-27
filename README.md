@@ -48,13 +48,13 @@ Settings object for the session ID cookie. The default value is
 
 The following are options that can be set in this object.
 
-###### domain
+##### cookie.domain
 
 Specifies the value for the `Domain` `Set-Cookie` attribute. By default, no domain
 is set, and most clients will consider the cookie to apply to only the current
 domain.
 
-###### expires
+##### cookie.expires
 
 Specifies the `Date` object to be the value for the `Expires` `Set-Cookie` attribute.
 By default, no expiration is set, and most clients will consider this a
@@ -67,7 +67,7 @@ defined in the object is what is used.
 **Note** The `expires` option should not be set directly; instead only use the `maxAge`
 option.
 
-###### httpOnly
+##### cookie.httpOnly
 
 Specifies the `boolean` value for the `HttpOnly` `Set-Cookie` attribute. When truthy,
 the `HttpOnly` attribute is set, otherwise it is not. By default, the `HttpOnly`
@@ -76,7 +76,7 @@ attribute is set.
 **Note** be careful when setting this to `true`, as compliant clients will not allow
 client-side JavaScript to see the cookie in `document.cookie`.
 
-###### maxAge
+##### cookie.maxAge
 
 Specifies the `number` (in milliseconds) to use when calculating the `Expires`
 `Set-Cookie` attribute. This is done by taking the current server time and adding
@@ -86,12 +86,12 @@ no maximum age is set.
 **Note** If both `expires` and `maxAge` are set in the options, then the last one
 defined in the object is what is used.
 
-###### path
+##### cookie.path
 
 Specifies the value for the `Path` `Set-Cookie`. By default, this is set to `'/'`, which
 is the root path of the domain.
 
-###### sameSite
+##### cookie.sameSite
 
 Specifies the `boolean` or `string` to be the value for the `SameSite` `Set-Cookie` attribute.
 
@@ -106,7 +106,7 @@ https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1.1
 **Note** This is an attribute that has not yet been fully standardized, and may change in
 the future. This also means many clients may ignore this attribute until they understand it.
 
-###### secure
+##### cookie.secure
 
 Specifies the `boolean` value for the `Secure` `Set-Cookie` attribute. When truthy,
 the `Secure` attribute is set, otherwise it is not. By default, the `Secure`
