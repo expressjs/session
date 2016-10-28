@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * deps: crc@3.4.1
+    - Fix deprecation warning in Node.js 7.x
+
 1.14.1 / 2016-08-24
 ===================
 
