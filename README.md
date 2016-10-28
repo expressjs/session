@@ -302,10 +302,11 @@ app.get('/', function(req, res, next) {
 })
 ```
 
-#### Session.regenerate()
+#### Session.regenerate(callback)
 
 To regenerate the session simply invoke the method. Once complete,
-a new SID and `Session` instance will be initialized at `req.session`.
+a new SID and `Session` instance will be initialized at `req.session`
+and the `callback` will be invoked.
 
 ```js
 req.session.regenerate(function(err) {
@@ -313,9 +314,10 @@ req.session.regenerate(function(err) {
 })
 ```
 
-#### Session.destroy()
+#### Session.destroy(callback)
 
-Destroys the session, removing `req.session`; will be re-generated next request.
+Destroys the session and will unset the `req.session` property.
+Once complete, the `callback` will be invoked.
 
 ```js
 req.session.destroy(function(err) {
@@ -323,9 +325,10 @@ req.session.destroy(function(err) {
 })
 ```
 
-#### Session.reload()
+#### Session.reload(callback)
 
-Reloads the session data.
+Reloads the session data from the store and re-populates the
+`req.session` object. Once complete, the `callback` will be invoked.
 
 ```js
 req.session.reload(function(err) {
@@ -333,7 +336,7 @@ req.session.reload(function(err) {
 })
 ```
 
-#### Session.save()
+#### Session.save(callback)
 
 Save the session back to the store, replacing the contents on the store with the
 contents in memory (though a store may do something else--consult the store's
