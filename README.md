@@ -112,25 +112,35 @@ Specifies the `boolean` value for the `Secure` `Set-Cookie` attribute. When trut
 the `Secure` attribute is set, otherwise it is not. By default, the `Secure`
 attribute is not set.
 
-**Note** be careful when setting this to `true`, as compliant clients will not send
-the cookie back to the server in the future if the browser does not have an HTTPS
-connection.
+Securing cookies is **recommended**. By connecting over HTTP, both the 
+user and session can be easily exposed. To properly configure secure cookies, 
+some configuration is necessary:
 
-Please note that `secure: true` is a **recommended** option. However, it requires
-an https-enabled website, i.e., HTTPS is necessary for secure cookies. If `secure`
-is set, and you access your site over HTTP, the cookie will not be set. If you
-have your node.js behind a proxy and are using `secure: true`, you need to set
-"trust proxy" in express:
+- Secure cookies must be served through **HTTPS**. Most clients will not send 
+secure-marked cookies over HTTP. 
+- If node is behind a proxy, Express *and* Session.js must be told to trust the proxy.
 
 ```js
 var app = express()
-app.set('trust proxy', 1) // trust first proxy
+app.set('trust proxy', 1)
+
 app.use(session({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
+  ...
+  proxy: true,
   cookie: { secure: true }
 }))
+```
+
+- If using nginx as a proxy, nginx must be configured to send its current protocol, 
+either HTTP or HTTPS, to node. Node can then trust the cookie.
+
+```nginx
+# /etc/nginx/sites-enabled/domain.conf
+
+location ... {
+        ...
+        proxy_set_header X-Forwarded-Proto $scheme;
+}
 ```
 
 For using secure cookies in production, but allowing for testing in development,
@@ -144,8 +154,8 @@ var sess = {
 }
 
 if (app.get('env') === 'production') {
-  app.set('trust proxy', 1) // trust first proxy
-  sess.cookie.secure = true // serve secure cookies
+  app.set('trust proxy', 1)
+  sess.cookie.secure = true
 }
 
 app.use(session(sess))
