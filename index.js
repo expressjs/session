@@ -364,7 +364,6 @@ function session(options) {
 
     // wrap session methods
     function wrapmethods(sess) {
-      debug('wrapping %s', sess.id);
       var _save = sess.save;
       var _reload = sess.reload;
 
