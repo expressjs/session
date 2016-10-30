@@ -364,7 +364,9 @@ function session(options) {
 
     // wrap session methods
     function wrapmethods(sess) {
+      debug('wrapping %s', sess.id);
       var _save = sess.save;
+      var _reload = sess.reload;
 
       function save() {
         debug('saving %s', this.id);
@@ -376,6 +378,23 @@ function session(options) {
         configurable: true,
         enumerable: false,
         value: save,
+        writable: true
+      });
+
+      function reload(cb) {
+        debug('reloading %s', this.id);
+        _reload.call(this, function(err) {
+          if (req.session.reload !== reload) {
+            wrapmethods(req.session);
+          }
+          cb(err);
+        });
+      }
+
+      Object.defineProperty(sess, 'reload', {
+        configurable: true,
+        enumerable: false,
+        value: reload,
         writable: true
       });
     }
