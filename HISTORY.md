@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix resaving already-saved reloaded session at end of request
+
 1.14.2 / 2016-10-30
 ===================
 
