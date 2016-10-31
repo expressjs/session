@@ -3,6 +3,8 @@ unreleased
 
   * deps: crc@3.4.1
     - Fix deprecation warning in Node.js 7.x
+  * deps: uid-safe@~2.1.3
+    - deps: base64-url@1.3.3
 
 1.14.1 / 2016-08-24
 ===================
