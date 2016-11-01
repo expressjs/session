@@ -614,6 +614,12 @@ and other multi-core embedded devices).
 [express-etcd-url]: https://www.npmjs.com/package/express-etcd
 [express-etcd-image]: https://img.shields.io/github/stars/gildean/express-etcd.svg?label=%E2%98%85
 
+[![★][fortune-session-image] fortune-session][fortune-session-url] A [Fortune.js](https://github.com/fortunejs/fortune)
+based session store. Supports all backends supported by Fortune (MongoDB, Redis, Postgres, NeDB).
+
+[fortune-session-url]: https://www.npmjs.com/package/fortune-session
+[fortune-session-image]: https://img.shields.io/github/stars/aliceklipper/fortune-session.svg?label=%E2%98%85
+
 [![★][hazelcast-store-image] hazelcast-store][hazelcast-store-url] A Hazelcast-based session store built on the [Hazelcast Node Client](https://www.npmjs.com/package/hazelcast-client).
 
 [hazelcast-store-url]: https://www.npmjs.com/package/hazelcast-store
