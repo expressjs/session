@@ -2,6 +2,9 @@ unreleased
 ==========
 
   * Fix resaving already-saved reloaded session at end of request
+  * deps: debug@2.3.2
+    - Fix error when running under React Native
+    - deps: ms@0.7.2
 
 1.14.2 / 2016-10-30
 ===================
