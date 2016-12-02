@@ -30,7 +30,7 @@ Create a session middleware with the given `options`.
 Session data is stored server-side.
 
 **Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
-no longer needs to be used for this module to work. This module now directly reads
+no longer needs to be used for this module to work, however other modules may still need it like [`csurf`](https://github.com/expressjs/csurf). This module now directly reads
 and writes cookies on `req`/`res`. Using `cookie-parser` may result in issues
 if the `secret` is not the same between this module and `cookie-parser`.
 
