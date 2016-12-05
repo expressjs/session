@@ -39,6 +39,8 @@ not designed for a production environment. It will leak memory under most
 conditions, does not scale past a single process, and is meant for debugging and
 developing.
 
+**Warning** All session must be set **before** call `res.send()` or `res.end`. Because the middleware hook response.end() to save session data.
+
 For a list of stores, see [compatible session stores](#compatible-session-stores).
 
 #### Options
