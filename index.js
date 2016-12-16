@@ -110,6 +110,9 @@ function session(options) {
   // get the save uninitialized session option
   var saveUninitializedSession = opts.saveUninitialized
 
+  //get the touch exception urls
+  var touchException=opts.touchException;
+
   // get the cookie signing secret
   var secret = opts.secret
 
@@ -207,7 +210,7 @@ function session(options) {
     var originalHash;
     var originalId;
     var savedHash;
-    var touched = false
+    var touched = false || urlsTouchSessionException(req,touchException);
 
     // expose store
     req.sessionStore = store;
@@ -658,4 +661,20 @@ function unsigncookie(val, secrets) {
   }
 
   return false;
+}
+
+
+/**
+ * special urls do not call the .touch() function.
+ *
+ * @param {Object} req
+ * @private
+ */
+function urlsTouchSessionException(req,touchException) {
+    for (var t in touchException){
+        if(req.url.toLowerCase()==touchException[t].toLowerCase()){
+            return true;
+        }
+    }
+    return false;
 }
