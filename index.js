@@ -578,10 +578,13 @@ function getcookie(req, name, secrets) {
 
 function hash(sess) {
   return crc(JSON.stringify(sess, function (key, val) {
-    if (key !== 'cookie') {
-      return val;
+    // ignore sess.cookie property
+    if (this === sess && key === 'cookie') {
+      return
     }
-  }));
+
+    return val
+  }))
 }
 
 /**

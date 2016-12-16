@@ -1044,6 +1044,36 @@ describe('session()', function(){
       });
     });
 
+    it('should detect a "cookie" property as modified', function (done) {
+      var count = 0
+      var app = express()
+      app.use(session({ resave: false, secret: 'keyboard cat', cookie: { maxAge: min }}))
+      app.use(function (req, res, next) {
+        var save = req.session.save
+        res.setHeader('x-count', count)
+        req.session.user = req.session.user || {}
+        req.session.user.name = 'bob'
+        req.session.user.cookie = count
+        req.session.save = function (fn) {
+          res.setHeader('x-count', ++count)
+          return save.call(this, fn)
+        }
+        res.end()
+      })
+
+      request(app)
+      .get('/')
+      .expect('x-count', '1')
+      .expect(200, function (err, res) {
+        if (err) return done(err)
+        request(app)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect('x-count', '2')
+        .expect(200, done)
+      })
+    })
+
     it('should pass session touch error', function (done) {
       var cb = after(2, done)
       var store = new session.MemoryStore()

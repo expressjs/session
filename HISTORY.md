@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Fix detecting modified session when session contains "cookie" property
   * Fix resaving already-saved reloaded session at end of request
   * deps: crc@3.4.4
     - perf: use `Buffer.from` when available
