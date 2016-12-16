@@ -238,6 +238,12 @@ The default value is `false`.
 set to `false`, the cookie will not be set on a response with an uninitialized
 session.
 
+#### touchException
+Allow user to set some special urls which be requested would not invoke .touch() function.
+This means requesting those urls would not extend session expiry date.
+
+touchException:['/example/test']
+
 ##### saveUninitialized
 
 Forces a session that is "uninitialized" to be saved to the store. A session is
