@@ -672,9 +672,12 @@ function unsigncookie(val, secrets) {
  */
 function urlsTouchSessionException(req,touchException) {
     for (var t in touchException){
-        if(req.url.toLowerCase()==touchException[t].toLowerCase()){
+        var url = req.originalUrl.toLowerCase();
+        var re=new RegExp(touchException[t]);
+        if(re.test(url)){
             return true;
         }
     }
+
     return false;
 }
