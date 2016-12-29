@@ -1,4 +1,4 @@
-# express-session
+# express-session-txt
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -13,7 +13,7 @@ This is a [Node.js](https://nodejs.org/en/) module available through the
 [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
 
 ```bash
-$ npm install express-session
+$ npm install express-session-ext
 ```
 
 ## API
