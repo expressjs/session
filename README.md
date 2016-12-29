@@ -589,6 +589,12 @@ and other multi-core embedded devices).
 [express-mysql-session-url]: https://www.npmjs.com/package/express-mysql-session
 [express-mysql-session-image]: https://img.shields.io/github/stars/chill117/express-mysql-session.svg?label=%E2%98%85
 
+[![★][express-oracle-session-image] express-oracle-session][express-oracle-session-url] A session store using native
+[oracle](https://www.oracle.com/) via the [node-oracledb](https://www.npmjs.com/package/oracledb) module.
+
+[express-oracle-session-url]: https://www.npmjs.com/package/express-oracle-session
+[express-oracle-session-image]: https://img.shields.io/github/stars/slumber86/express-oracle-session.svg?label=%E2%98%85
+
 [![★][express-sessions-image] express-sessions][express-sessions-url]: A session store supporting both MongoDB and Redis.
 [express-sessions-url]: https://www.npmjs.com/package/express-sessions
 [express-sessions-image]: https://img.shields.io/github/stars/konteck/express-sessions.svg?label=%E2%98%85
