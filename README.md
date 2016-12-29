@@ -19,7 +19,7 @@ $ npm install express-session-ext
 ## API
 
 ```js
-var session = require('express-session')
+var session = require('express-session-ext')
 ```
 
 ### session(options)
