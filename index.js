@@ -578,7 +578,8 @@ function getcookie(req, name, secrets) {
 
 function hash(sess) {
   return crc(JSON.stringify(sess, function (key, val) {
-    if (key !== 'cookie') {
+    // make sure that only top-level cookie property is ignored (see #398)
+    if (key !== 'cookie' || this !== sess) {
       return val;
     }
   }));
