@@ -4,7 +4,10 @@ unreleased
   * Fix resaving already-saved reloaded session at end of request
   * deps: crc@3.4.4
     - perf: use `Buffer.from` when available
-  * deps: debug@2.3.3
+  * deps: debug@2.6.0
+    - Allow colors in workers
+    - Deprecated `DEBUG_FD` environment variable
+    - Use same color for same namespace
     - Fix error when running under React Native
     - deps: ms@0.7.2
   * perf: remove unreachable branch in set-cookie method
