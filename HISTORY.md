@@ -2,7 +2,7 @@ unreleased
 ==========
 
   * Fix resaving already-saved reloaded session at end of request
-  * deps: crc@3.4.3
+  * deps: crc@3.4.4
     - perf: use `Buffer.from` when available
   * deps: debug@2.3.3
     - Fix error when running under React Native
