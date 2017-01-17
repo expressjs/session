@@ -1,13 +1,13 @@
 {
-  "name": "express-session",
+  "name": "@socialtables/session",
   "version": "1.14.2",
-  "description": "Simple session middleware for Express",
-  "author": "TJ Holowaychuk <tj@vision-media.ca> (http://tjholowaychuk.com)",
+  "description": "Simple session middleware for Express, compatible with koa and koa-generic-session",
+  "author": "TJ Holowaychuk, Social Tables",
   "contributors": [
     "Douglas Christopher Wilson <doug@somethingdoug.com>",
     "Joe Wagner <njwjs722@gmail.com>"
   ],
-  "repository": "expressjs/session",
+  "repository": "socialtables/session",
   "license": "MIT",
   "dependencies": {
     "cookie": "0.3.1",
