@@ -20,7 +20,6 @@ var deprecate = require('depd')('socialtables-session');
 var parseUrl = require('parseurl');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
-  , signature = require('cookie-signature')
 
 var Session = require('./session/session')
   , MemoryStore = require('./session/memory')
