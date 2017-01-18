@@ -1,6 +1,6 @@
 {
   "name": "@socialtables/session",
-  "version": "1.14.2",
+  "version": "1.15.0",
   "description": "Simple session middleware for Express, compatible with koa and koa-generic-session",
   "author": "TJ Holowaychuk, Social Tables",
   "contributors": [
