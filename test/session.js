@@ -691,7 +691,7 @@ describe('session()', function(){
 
       it('should use req.secure from express', function(done){
         var app = express()
-          .use(session({ secret: 'keyboard cat', cookie: { secure: true, maxAge: min }}))
+          .use(session({ secret: 'keyboard cat', saveUninitialized: true, cookie: { secure: true, maxAge: min }}))
           .use(function(req, res) { res.json(req.secure); });
         app.enable('trust proxy');
 
@@ -740,7 +740,7 @@ describe('session()', function(){
         before(function () {
           this.app = express()
             .use(function(req, res, next) { Object.defineProperty(req, 'secure', { value: JSON.parse(req.headers['x-secure']) }); next(); })
-            .use(session({ secret: 'keyboard cat', cookie: { maxAge: min, secure: 'auto' }}))
+            .use(session({ secret: 'keyboard cat', saveUninitialized: true, cookie: { maxAge: min, secure: 'auto' }}))
             .use(function(req, res) { res.json(req.secure); });
         })
 
@@ -931,7 +931,7 @@ describe('session()', function(){
   });
 
   describe('resave option', function(){
-    it('should default to true', function(done){
+    it('should default to false', function(done){
       var count = 0;
       var app = express();
       app.use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}));
@@ -954,7 +954,7 @@ describe('session()', function(){
         request(app)
         .get('/')
         .set('Cookie', cookie(res))
-        .expect('x-count', '2')
+        .expect('x-count', '1')
         .expect(200, done);
       });
     });
@@ -1105,7 +1105,7 @@ describe('session()', function(){
   });
 
     describe('saveUninitialized option', function(){
-    it('should default to true', function(done){
+    it('should default to false', function(done){
       var count = 0;
       var app = express();
       app.use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}));
@@ -1121,8 +1121,7 @@ describe('session()', function(){
 
       request(app)
       .get('/')
-      .expect('x-count', '1')
-      .expect(shouldSetCookie('connect.sid'))
+      .expect('x-count', '0')
       .expect(200, done);
     });
 
@@ -1843,7 +1842,7 @@ describe('session()', function(){
 
       it('should default to a browser-session length cookie', function(done){
         var app = express()
-          .use(session({ secret: 'keyboard cat', cookie: { path: '/admin' }}))
+          .use(session({ secret: 'keyboard cat', saveUninitialized: true, cookie: { path: '/admin' }}))
           .use(function(req, res, next){
             res.end();
           });
@@ -1853,14 +1852,14 @@ describe('session()', function(){
         .expect(200, function(err, res){
           if (err) return done(err);
           var val = cookie(res);
-          assert.equal(val.indexOf('Expires'), -1, 'should be not have cookie Expires')
+          assert.equal(val.indexOf('expires'), -1, 'should be not have cookie Expires')
           done();
         });
       })
 
       it('should Set-Cookie only once for browser-session cookies', function(done){
         var app = express()
-          .use(session({ secret: 'keyboard cat', cookie: { path: '/admin' }}))
+          .use(session({ secret: 'keyboard cat', saveUninitialized: true, cookie: { path: '/admin' }}))
           .use(function(req, res, next){
             res.end();
           });
@@ -1880,7 +1879,7 @@ describe('session()', function(){
 
       it('should override defaults', function(done){
         var app = express()
-          .use(session({ secret: 'keyboard cat', cookie: { path: '/admin', httpOnly: false, secure: true, maxAge: 5000 }}))
+          .use(session({ secret: 'keyboard cat', saveUninitialized: true, cookie: { path: '/admin', httpOnly: false, secure: true, maxAge: 5000 }}))
           .use(function(req, res, next){
             req.session.cookie.secure = false;
             res.end();
@@ -2091,7 +2090,7 @@ describe('session()', function(){
       describe('when given a Date', function(){
         it('should set absolute', function(done){
           var app = express()
-            .use(session({ secret: 'keyboard cat' }))
+            .use(session({ secret: 'keyboard cat', saveUninitialized: true }))
             .use(function(req, res, next){
               req.session.cookie.expires = new Date(0);
               res.end();
@@ -2110,7 +2109,7 @@ describe('session()', function(){
       describe('when null', function(){
         it('should be a browser-session cookie', function(done){
           var app = express()
-            .use(session({ secret: 'keyboard cat' }))
+            .use(session({ secret: 'keyboard cat', saveUninitialized: true }))
             .use(function(req, res, next){
               req.session.cookie.expires = null;
               res.end();
@@ -2316,6 +2315,22 @@ describe('session()', function(){
   }
 
   function createRequestListener(opts, fn) {
+    if (!opts) {
+      //account for defaults changed since tests were written
+      opts = {
+        resaveSession: true,
+        saveUninitialized: true
+      }
+    }
+    else {
+      if (opts.resaveSession == undefined) {
+        opts.resaveSession = true;
+      }
+      if (opts.saveUninitialized == undefined) {
+        opts.saveUninitialized = true;
+      }
+    }
+    
     var _session = createSession(opts)
     var respond = fn || end
 
