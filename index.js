@@ -117,13 +117,11 @@ function session(options) {
   }
 
   if (resaveSession === undefined) {
-    deprecate('undefined resave option; provide resave option');
-    resaveSession = true;
+    resaveSession = false;
   }
 
   if (saveUninitializedSession === undefined) {
-    deprecate('undefined saveUninitialized option; provide saveUninitialized option');
-    saveUninitializedSession = true;
+    saveUninitializedSession = false;
   }
 
   if (opts.unset && opts.unset !== 'destroy' && opts.unset !== 'keep') {
@@ -242,7 +240,8 @@ function session(options) {
       }
 
       // set cookie
-      cookieJar.set(name, req.sessionID, req.session.cookie);
+      debug("setting cookie with options: ", req.session.cookie.toJSON());
+      cookieJar.set(name, req.sessionID, req.session.cookie.toJSON());
     });
 
     // proxy end() to commit the session
