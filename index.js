@@ -13,14 +13,13 @@
  * @private
  */
 
-var cookie = require('cookie');
+var Cookies = require('cookies');
 var crc = require('crc').crc32;
-var debug = require('debug')('express-session');
-var deprecate = require('depd')('express-session');
+var debug = require('debug')('socialtables-session');
+var deprecate = require('depd')('socialtables-session');
 var parseUrl = require('parseurl');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
-  , signature = require('cookie-signature')
 
 var Session = require('./session/session')
   , MemoryStore = require('./session/memory')
@@ -118,13 +117,11 @@ function session(options) {
   }
 
   if (resaveSession === undefined) {
-    deprecate('undefined resave option; provide resave option');
-    resaveSession = true;
+    resaveSession = false;
   }
 
   if (saveUninitializedSession === undefined) {
-    deprecate('undefined saveUninitialized option; provide saveUninitialized option');
-    saveUninitializedSession = true;
+    saveUninitializedSession = false;
   }
 
   if (opts.unset && opts.unset !== 'destroy' && opts.unset !== 'keep') {
@@ -204,6 +201,10 @@ function session(options) {
     // req.secret is passed from the cookie parser middleware
     var secrets = secret || [req.secret];
 
+    
+    cookieOptions.keys = secret;
+    var cookieJar = new Cookies(req, res, cookieOptions);
+
     var originalHash;
     var originalId;
     var savedHash;
@@ -213,7 +214,7 @@ function session(options) {
     req.sessionStore = store;
 
     // get the session ID from the cookie
-    var cookieId = req.sessionID = getcookie(req, name, secrets);
+    var cookieId = req.sessionID = cookieJar.get(name);
 
     // set-cookie
     onHeaders(res, function(){
@@ -239,7 +240,8 @@ function session(options) {
       }
 
       // set cookie
-      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
+      debug("setting cookie with options: ", req.session.cookie.toJSON());
+      cookieJar.set(name, req.sessionID, req.session.cookie.toJSON());
     });
 
     // proxy end() to commit the session
@@ -503,72 +505,6 @@ function generateSessionId(sess) {
 }
 
 /**
- * Get the session ID cookie from request.
- *
- * @return {string}
- * @private
- */
-
-function getcookie(req, name, secrets) {
-  var header = req.headers.cookie;
-  var raw;
-  var val;
-
-  // read from cookie header
-  if (header) {
-    var cookies = cookie.parse(header);
-
-    raw = cookies[name];
-
-    if (raw) {
-      if (raw.substr(0, 2) === 's:') {
-        val = unsigncookie(raw.slice(2), secrets);
-
-        if (val === false) {
-          debug('cookie signature invalid');
-          val = undefined;
-        }
-      } else {
-        debug('cookie unsigned')
-      }
-    }
-  }
-
-  // back-compat read from cookieParser() signedCookies data
-  if (!val && req.signedCookies) {
-    val = req.signedCookies[name];
-
-    if (val) {
-      deprecate('cookie should be available in req.headers.cookie');
-    }
-  }
-
-  // back-compat read from cookieParser() cookies data
-  if (!val && req.cookies) {
-    raw = req.cookies[name];
-
-    if (raw) {
-      if (raw.substr(0, 2) === 's:') {
-        val = unsigncookie(raw.slice(2), secrets);
-
-        if (val) {
-          deprecate('cookie should be available in req.headers.cookie');
-        }
-
-        if (val === false) {
-          debug('cookie signature invalid');
-          val = undefined;
-        }
-      } else {
-        debug('cookie unsigned')
-      }
-    }
-  }
-
-  return val;
-}
-
-/**
  * Hash the given `sess` object omitting changes to `.cookie`.
  *
  * @param {Object} sess
@@ -625,40 +561,3 @@ function issecure(req, trustProxy) {
   return proto === 'https';
 }
 
-/**
- * Set cookie on response.
- *
- * @private
- */
-
-function setcookie(res, name, val, secret, options) {
-  var signed = 's:' + signature.sign(val, secret);
-  var data = cookie.serialize(name, signed, options);
-
-  debug('set-cookie %s', data);
-
-  var prev = res.getHeader('set-cookie') || [];
-  var header = Array.isArray(prev) ? prev.concat(data) : [prev, data];
-
-  res.setHeader('set-cookie', header)
-}
-
-/**
- * Verify and decode the given `val` with `secrets`.
- *
- * @param {String} val
- * @param {Array} secrets
- * @returns {String|Boolean}
- * @private
- */
-function unsigncookie(val, secrets) {
-  for (var i = 0; i < secrets.length; i++) {
-    var result = signature.unsign(val, secrets[i]);
-
-    if (result !== false) {
-      return result;
-    }
-  }
-
-  return false;
-}

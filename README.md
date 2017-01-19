@@ -1,10 +1,4 @@
-# express-session
-
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Build Status][travis-image]][travis-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
-[![Gratipay][gratipay-image]][gratipay-url]
+# @socialtables/session
 
 ## Installation
 
@@ -13,13 +7,13 @@ This is a [Node.js](https://nodejs.org/en/) module available through the
 [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
 
 ```bash
-$ npm install express-session
+$ npm install @socialtables/session
 ```
 
 ## API
 
 ```js
-var session = require('express-session')
+var session = require('@socialtables/session')
 ```
 
 ### session(options)
@@ -43,7 +37,7 @@ For a list of stores, see [compatible session stores](#compatible-session-stores
 
 #### Options
 
-`express-session` accepts these properties in the options object.
+`@socialtables/session` accepts these properties in the options object.
 
 ##### cookie
 
@@ -215,10 +209,7 @@ parallel requests to your server and changes made to the session in one
 request may get overwritten when the other request ends, even if it made no
 changes (this behavior also depends on what store you're using).
 
-The default value is `true`, but using the default has been deprecated,
-as the default will change in the future. Please research into this setting
-and choose what is appropriate to your use-case. Typically, you'll want
-`false`.
+The default value is `false`.
 
 How do I know if this is necessary for my store? The best way to know is to
 check with your store if it implements the `touch` method. If it does, then
@@ -247,9 +238,7 @@ laws that require permission before setting a cookie. Choosing `false` will also
 help with race conditions where a client makes multiple parallel requests
 without a session.
 
-The default value is `true`, but using the default has been deprecated, as the
-default will change in the future. Please research into this setting and
-choose what is appropriate to your use-case.
+The default value is `false`
 
 **Note** if you are using Session in conjunction with PassportJS, Passport
 will add an empty Passport object to the session for use after a user is

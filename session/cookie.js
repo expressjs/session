@@ -96,7 +96,7 @@ Cookie.prototype = {
 
   get data() {
     return {
-        originalMaxAge: this.originalMaxAge
+        maxAge: this.originalMaxAge // what we want serialized in the session obj is called maxAge
       , expires: this._expires
       , secure: this.secure
       , httpOnly: this.httpOnly
