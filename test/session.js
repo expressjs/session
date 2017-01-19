@@ -1819,12 +1819,12 @@ describe('session()', function(){
 
   describe('.cookie', function(){
     describe('.*', function(){
-      it.skip('should serialize as parameters', function(done){
+      it('should serialize as parameters', function(done){
         var app = express()
-          .use(session({ secret: 'keyboard cat', proxy: true, cookie: { maxAge: min }}))
+          .use(session({ secret: 'keyboard cat', saveUninitialized: true, proxy: true, cookie: { maxAge: min }}))
           .use(function(req, res, next){
-            req.session.cookie.httpOnly = false;
-            req.session.cookie.secure = true;
+            req.session.cookie.httpOnly = true;
+            req.session.cookie.secure = false;
             res.end();
           });
 
@@ -1834,8 +1834,8 @@ describe('session()', function(){
         .expect(200, function(err, res){
           if (err) return done(err);
           var val = cookie(res);
-          assert.equal(val.indexOf('HttpOnly'), -1, 'should not be HttpOnly cookie')
-          assert.notEqual(val.indexOf('Secure'), -1, 'should be Secure cookie')
+          assert.ok(val.indexOf('httponly') >= 0, 'should be HttpOnly cookie')
+          assert.equal(val.indexOf('secure'), -1, 'should not be Secure cookie')
           done();
         });
       })
@@ -2213,7 +2213,8 @@ describe('session()', function(){
     })
   });
 
-  // skipping for now until we need interaction with cookie-parser, may fix later
+  // skipping for now until we need interaction with cookie-parser or anything else that adds 
+  // req.cookies or req.signedcookies to the request, may fix later
   describe.skip('cookieParser()', function () {
     it('should read from req.cookies', function(done){
       var app = express()
