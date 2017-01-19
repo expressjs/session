@@ -12,6 +12,7 @@ var fs = require('fs')
 var http = require('http')
 var https = require('https')
 var util = require('util')
+var Keygrip = require('keygrip')
 
 var min = 60 * 1000;
 
@@ -1247,27 +1248,36 @@ describe('session()', function(){
         .expect(200, 'bob', done);
       })
 
-      it.skip('should sign cookies with first element', function (done) {
+      it('should sign cookies with first element', function (done) {
         var store = new session.MemoryStore();
-
-        var server1 = createServer({ secret: ['keyboard cat', 'nyan cat'], store: store }, function (req, res) {
-          req.session.user = 'bob';
-          res.end(req.session.user);
-        });
-
-        var server2 = createServer({ secret: 'nyan cat', store: store }, function (req, res) {
-          res.end(String(req.session.user));
+        var signingKeys = ['keyboard cat', 'nyan cat'];
+        var keyHandler = new Keygrip(signingKeys);
+        var cookieName = 'connect.sid';
+        var server1 = createServer({ secret: signingKeys , store: store }, function (req, res) {
+          res.end("oh hai");
         });
 
         request(server1)
         .get('/')
-        .expect(shouldSetCookie('connect.sid'))
-        .expect(200, 'bob', function (err, res) {
+        .expect(shouldSetCookie(cookieName))
+        .expect(200, 'oh hai', function (err, res) {
           if (err) return done(err);
-          request(server2)
-          .get('/')
-          .set('Cookie', cookie(res))
-          .expect(200, 'undefined', done);
+          var cookies = res.header["set-cookie"];
+          assert.ok(cookies, "cookies should be set");
+          assert.ok(Array.isArray(cookies), "cookies should be an array");
+          assert.equal(cookies.length, 2, "should have set 2 cookies");
+
+          var sessCookie = cookies[0].split(";")[0].split("=");
+          var sigCookie = cookies[1].split(";")[0].split("=");
+
+          assert.equal(sessCookie[0], cookieName, "name should be our cookie name");
+          assert.equal(sigCookie[0], cookieName+".sig", "sig cookie name should be name + '.sig'");
+
+          // expect the signature to be based on cookie_name=cookie_value, 
+          // see Cookie.toString() at https://github.com/pillarjs/cookies/blob/master/lib/cookies.js#L145
+          assert.ok(keyHandler.verify(sessCookie.join("="), sigCookie[1]), "should match the signature");
+
+          done();
         });
       });
 
