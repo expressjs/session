@@ -26,6 +26,8 @@
     "express": "4.14.0",
     "istanbul": "0.4.5",
     "keygrip": "^1.0.1",
+    "koa": "^1.2.4",
+    "koa-generic-session": "^1.11.5",
     "mocha": "2.5.3",
     "supertest": "1.1.0"
   },

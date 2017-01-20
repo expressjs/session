@@ -8,6 +8,8 @@ var express = require('express')
   , cookieParser = require('cookie-parser')
   , session = require('../')
   , Cookie = require('../session/cookie')
+  , koa = require('koa')
+  , koaGenericSession = require('koa-generic-session')
 var fs = require('fs')
 var http = require('http')
 var https = require('https')
@@ -2314,6 +2316,103 @@ describe('session()', function(){
         .expect(200, '2', done)
       })
     })
+  });
+
+  describe('express app and koa app integration', function () {
+    /* eslint-env node, mocha, es6 */
+    it('should allow both express and koa apps to work with the same cookie', function (done) {
+      var store = new session.MemoryStore();
+      var koaStore = {
+        get: function (sid) {
+          return new Promise((resolve, reject) => {
+            store.get(sid, (err, result) => {
+              if (err) {
+                reject(err);
+              }
+              else {
+                resolve(result);
+              }
+            });
+          });
+        },
+        set: function (sid, val) {
+          return new Promise((resolve, reject) => {
+            store.set(sid, val, (err) => {
+              if (err) {
+                reject(err);
+              }
+              else {
+                resolve();
+              }
+            });
+          });
+        },
+        destroy: function (sid) {
+          return new Promise((resolve, reject) => {
+            store.destroy(sid, (err) => {
+              if (err) {
+                reject(err);
+              }
+              else {
+                resolve();
+              }
+            });
+          });
+        }
+      };
+
+      var expressApp = express()
+        .use(session({ name: 'crossapp', secret: 'keyboard cat', store, cookie: { maxAge: min }}))
+        .use(function (req, res, next) {
+          if (!req.session.counter) {
+           req.session.counter = 1;
+          }
+          else {
+            req.session.counter++;
+          }
+          next();
+        })
+        .use(function (req, res) {
+          res.end(`session ${req.session.counter}`);
+        });
+
+      var koaApp = koa();
+      koaApp.keys = ['keyboard cat'];
+      koaApp.use(koaGenericSession({ key: 'crossapp', prefix: "", store: koaStore, cookie: { maxAge: min }}))
+        .use(function* (next) {
+          if (!this.session.counter) {
+           this.session.counter = 1;
+          }
+          else {
+            this.session.counter++;
+          }
+          yield next;
+        })
+        .use(function* () {
+          this.body = `session ${this.session.counter}`;
+        });
+      var koaServer = koaApp.listen();
+
+      request(expressApp)
+        .get('/')
+        .expect(shouldSetCookie('crossapp'))
+        .expect(200, 'session 1', function (err, res) {
+          request(koaServer)
+            .get('/')
+            .set('Cookie', res.headers['set-cookie'].join("; "))
+            .expect(200, 'session 2', function (err, res) {
+              request(expressApp)
+                .get('/')
+                .set('Cookie', res.headers['set-cookie'].join("; "))
+                .expect(200, 'session 3', function (err, res) {
+                  request(koaServer)
+                    .get('/')
+                    .set('Cookie', res.headers['set-cookie'].join("; "))
+                    .expect(200, 'session 4', done);
+                });
+            });
+        });
+    });
   });
 
   function cookie(res) {
