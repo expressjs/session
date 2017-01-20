@@ -2316,6 +2316,11 @@ describe('session()', function(){
     })
   });
 
+  describe('express app and koa app integration', function () {
+    it('should read in koa app cookie modified in express app');
+    it('should read in express app cookie modified in koa app');
+  });
+
   function cookie(res) {
     var setCookie = res.headers['set-cookie'];
     return (setCookie && setCookie[0]) || undefined;
