@@ -710,8 +710,7 @@ describe('session()', function(){
           request(this.server)
           .get('/')
           .set('X-Forwarded-Proto', 'https')
-          .expect(shouldSetCookie('connect.sid'))
-          .expect(shouldSetSecureCookie('connect.sid'))
+          .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
           .expect(200, done)
         })
       })
@@ -725,8 +724,7 @@ describe('session()', function(){
           request(this.server)
           .get('/')
           .set('X-Forwarded-Proto', 'https')
-          .expect(shouldSetCookie('connect.sid'))
-          .expect(shouldNotSetSecureCookie('connect.sid'))
+          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
           .expect(200, done)
         })
       })
@@ -743,8 +741,7 @@ describe('session()', function(){
           request(this.app)
           .get('/')
           .set('X-Secure', 'true')
-          .expect(shouldSetCookie('connect.sid'))
-          .expect(shouldSetSecureCookie('connect.sid'))
+          .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
           .expect(200, 'true', done)
         })
 
@@ -752,8 +749,7 @@ describe('session()', function(){
           request(this.app)
           .get('/')
           .set('X-Secure', 'false')
-          .expect(shouldSetCookie('connect.sid'))
-          .expect(shouldNotSetSecureCookie('connect.sid'))
+          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
           .expect(200, 'false', done)
         })
       })
@@ -1681,24 +1677,16 @@ describe('session()', function(){
           request(server)
           .get('/')
           .set('X-Forwarded-Proto', 'https')
-          .expect(200, function(err, res){
-            if (err) return done(err);
-            var val = cookie(res);
-            assert.equal(val.indexOf('HttpOnly'), -1, 'should not be HttpOnly cookie')
-            assert.notEqual(val.indexOf('Secure'), -1, 'should be Secure cookie')
-            done();
-          });
+          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'HttpOnly'))
+          .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
+          .expect(200, done)
         })
 
         it('should default to a browser-session length cookie', function(done){
           request(createServer({ cookie: { path: '/admin' } }))
           .get('/admin')
-          .expect(200, function(err, res){
-            if (err) return done(err);
-            var val = cookie(res);
-            assert.equal(val.indexOf('Expires'), -1, 'should be not have cookie Expires')
-            done();
-          });
+          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Expires'))
+          .expect(200, done)
         })
 
         it('should Set-Cookie only once for browser-session cookies', function(done){
@@ -1725,15 +1713,11 @@ describe('session()', function(){
 
           request(server)
           .get('/admin')
-          .expect(200, function(err, res){
-            if (err) return done(err);
-            var val = cookie(res);
-            assert.equal(val.indexOf('HttpOnly'), -1, 'should not be HttpOnly cookie')
-            assert.equal(val.indexOf('Secure'), -1, 'should not be Secure cookie')
-            assert.notEqual(val.indexOf('Path=/admin'), -1, 'should have cookie path /admin')
-            assert.notEqual(val.indexOf('Expires'), -1, 'should have cookie Expires')
-            done();
-          });
+          .expect(shouldSetCookieWithAttribute('connect.sid', 'Expires'))
+          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'HttpOnly'))
+          .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'Path', '/admin'))
+          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
+          .expect(200, done)
         })
 
         it('should preserve cookies set before writeHead is called', function(done){
@@ -1917,11 +1901,8 @@ describe('session()', function(){
 
             request(server)
             .get('/')
-            .end(function(err, res){
-              if (err) return done(err)
-              assert.equal(expires(res), 'Thu, 01 Jan 1970 00:00:00 GMT')
-              done();
-            });
+            .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'Expires', 'Thu, 01 Jan 1970 00:00:00 GMT'))
+            .expect(200, done)
           })
         })
 
@@ -1934,12 +1915,8 @@ describe('session()', function(){
 
             request(server)
             .get('/')
-            .expect(200, function(err, res){
-              if (err) return done(err);
-              var val = cookie(res);
-              assert.equal(val.indexOf('Expires'), -1, 'should be not have cookie Expires')
-              done();
-            });
+            .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Expires'))
+            .expect(200, done)
           })
 
           it('should not reset cookie', function (done) {
@@ -1950,18 +1927,14 @@ describe('session()', function(){
 
             request(server)
             .get('/')
+            .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Expires'))
             .expect(200, function (err, res) {
               if (err) return done(err);
-              var val = cookie(res);
-              assert.equal(val.indexOf('Expires'), -1, 'should be not have cookie Expires')
               request(server)
               .get('/')
-              .set('Cookie', val)
-              .expect(200, function (err, res) {
-                if (err) return done(err);
-                assert.ok(!cookie(res));
-                done();
-              });
+              .set('Cookie', cookie(res))
+              .expect(shouldNotHaveHeader('Set-Cookie'))
+              .expect(200, done)
             });
           })
 
@@ -1974,18 +1947,14 @@ describe('session()', function(){
 
             request(server)
             .get('/')
+            .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Expires'))
             .expect(200, function (err, res) {
               if (err) return done(err);
-              var val = cookie(res);
-              assert.equal(val.indexOf('Expires'), -1, 'should be not have cookie Expires')
               request(server)
               .get('/')
-              .set('Cookie', val)
-              .expect(200, function (err, res) {
-                if (err) return done(err);
-                assert.ok(!cookie(res));
-                done();
-              });
+              .set('Cookie', cookie(res))
+              .expect(shouldNotHaveHeader('Set-Cookie'))
+              .expect(200, done)
             });
           })
         })
@@ -2218,16 +2187,6 @@ function shouldNotSetSessionInStore(store) {
   }
 }
 
-function shouldNotSetSecureCookie(name) {
-  return function (res) {
-    var header = cookie(res)
-    var data = header && parseSetCookie(header)
-    assert.ok(header, 'should have a cookie header')
-    assert.equal(data.name, name, 'should set cookie ' + name)
-    assert.ok(!data.secure, 'should not set secure cookie')
-  }
-}
-
 function shouldSetCookie (name) {
   return function (res) {
     var header = cookie(res)
@@ -2247,13 +2206,34 @@ function shouldSetCookieToValue (name, val) {
   }
 }
 
-function shouldSetSecureCookie (name) {
+function shouldSetCookieWithAttribute (name, attrib) {
   return function (res) {
     var header = cookie(res)
     var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
     assert.equal(data.name, name, 'should set cookie ' + name)
-    assert.ok(data.secure, 'should set secure cookie')
+    assert.ok((attrib.toLowerCase() in data), 'should set cookie with attribute ' + attrib)
+  }
+}
+
+function shouldSetCookieWithAttributeAndValue (name, attrib, value) {
+  return function (res) {
+    var header = cookie(res)
+    var data = header && parseSetCookie(header)
+    assert.ok(header, 'should have a cookie header')
+    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.ok((attrib.toLowerCase() in data), 'should set cookie with attribute ' + attrib)
+    assert.equal(data[attrib.toLowerCase()], value, 'should set cookie with attribute ' + attrib + ' set to ' + value)
+  }
+}
+
+function shouldSetCookieWithoutAttribute (name, attrib) {
+  return function (res) {
+    var header = cookie(res)
+    var data = header && parseSetCookie(header)
+    assert.ok(header, 'should have a cookie header')
+    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.ok(!(attrib.toLowerCase() in data), 'should set cookie without attribute ' + attrib)
   }
 }
 
