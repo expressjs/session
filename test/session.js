@@ -2174,9 +2174,28 @@ function end(req, res) {
   res.end()
 }
 
-function expires(res) {
-  var match = /Expires=([^;]+)/.exec(cookie(res));
-  return match ? match[1] : undefined;
+function expires (res) {
+  var header = cookie(res)
+  return header && parseSetCookie(header).expires
+}
+
+function parseSetCookie (header) {
+  var match
+  var pairs = []
+  var pattern = /\s*([^=;]+)(?:=([^;]*);?|;|$)/g
+
+  while ((match = pattern.exec(header))) {
+    pairs.push({ name: match[1], value: match[2] })
+  }
+
+  var cookie = pairs.shift()
+
+  for (var i = 0; i < pairs.length; i++) {
+    match = pairs[i]
+    cookie[match.name.toLowerCase()] = (match.value || true)
+  }
+
+  return cookie
 }
 
 function shouldNotHaveHeader(header) {
@@ -2202,35 +2221,39 @@ function shouldNotSetSessionInStore(store) {
 function shouldNotSetSecureCookie(name) {
   return function (res) {
     var header = cookie(res)
+    var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
-    assert.equal(header.split('=')[0], name, 'should set cookie ' + name)
-    assert.ok(header.toLowerCase().split(/; */).every(function (k) { return k !== 'secure'; }), 'should not set secure cookie')
+    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.ok(!data.secure, 'should not set secure cookie')
   }
 }
 
-function shouldSetCookie(name) {
+function shouldSetCookie (name) {
   return function (res) {
     var header = cookie(res)
+    var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
-    assert.equal(header.split('=')[0], name, 'should set cookie ' + name)
+    assert.equal(data.name, name, 'should set cookie ' + name)
   }
 }
 
-function shouldSetCookieToValue(name, val) {
-  return function (res) {
-    var header = cookie(res);
-    assert.ok(header, 'should have a cookie header')
-    assert.equal(header.split('=')[0], name, 'should set cookie ' + name)
-    assert.equal(header.split('=')[1].split(';')[0], val, 'should set cookie ' + name + ' to ' + val)
-  }
-}
-
-function shouldSetSecureCookie(name) {
+function shouldSetCookieToValue (name, val) {
   return function (res) {
     var header = cookie(res)
+    var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
-    assert.equal(header.split('=')[0], name, 'should set cookie ' + name)
-    assert.ok(header.toLowerCase().split(/; */).some(function (k) { return k === 'secure'; }), 'should set secure cookie')
+    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.equal(data.value, val, 'should set cookie ' + name + ' to ' + val)
+  }
+}
+
+function shouldSetSecureCookie (name) {
+  return function (res) {
+    var header = cookie(res)
+    var data = header && parseSetCookie(header)
+    assert.ok(header, 'should have a cookie header')
+    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.ok(data.secure, 'should set secure cookie')
   }
 }
 
