@@ -25,7 +25,7 @@ describe('session()', function(){
   it('should do nothing if req.session exists', function(done){
     var app = express()
       .use(function(req, res, next){ req.session = {}; next(); })
-      .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
+      .use(createSession())
       .use(end);
 
       request(app)
@@ -43,7 +43,7 @@ describe('session()', function(){
   it('should get secret from req.secret', function(done){
     var app = express()
       .use(function(req, res, next){ req.secret = 'keyboard cat'; next(); })
-      .use(session({ cookie: { maxAge: min }}))
+      .use(createSession())
       .use(end);
     app.set('env', 'test');
 
@@ -658,7 +658,7 @@ describe('session()', function(){
 
       it('should ignore req.secure from express', function(done){
         var app = express()
-          .use(session({ secret: 'keyboard cat', proxy: false, cookie: { secure: true, maxAge: min }}))
+          .use(createSession({ proxy: false, cookie: { secure: true } }))
           .use(function(req, res) { res.json(req.secure); });
         app.enable('trust proxy');
 
@@ -686,7 +686,7 @@ describe('session()', function(){
 
       it('should use req.secure from express', function(done){
         var app = express()
-          .use(session({ secret: 'keyboard cat', cookie: { secure: true, maxAge: min }}))
+          .use(createSession({ cookie: { secure: true } }))
           .use(function(req, res) { res.json(req.secure); });
         app.enable('trust proxy');
 
@@ -735,7 +735,7 @@ describe('session()', function(){
         before(function () {
           this.app = express()
             .use(function(req, res, next) { Object.defineProperty(req, 'secure', { value: JSON.parse(req.headers['x-secure']) }); next(); })
-            .use(session({ secret: 'keyboard cat', cookie: { maxAge: min, secure: 'auto' }}))
+            .use(createSession({ cookie: { secure: 'auto' } }))
             .use(function(req, res) { res.json(req.secure); });
         })
 
@@ -1447,7 +1447,7 @@ describe('session()', function(){
     describe('.destroy()', function(){
       it('should destroy the previous session', function(done){
         var app = express()
-          .use(session({ secret: 'keyboard cat' }))
+          .use(createSession())
           .use(function(req, res, next){
             req.session.destroy(function(err){
               if (err) return next(err)
@@ -1466,7 +1466,7 @@ describe('session()', function(){
     describe('.regenerate()', function(){
       it('should destroy/replace the previous session', function(done){
         var app = express()
-          .use(session({ secret: 'keyboard cat', cookie: { maxAge: min }}))
+          .use(createSession())
           .use(function(req, res, next){
             var id = req.session.id;
             req.session.regenerate(function(err){
@@ -1869,7 +1869,7 @@ describe('session()', function(){
       describe('.maxAge', function(){
         var val;
         var app = express()
-          .use(session({ secret: 'keyboard cat', cookie: { maxAge: 2000 }}))
+          .use(createSession({ cookie: { maxAge: 2000 } }))
           .use(function(req, res, next){
             req.session.count = req.session.count || 0;
             req.session.count++;
@@ -2058,7 +2058,7 @@ describe('session()', function(){
       var app = express()
         .use(cookieParser())
         .use(function(req, res, next){ req.headers.cookie = 'foo=bar'; next() })
-        .use(session({ secret: 'keyboard cat' }))
+        .use(createSession())
         .use(function(req, res, next){
           req.session.count = req.session.count || 0
           req.session.count++
@@ -2080,7 +2080,7 @@ describe('session()', function(){
       var app = express()
         .use(cookieParser())
         .use(function(req, res, next){ req.headers.cookie = 'foo=bar'; next() })
-        .use(session({ secret: 'keyboard cat', key: 'sessid' }))
+        .use(createSession({ key: 'sessid' }))
         .use(function(req, res, next){
           req.session.count = req.session.count || 0
           req.session.count++
@@ -2102,7 +2102,7 @@ describe('session()', function(){
       var app = express()
         .use(cookieParser())
         .use(function(req, res, next){ req.headers.cookie = 'foo=bar'; next() })
-        .use(session({ secret: 'keyboard cat', key: 'sessid' }))
+        .use(createSession({ key: 'sessid' }))
         .use(function(req, res, next){
           req.session.count = req.session.count || 0
           req.session.count++
@@ -2125,7 +2125,7 @@ describe('session()', function(){
       var app = express()
         .use(cookieParser('keyboard cat'))
         .use(function(req, res, next){ delete req.headers.cookie; next() })
-        .use(session())
+        .use(createSession())
         .use(function(req, res, next){
           req.session.count = req.session.count || 0
           req.session.count++
