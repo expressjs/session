@@ -1586,7 +1586,6 @@ describe('session()', function(){
       })
 
       it('should prevent end-of-request save', function (done) {
-        var count = 0
         var store = new session.MemoryStore()
         var server = createServer({ store: store }, function (req, res) {
           req.session.hit = true
@@ -1596,31 +1595,20 @@ describe('session()', function(){
           })
         })
 
-        var _set = store.set
-        store.set = function set(sid, sess, callback) {
-          count++
-          _set.call(store, sid, sess, callback)
-        }
-
         request(server)
         .get('/')
+        .expect(shouldSetSessionInStore(store))
         .expect(200, 'saved', function (err, res) {
           if (err) return done(err)
-          assert.equal(count, 1)
-          count = 0
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
-          .expect(200, 'saved', function (err) {
-            if (err) return done(err)
-            assert.equal(count, 1)
-            done()
-          })
+          .expect(shouldSetSessionInStore(store))
+          .expect(200, 'saved', done)
         })
       })
 
       it('should prevent end-of-request save on reloaded session', function (done) {
-        var count = 0
         var store = new session.MemoryStore()
         var server = createServer({ store: store }, function (req, res) {
           req.session.hit = true
@@ -1632,26 +1620,16 @@ describe('session()', function(){
           })
         })
 
-        var _set = store.set
-        store.set = function set(sid, sess, callback) {
-          count++
-          _set.call(store, sid, sess, callback)
-        }
-
         request(server)
         .get('/')
+        .expect(shouldSetSessionInStore(store))
         .expect(200, 'saved', function (err, res) {
           if (err) return done(err)
-          assert.equal(count, 1)
-          count = 0
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
-          .expect(200, 'saved', function (err) {
-            if (err) return done(err)
-            assert.equal(count, 1)
-            done()
-          })
+          .expect(shouldSetSessionInStore(store))
+          .expect(200, 'saved', done)
         })
       })
     })
