@@ -508,6 +508,7 @@ function generateSessionId(sess) {
  * @return {string}
  * @private
  */
+var cookieDefaultOptions = {decode: decodeURIComponent, encode: encodeURIComponent};
 
 function getcookie(req, name, secrets) {
   var header = req.headers.cookie;
@@ -516,7 +517,7 @@ function getcookie(req, name, secrets) {
 
   // read from cookie header
   if (header) {
-    var cookies = cookie.parse(header);
+    var cookies = cookie.parse(header, cookieDefaultOptions);
 
     raw = cookies[name];
 
