@@ -1828,67 +1828,59 @@ describe('session()', function(){
         })
       })
 
-      describe('.maxAge', function(){
-        var val;
-        var app = express()
-          .use(createSession({ cookie: { maxAge: 2000 } }))
-          .use(function(req, res, next){
-            req.session.count = req.session.count || 0;
-            req.session.count++;
-            if (req.session.count == 2) req.session.cookie.maxAge = 5000;
-            if (req.session.count == 3) req.session.cookie.maxAge = 3000000000;
-            res.end(req.session.count.toString());
-          });
+      describe('.maxAge', function () {
+        before(function (done) {
+          var ctx = this
 
-        it('should set relative in milliseconds', function(done){
-          request(app)
+          ctx.cookie = ''
+          ctx.server = createServer({ cookie: { maxAge: 2000 } }, function (req, res) {
+            switch (++req.session.count) {
+              case 1:
+                break
+              case 2:
+                req.session.cookie.maxAge = 5000
+                break
+              case 3:
+                req.session.cookie.maxAge = 3000000000
+                break
+              default:
+                req.session.count = 0
+                break
+            }
+            res.end(req.session.count.toString())
+          })
+
+          request(ctx.server)
           .get('/')
-          .expect(200, '1', function (err, res) {
-            if (err) return done(err)
-            var a = new Date(expires(res))
-            var b = new Date
-            var delta = a.valueOf() - b.valueOf()
+          .end(function (err, res) {
+            ctx.cookie = res && cookie(res)
+            done(err)
+          })
+        })
 
-            val = cookie(res);
-
-            assert.ok(delta > 1000 && delta <= 2000)
-            done();
-          });
-        });
-
-        it('should modify cookie when changed', function(done){
-          request(app)
+        it('should set cookie expires relative to maxAge', function (done) {
+          request(this.server)
           .get('/')
-          .set('Cookie', val)
-          .expect(200, '2', function (err, res) {
-            if (err) return done(err)
-            var a = new Date(expires(res))
-            var b = new Date
-            var delta = a.valueOf() - b.valueOf()
+          .set('Cookie', this.cookie)
+          .expect(shouldSetCookieToExpireIn('connect.sid', 2000))
+          .expect(200, '1', done)
+        })
 
-            val = cookie(res);
-
-            assert.ok(delta > 4000 && delta <= 5000)
-            done();
-          });
-        });
-
-        it('should modify cookie when changed to large value', function(done){
-          request(app)
+        it('should modify cookie expires when changed', function (done) {
+          request(this.server)
           .get('/')
-          .set('Cookie', val)
-          .expect(200, '3', function (err, res) {
-            if (err) return done(err)
-            var a = new Date(expires(res))
-            var b = new Date
-            var delta = a.valueOf() - b.valueOf()
+          .set('Cookie', this.cookie)
+          .expect(shouldSetCookieToExpireIn('connect.sid', 5000))
+          .expect(200, '2', done)
+        })
 
-            val = cookie(res);
-
-            assert.ok(delta > 2999999000 && delta <= 3000000000)
-            done();
-          });
-        });
+        it('should modify cookie expires when changed to large value', function (done) {
+          request(this.server)
+          .get('/')
+          .set('Cookie', this.cookie)
+          .expect(shouldSetCookieToExpireIn('connect.sid', 3000000000))
+          .expect(200, '3', done)
+        })
       })
 
       describe('.expires', function(){
@@ -2193,6 +2185,18 @@ function shouldSetCookie (name) {
     var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
     assert.equal(data.name, name, 'should set cookie ' + name)
+  }
+}
+
+function shouldSetCookieToExpireIn (name, delta) {
+  return function (res) {
+    var header = cookie(res)
+    var data = header && parseSetCookie(header)
+    assert.ok(header, 'should have a cookie header')
+    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.ok(('expires' in data), 'should set cookie with attribute Expires')
+    assert.ok(('date' in res.headers), 'should have a date header')
+    assert.equal((Date.parse(data.expires) - Date.parse(res.headers.date)), delta, 'should set cookie ' + name + ' to expire in ' + delta + ' ms')
   }
 }
 
