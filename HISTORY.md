@@ -1,5 +1,5 @@
-unreleased
-==========
+1.15.0 / 2017-01-22
+===================
 
   * Fix detecting modified session when session contains "cookie" property
   * Fix resaving already-saved reloaded session at end of request
