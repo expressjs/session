@@ -120,8 +120,8 @@ defineMethod(Session.prototype, 'destroy', function destroy(fn) {
  * @api public
  */
 
-defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
-  this.req.sessionStore.regenerate(this.req, fn);
+defineMethod(Session.prototype, 'regenerate', function regenerate(options, fn) {
+  this.req.sessionStore.regenerate(this.req, options, fn);
   return this;
 });
 

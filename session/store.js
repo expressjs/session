@@ -47,12 +47,31 @@ util.inherits(Store, EventEmitter)
  * @api public
  */
 
-Store.prototype.regenerate = function(req, fn){
+Store.prototype.regenerate = function regenerate (req, options, fn) {
+  var cb = fn
+  var opts = options || {}
   var self = this;
-  this.destroy(req.sessionID, function(err){
-    self.generate(req);
-    fn(err);
-  });
+
+  if (typeof options === 'function') {
+    cb = options
+    opts = {}
+  }
+
+  var destroy = opts.destroy !== undefined
+    ? opts.destroy
+    : true
+
+  if (destroy) {
+    this.destroy(req.sessionID, function (err) {
+      self.generate(req)
+      cb(err)
+    })
+  } else {
+    process.nextTick(function () {
+      self.generate(req)
+      cb(null)
+    })
+  }
 };
 
 /**
