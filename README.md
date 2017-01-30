@@ -280,36 +280,28 @@ The default value is `'keep'`.
   - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
 
-##### getcookie
 
-Allows to specify a custom function to read and parse the cookie.
+##### getcookie, setcookie
 
-Warning the function signature is subject to change in the future, this option is unsafe
+Allows to specify custom functions to parse and set cookies.
+
+Warnings: 
+ - cookies must be parsed accordingly to how they are set of course
+ - the function signatures are subject to change in the future
 
 ```js
 app.use(session({
+  name: sessionKey,
+  secret: sessionSecret,
   getcookie(req) { // full signature is (req, name, secrets)
     var cookies = cookie.parse(headers.cookie || headers.authorization || '');
     return signature.unsign(cookies[sessionKey] || '', sessionSecret);
   },
-  secret: 'keyboard cat'
-}))
-```
-
-
-##### setcookie
-
-Similarly to getookie, it allows to specify a custom function to set cookie.
-
-Warning again, the function signature is subject to change in the future,
-and should be used carefully like getcookie
-
-```js
-app.use(session({
   setcookie(res, name, val, secret, options) {
-    var signed = signature.sign(val, secret);
-    var data = cookie.serialize(name, signed, options);
+    var signed = signature.sign(val, sessionSecret);
+    var data = cookie.serialize(sessionKey, signed, options);
     res.setHeader('set-cookie', data);
+    res.setHeader('Access-Control-Expose-Headers', 'Authorization');
     res.setHeader('authorization', data);
   },
   secret: 'keyboard cat'
