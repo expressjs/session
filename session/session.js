@@ -25,7 +25,7 @@ function Session(req, data) {
   Object.defineProperty(this, 'req', { value: req });
   Object.defineProperty(this, 'id', { value: req.sessionID });
 
-  if (typeof data === 'object' && data !== null) {
+  if (typeof data == 'object' && data !== null) {
     // merge data into this, ignoring prototype properties
     for (var prop in data) {
       if (!(prop in this)) {
