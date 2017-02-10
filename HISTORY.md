@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * deps: debug@2.6.1
+    - Whitelist DEBUG_FD for values 1 and 2 only
+
 1.15.0 / 2017-01-22
 ===================
 
