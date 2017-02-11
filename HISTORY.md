@@ -1,5 +1,5 @@
-unreleased
-==========
+1.15.1 / 2017-02-10
+===================
 
   * deps: debug@2.6.1
     - Fix deprecation messages in WebStorm and other editors
