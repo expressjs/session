@@ -506,6 +506,11 @@ and other multi-core embedded devices).
 [connect-azuretables-url]: https://www.npmjs.com/package/connect-azuretables
 [connect-azuretables-image]: https://img.shields.io/github/stars/mike-goodwin/connect-azuretables.svg?label=%E2%98%85
 
+[![★][connect-cloudant-store-image] connect-cloudant-store][connect-cloudant-store-url] An [IBM Cloudant](https://cloudant.com/)-based session store.
+
+[connect-cloudant-store-url]: https://www.npmjs.com/package/connect-cloudant-store
+[connect-cloudant-store-image]: https://img.shields.io/github/stars/adriantanasa/connect-cloudant-store.svg?label=%E2%98%85
+
 [![★][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](http://www.couchbase.com/)-based session store.
 
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
