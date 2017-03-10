@@ -23,7 +23,7 @@
   "devDependencies": {
     "after": "0.8.2",
     "cookie-parser": "1.4.3",
-    "express": "4.14.1",
+    "express": "4.15.2",
     "istanbul": "0.4.5",
     "mocha": "2.5.3",
     "supertest": "1.1.0"
