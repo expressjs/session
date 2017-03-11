@@ -43,7 +43,7 @@ describe('session()', function(){
   it('should get secret from req.secret', function(done){
     var app = express()
       .use(function(req, res, next){ req.secret = 'keyboard cat'; next(); })
-      .use(createSession())
+      .use(createSession({ secret: undefined }))
       .use(end);
     app.set('env', 'test');
 
