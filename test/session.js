@@ -23,15 +23,14 @@ describe('session()', function(){
   })
 
   it('should do nothing if req.session exists', function(done){
-    var app = express()
-      .use(function(req, res, next){ req.session = {}; next(); })
-      .use(createSession())
-      .use(end);
+    function setup (req) {
+      req.session = {}
+    }
 
-      request(app)
-      .get('/')
-      .expect(shouldNotHaveHeader('Set-Cookie'))
-      .expect(200, done)
+    request(createServer(setup))
+    .get('/')
+    .expect(shouldNotHaveHeader('Set-Cookie'))
+    .expect(200, done)
   })
 
   it('should error without secret', function(done){
@@ -41,13 +40,11 @@ describe('session()', function(){
   })
 
   it('should get secret from req.secret', function(done){
-    var app = express()
-      .use(function(req, res, next){ req.secret = 'keyboard cat'; next(); })
-      .use(createSession({ secret: undefined }))
-      .use(end);
-    app.set('env', 'test');
+    function setup (req) {
+      req.secret = 'keyboard cat'
+    }
 
-    request(app)
+    request(createServer(setup, { secret: undefined }))
     .get('/')
     .expect(200, '', done)
   })
@@ -643,56 +640,66 @@ describe('session()', function(){
     })
 
     describe('when disabled', function(){
-      var server
       before(function () {
-        server = createServer({ proxy: false, cookie: { secure: true, maxAge: 5 }})
+          function setup (req) {
+            req.secure = req.headers['x-secure']
+              ? JSON.parse(req.headers['x-secure'])
+              : undefined
+          }
+
+          function respond (req, res) {
+            res.end(String(req.secure))
+          }
+
+          this.server = createServer(setup, { proxy: false, cookie: { secure: true }}, respond)
       })
 
       it('should not trust X-Forwarded-Proto', function(done){
-        request(server)
+        request(this.server)
         .get('/')
         .set('X-Forwarded-Proto', 'https')
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, done)
       })
 
-      it('should ignore req.secure from express', function(done){
-        var app = express()
-          .use(createSession({ proxy: false, cookie: { secure: true } }))
-          .use(function(req, res) { res.json(req.secure); });
-        app.enable('trust proxy');
-
-        request(app)
+      it('should ignore req.secure', function (done) {
+        request(this.server)
         .get('/')
         .set('X-Forwarded-Proto', 'https')
+        .set('X-Secure', 'true')
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, 'true', done)
       })
     })
 
     describe('when unspecified', function(){
-      var server
       before(function () {
-        server = createServer({ cookie: { secure: true, maxAge: 5 }})
+          function setup (req) {
+            req.secure = req.headers['x-secure']
+              ? JSON.parse(req.headers['x-secure'])
+              : undefined
+          }
+
+          function respond (req, res) {
+            res.end(String(req.secure))
+          }
+
+          this.server = createServer(setup, { cookie: { secure: true }}, respond)
       })
 
       it('should not trust X-Forwarded-Proto', function(done){
-        request(server)
+        request(this.server)
         .get('/')
         .set('X-Forwarded-Proto', 'https')
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, done)
       })
 
-      it('should use req.secure from express', function(done){
-        var app = express()
-          .use(createSession({ cookie: { secure: true } }))
-          .use(function(req, res) { res.json(req.secure); });
-        app.enable('trust proxy');
-
-        request(app)
+      it('should use req.secure', function (done) {
+        request(this.server)
         .get('/')
         .set('X-Forwarded-Proto', 'https')
+        .set('X-Secure', 'true')
         .expect(shouldSetCookie('connect.sid'))
         .expect(200, 'true', done)
       })
@@ -731,14 +738,19 @@ describe('session()', function(){
 
       describe('when "proxy" is undefined', function() {
         before(function () {
-          this.app = express()
-            .use(function(req, res, next) { Object.defineProperty(req, 'secure', { value: JSON.parse(req.headers['x-secure']) }); next(); })
-            .use(createSession({ cookie: { secure: 'auto' } }))
-            .use(function(req, res) { res.json(req.secure); });
+          function setup (req) {
+            req.secure = JSON.parse(req.headers['x-secure'])
+          }
+
+          function respond (req, res) {
+            res.end(String(req.secure))
+          }
+
+          this.server = createServer(setup, { cookie: { secure: 'auto' } }, respond)
         })
 
         it('should set secure if req.secure = true', function (done) {
-          request(this.app)
+          request(this.server)
           .get('/')
           .set('X-Secure', 'true')
           .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
@@ -746,7 +758,7 @@ describe('session()', function(){
         })
 
         it('should not set secure if req.secure = false', function (done) {
-          request(this.app)
+          request(this.server)
           .get('/')
           .set('X-Secure', 'false')
           .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
@@ -1292,33 +1304,30 @@ describe('session()', function(){
 
   describe('res.end patch', function () {
     it('should correctly handle res.end/res.write patched prior', function (done) {
-      var app = express()
+      function setup (req, res) {
+        writePatch(res)
+      }
 
-      app.use(writePatch())
-      app.use(createSession())
-      app.use(function (req, res) {
+      function respond (req, res) {
         req.session.hit = true
         res.write('hello, ')
         res.end('world')
-      })
+      }
 
-      request(app)
+      request(createServer(setup, null, respond))
       .get('/')
       .expect(200, 'hello, world', done)
     })
 
     it('should correctly handle res.end/res.write patched after', function (done) {
-      var app = express()
-
-      app.use(createSession())
-      app.use(writePatch())
-      app.use(function (req, res) {
+      function respond (req, res) {
+        writePatch(res)
         req.session.hit = true
         res.write('hello, ')
         res.end('world')
-      })
+      }
 
-      request(app)
+      request(createServer(null, respond))
       .get('/')
       .expect(200, 'hello, world', done)
     })
@@ -1442,47 +1451,41 @@ describe('session()', function(){
 
     describe('.destroy()', function(){
       it('should destroy the previous session', function(done){
-        var app = express()
-          .use(createSession())
-          .use(function(req, res, next){
-            req.session.destroy(function(err){
-              if (err) return next(err)
-              assert(!req.session, 'req.session after destroy');
-              res.end();
-            });
-          });
+        var server = createServer(null, function (req, res) {
+          req.session.destroy(function (err) {
+            if (err) res.statusCode = 500
+            res.end(String(req.session))
+          })
+        })
 
-        request(app)
+        request(server)
         .get('/')
         .expect(shouldNotHaveHeader('Set-Cookie'))
-        .expect(200, done)
+        .expect(200, 'undefined', done)
       })
     })
 
     describe('.regenerate()', function(){
       it('should destroy/replace the previous session', function(done){
-        var app = express()
-          .use(createSession())
-          .use(function(req, res, next){
-            var id = req.session.id;
-            req.session.regenerate(function(err){
-              if (err) return next(err)
-              assert.notEqual(id, req.session.id)
-              res.end();
-            });
-          });
+        var server = createServer(null, function (req, res) {
+          var id = req.session.id
+          req.session.regenerate(function (err) {
+            if (err) res.statusCode = 500
+            res.end(String(req.session.id === id))
+          })
+        })
 
-        request(app)
+        request(server)
         .get('/')
         .expect(shouldSetCookie('connect.sid'))
         .expect(200, function (err, res) {
           if (err) return done(err)
           var id = sid(res)
-          request(app)
+          request(server)
           .get('/')
           .set('Cookie', cookie(res))
           .expect(shouldSetCookie('connect.sid'))
-          .expect(200, function (err, res) {
+          .expect(200, 'false', function (err, res) {
             if (err) return done(err)
             assert.notEqual(sid(res), id)
             done();
@@ -2089,8 +2092,20 @@ function cookie(res) {
   return (setCookie && setCookie[0]) || undefined;
 }
 
-function createServer(opts, fn) {
-  return http.createServer(createRequestListener(opts, fn))
+function createServer (options, respond) {
+  var fn = respond
+  var opts = options
+  var server = http.createServer()
+
+  // setup, options, respond
+  if (typeof arguments[0] === 'function') {
+    opts = arguments[1]
+    fn = arguments[2]
+
+    server.on('request', arguments[0])
+  }
+
+  return server.on('request', createRequestListener(opts, fn))
 }
 
 function createRequestListener(opts, fn) {
@@ -2261,26 +2276,22 @@ function sid(res) {
   return val
 }
 
-function writePatch() {
+function writePatch (res) {
+  var _end = res.end
+  var _write = res.write
   var ended = false
-  return function addWritePatch(req, res, next) {
-    var _end = res.end
-    var _write = res.write
 
-    res.end = function end() {
-      ended = true
-      return _end.apply(this, arguments)
+  res.end = function end() {
+    ended = true
+    return _end.apply(this, arguments)
+  }
+
+  res.write = function write() {
+    if (ended) {
+      throw new Error('write after end')
     }
 
-    res.write = function write() {
-      if (ended) {
-        throw new Error('write after end')
-      }
-
-      return _write.apply(this, arguments)
-    }
-
-    next()
+    return _write.apply(this, arguments)
   }
 }
 
