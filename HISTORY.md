@@ -1,7 +1,7 @@
 unreleased
 ==========
 
-  * deps: debug@2.6.2
+  * deps: debug@2.6.3
     - Fix `DEBUG_MAX_ARRAY_LENGTH`
   * deps: uid-safe@~2.1.4
     - Remove `base64-url` dependency
