@@ -26,6 +26,7 @@ var Cookie = module.exports = function Cookie(options) {
   this.path = '/';
   this.maxAge = null;
   this.httpOnly = true;
+  this.expireSetCookie = false;
   if (options) merge(this, options);
   this.originalMaxAge = undefined == this.originalMaxAge
     ? this.maxAge
@@ -97,7 +98,7 @@ Cookie.prototype = {
   get data() {
     return {
         originalMaxAge: this.originalMaxAge
-      , expires: this._expires
+      , expires: expireSetCookie ? this._expires : null
       , secure: this.secure
       , httpOnly: this.httpOnly
       , domain: this.domain
