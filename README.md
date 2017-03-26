@@ -601,6 +601,7 @@ and other multi-core embedded devices).
 [express-oracle-session-image]: https://img.shields.io/github/stars/slumber86/express-oracle-session.svg?label=%E2%98%85
 
 [![★][express-sessions-image] express-sessions][express-sessions-url]: A session store supporting both MongoDB and Redis.
+
 [express-sessions-url]: https://www.npmjs.com/package/express-sessions
 [express-sessions-image]: https://img.shields.io/github/stars/konteck/express-sessions.svg?label=%E2%98%85
 
