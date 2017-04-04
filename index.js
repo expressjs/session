@@ -83,20 +83,35 @@ var defer = typeof setImmediate === 'function'
  * @public
  */
 
-function session(options){
-  var options = options || {}
-  //  name - previously "options.key"
-    , name = options.name || options.key || 'connect.sid'
-    , store = options.store || new MemoryStore
-    , trustProxy = options.proxy
-    , storeReady = true
-    , rollingSessions = options.rolling || false;
-  var cookieOptions = options.cookie || {};
-  var resaveSession = options.resave;
-  var saveUninitializedSession = options.saveUninitialized;
-  var secret = options.secret;
+function session(options) {
+  var opts = options || {}
 
-  var generateId = options.genid || generateSessionId;
+  // get the cookie options
+  var cookieOptions = opts.cookie || {}
+
+  // get the session id generate function
+  var generateId = opts.genid || generateSessionId
+
+  // get the session cookie name
+  var name = opts.name || opts.key || 'connect.sid'
+
+  // get the session store
+  var store = opts.store || new MemoryStore()
+
+  // get the trust proxy setting
+  var trustProxy = opts.proxy
+
+  // get the resave session option
+  var resaveSession = opts.resave;
+
+  // get the rolling session option
+  var rollingSessions = Boolean(opts.rolling)
+
+  // get the save uninitialized session option
+  var saveUninitializedSession = opts.saveUninitialized
+
+  // get the cookie signing secret
+  var secret = opts.secret
 
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
@@ -112,12 +127,12 @@ function session(options){
     saveUninitializedSession = true;
   }
 
-  if (options.unset && options.unset !== 'destroy' && options.unset !== 'keep') {
+  if (opts.unset && opts.unset !== 'destroy' && opts.unset !== 'keep') {
     throw new TypeError('unset option must be "destroy" or "keep"');
   }
 
   // TODO: switch to "destroy" on next major
-  var unsetDestroy = options.unset === 'destroy';
+  var unsetDestroy = opts.unset === 'destroy'
 
   if (Array.isArray(secret) && secret.length === 0) {
     throw new TypeError('secret option array must contain one or more strings');
@@ -133,6 +148,7 @@ function session(options){
 
   // notify user that this store is not
   // meant for a production environment
+  /* istanbul ignore next: not tested */
   if ('production' == env && store instanceof MemoryStore) {
     console.warn(warning);
   }
@@ -149,16 +165,30 @@ function session(options){
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
-  store.on('disconnect', function(){ storeReady = false; });
-  store.on('connect', function(){ storeReady = true; });
+
+  // register event listeners for the store to track readiness
+  var storeReady = true
+  store.on('disconnect', function ondisconnect() {
+    storeReady = false
+  })
+  store.on('connect', function onconnect() {
+    storeReady = true
+  })
 
   return function session(req, res, next) {
     // self-awareness
-    if (req.session) return next();
+    if (req.session) {
+      next()
+      return
+    }
 
     // Handle connection as if there is no session if
     // the store has temporarily disconnected etc
-    if (!storeReady) return debug('store is disconnected'), next();
+    if (!storeReady) {
+      debug('store is disconnected')
+      next()
+      return
+    }
 
     // pathname mismatch
     var originalPath = parseUrl.original(req).pathname;
@@ -180,6 +210,7 @@ function session(options){
     var originalHash;
     var originalId;
     var savedHash;
+    var touched = false
 
     // expose store
     req.sessionStore = store;
@@ -194,19 +225,24 @@ function session(options){
         return;
       }
 
-      var cookie = req.session.cookie;
-
-      // only send secure cookies via https
-      if (cookie.secure && !issecure(req, trustProxy)) {
-        debug('not secured');
-        return;
-      }
-
       if (!shouldSetCookie(req)) {
         return;
       }
 
-      setcookie(res, name, req.sessionID, secrets[0], cookie.data);
+      // only send secure cookies via https
+      if (req.session.cookie.secure && !issecure(req, trustProxy)) {
+        debug('not secured');
+        return;
+      }
+
+      if (!touched) {
+        // touch session
+        req.session.touch()
+        touched = true
+      }
+
+      // set cookie
+      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
     });
 
     // proxy end() to commit the session
@@ -287,8 +323,11 @@ function session(options){
         return _end.call(res, chunk, encoding);
       }
 
-      // touch session
-      req.session.touch();
+      if (!touched) {
+        // touch session
+        req.session.touch()
+        touched = true
+      }
 
       if (shouldSave(req)) {
         req.session.save(function onsave(err) {
@@ -328,13 +367,29 @@ function session(options){
 
     // wrap session methods
     function wrapmethods(sess) {
+      var _reload = sess.reload
       var _save = sess.save;
+
+      function reload(callback) {
+        debug('reloading %s', this.id)
+        _reload.call(this, function () {
+          wrapmethods(req.session)
+          callback.apply(this, arguments)
+        })
+      }
 
       function save() {
         debug('saving %s', this.id);
         savedHash = hash(this);
         _save.apply(this, arguments);
       }
+
+      Object.defineProperty(sess, 'reload', {
+        configurable: true,
+        enumerable: false,
+        value: reload,
+        writable: true
+      })
 
       Object.defineProperty(sess, 'save', {
         configurable: true,
@@ -526,10 +581,13 @@ function getcookie(req, name, secrets) {
 
 function hash(sess) {
   return crc(JSON.stringify(sess, function (key, val) {
-    if (key !== 'cookie') {
-      return val;
+    // ignore sess.cookie property
+    if (this === sess && key === 'cookie') {
+      return
     }
-  }));
+
+    return val
+  }))
 }
 
 /**
@@ -583,9 +641,7 @@ function setcookie(res, name, val, secret, options) {
   debug('set-cookie %s', data);
 
   var prev = res.getHeader('set-cookie') || [];
-  var header = Array.isArray(prev) ? prev.concat(data)
-    : Array.isArray(data) ? [prev].concat(data)
-    : [prev, data];
+  var header = Array.isArray(prev) ? prev.concat(data) : [prev, data];
 
   res.setHeader('set-cookie', header)
 }

@@ -8,7 +8,11 @@
 
 ## Installation
 
-```bash
+This is a [Node.js](https://nodejs.org/en/) module available through the
+[npm registry](https://www.npmjs.com/). Installation is done using the
+[`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
+
+```sh
 $ npm install express-session
 ```
 
@@ -25,6 +29,11 @@ Create a session middleware with the given `options`.
 **Note** Session data is _not_ saved in the cookie itself, just the session ID.
 Session data is stored server-side.
 
+**Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
+no longer needs to be used for this module to work. This module now directly reads
+and writes cookies on `req`/`res`. Using `cookie-parser` may result in issues
+if the `secret` is not the same between this module and `cookie-parser`.
+
 **Warning** The default server-side session storage, `MemoryStore`, is _purposely_
 not designed for a production environment. It will leak memory under most
 conditions, does not scale past a single process, and is meant for debugging and
@@ -38,10 +47,120 @@ For a list of stores, see [compatible session stores](#compatible-session-stores
 
 ##### cookie
 
-Settings for the session ID cookie. See the "Cookie options" section below for
-more information on the different values.
+Settings object for the session ID cookie. The default value is
+`{ path: '/', httpOnly: true, secure: false, maxAge: null }`.
 
-The default value is `{ path: '/', httpOnly: true, secure: false, maxAge: null }`.
+The following are options that can be set in this object.
+
+##### cookie.domain
+
+Specifies the value for the `Domain` `Set-Cookie` attribute. By default, no domain
+is set, and most clients will consider the cookie to apply to only the current
+domain.
+
+##### cookie.expires
+
+Specifies the `Date` object to be the value for the `Expires` `Set-Cookie` attribute.
+By default, no expiration is set, and most clients will consider this a
+"non-persistent cookie" and will delete it on a condition like exiting a web browser
+application.
+
+**Note** If both `expires` and `maxAge` are set in the options, then the last one
+defined in the object is what is used.
+
+**Note** The `expires` option should not be set directly; instead only use the `maxAge`
+option.
+
+##### cookie.httpOnly
+
+Specifies the `boolean` value for the `HttpOnly` `Set-Cookie` attribute. When truthy,
+the `HttpOnly` attribute is set, otherwise it is not. By default, the `HttpOnly`
+attribute is set.
+
+**Note** be careful when setting this to `true`, as compliant clients will not allow
+client-side JavaScript to see the cookie in `document.cookie`.
+
+##### cookie.maxAge
+
+Specifies the `number` (in milliseconds) to use when calculating the `Expires`
+`Set-Cookie` attribute. This is done by taking the current server time and adding
+`maxAge` milliseconds to the value to calculate an `Expires` datetime. By default,
+no maximum age is set.
+
+**Note** If both `expires` and `maxAge` are set in the options, then the last one
+defined in the object is what is used.
+
+##### cookie.path
+
+Specifies the value for the `Path` `Set-Cookie`. By default, this is set to `'/'`, which
+is the root path of the domain.
+
+##### cookie.sameSite
+
+Specifies the `boolean` or `string` to be the value for the `SameSite` `Set-Cookie` attribute.
+
+  - `true` will set the `SameSite` attribute to `Strict` for strict same site enforcement.
+  - `false` will not set the `SameSite` attribute.
+  - `'lax'` will set the `SameSite` attribute to `Lax` for lax same site enforcement.
+  - `'strict'` will set the `SameSite` attribute to `Strict` for strict same site enforcement.
+
+More information about the different enforcement levels can be found in the specification
+https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1.1
+
+**Note** This is an attribute that has not yet been fully standardized, and may change in
+the future. This also means many clients may ignore this attribute until they understand it.
+
+##### cookie.secure
+
+Specifies the `boolean` value for the `Secure` `Set-Cookie` attribute. When truthy,
+the `Secure` attribute is set, otherwise it is not. By default, the `Secure`
+attribute is not set.
+
+**Note** be careful when setting this to `true`, as compliant clients will not send
+the cookie back to the server in the future if the browser does not have an HTTPS
+connection.
+
+Please note that `secure: true` is a **recommended** option. However, it requires
+an https-enabled website, i.e., HTTPS is necessary for secure cookies. If `secure`
+is set, and you access your site over HTTP, the cookie will not be set. If you
+have your node.js behind a proxy and are using `secure: true`, you need to set
+"trust proxy" in express:
+
+```js
+var app = express()
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}))
+```
+
+For using secure cookies in production, but allowing for testing in development,
+the following is an example of enabling this setup based on `NODE_ENV` in express:
+
+```js
+var app = express()
+var sess = {
+  secret: 'keyboard cat',
+  cookie: {}
+}
+
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  sess.cookie.secure = true // serve secure cookies
+}
+
+app.use(session(sess))
+```
+
+The `cookie.secure` option can also be set to the special value `'auto'` to have
+this setting automatically match the determined security of the connection. Be
+careful when using this setting if the site is available both as HTTP and HTTPS,
+as once the cookie is set on HTTPS, it will no longer be visible over HTTP. This
+is useful when the Express `"trust proxy"` setting is properly setup to simplify
+development vs production configuration.
 
 ##### genid
 
@@ -135,7 +254,7 @@ choose what is appropriate to your use-case.
 **Note** if you are using Session in conjunction with PassportJS, Passport
 will add an empty Passport object to the session for use after a user is
 authenticated, which will be treated as a modification to the session, causing
-it to be saved.
+it to be saved. *This has been fixed in PassportJS 0.3.0*
 
 ##### secret
 
@@ -160,55 +279,6 @@ The default value is `'keep'`.
   - `'destroy'` The session will be destroyed (deleted) when the response ends.
   - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
-
-#### Cookie options
-
-**Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
-no longer needs to be used for this module to work. This module now directly reads
-and writes cookies on `req`/`res`. Using `cookie-parser` may result in issues
-if the `secret` is not the same between this module and `cookie-parser`.
-
-Please note that `secure: true` is a **recommended** option. However, it requires an https-enabled website, i.e., HTTPS is necessary for secure cookies.
-If `secure` is set, and you access your site over HTTP, the cookie will not be set. If you have your node.js behind a proxy and are using `secure: true`, you need to set "trust proxy" in express:
-
-```js
-var app = express()
-app.set('trust proxy', 1) // trust first proxy
-app.use(session({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
-}))
-```
-
-For using secure cookies in production, but allowing for testing in development, the following is an example of enabling this setup based on `NODE_ENV` in express:
-
-```js
-var app = express()
-var sess = {
-  secret: 'keyboard cat',
-  cookie: {}
-}
-
-if (app.get('env') === 'production') {
-  app.set('trust proxy', 1) // trust first proxy
-  sess.cookie.secure = true // serve secure cookies
-}
-
-app.use(session(sess))
-```
-
-The `cookie.secure` option can also be set to the special value `'auto'` to have
-this setting automatically match the determined security of the connection. Be
-careful when using this setting if the site is available both as HTTP and HTTPS,
-as once the cookie is set on HTTPS, it will no longer be visible over HTTP. This
-is useful when the Express `"trust proxy"` setting is properly setup to simplify
-development vs production configuration.
-
-By default `cookie.maxAge` is `null`, meaning no "expires" parameter is set
-so the cookie becomes a browser-session cookie. When the user closes the
-browser the cookie (and session) will be removed.
 
 ### req.session
 
@@ -236,10 +306,11 @@ app.get('/', function(req, res, next) {
 })
 ```
 
-#### Session.regenerate()
+#### Session.regenerate(callback)
 
 To regenerate the session simply invoke the method. Once complete,
-a new SID and `Session` instance will be initialized at `req.session`.
+a new SID and `Session` instance will be initialized at `req.session`
+and the `callback` will be invoked.
 
 ```js
 req.session.regenerate(function(err) {
@@ -247,9 +318,10 @@ req.session.regenerate(function(err) {
 })
 ```
 
-#### Session.destroy()
+#### Session.destroy(callback)
 
-Destroys the session, removing `req.session`; will be re-generated next request.
+Destroys the session and will unset the `req.session` property.
+Once complete, the `callback` will be invoked.
 
 ```js
 req.session.destroy(function(err) {
@@ -257,9 +329,10 @@ req.session.destroy(function(err) {
 })
 ```
 
-#### Session.reload()
+#### Session.reload(callback)
 
-Reloads the session data.
+Reloads the session data from the store and re-populates the
+`req.session` object. Once complete, the `callback` will be invoked.
 
 ```js
 req.session.reload(function(err) {
@@ -267,7 +340,7 @@ req.session.reload(function(err) {
 })
 ```
 
-#### Session.save()
+#### Session.save(callback)
 
 Save the session back to the store, replacing the contents on the store with the
 contents in memory (though a store may do something else--consult the store's
@@ -411,6 +484,11 @@ potentially resetting the idle timer.
 The following modules implement a session store that is compatible with this
 module. Please make a PR to add additional modules :)
 
+[![★][aerospike-session-store-image] aerospike-session-store][aerospike-session-store-url] A session store using [Aerospike](http://www.aerospike.com/).
+
+[aerospike-session-store-url]: https://www.npmjs.com/package/aerospike-session-store
+[aerospike-session-store-image]: https://img.shields.io/github/stars/aerospike/aerospike-session-store-expressjs.svg?label=%E2%98%85
+
 [![★][cassandra-store-image] cassandra-store][cassandra-store-url] An Apache Cassandra-based session store.
 
 [cassandra-store-url]: https://www.npmjs.com/package/cassandra-store
@@ -428,15 +506,40 @@ and other multi-core embedded devices).
 [connect-azuretables-url]: https://www.npmjs.com/package/connect-azuretables
 [connect-azuretables-image]: https://img.shields.io/github/stars/mike-goodwin/connect-azuretables.svg?label=%E2%98%85
 
+[![★][connect-cloudant-store-image] connect-cloudant-store][connect-cloudant-store-url] An [IBM Cloudant](https://cloudant.com/)-based session store.
+
+[connect-cloudant-store-url]: https://www.npmjs.com/package/connect-cloudant-store
+[connect-cloudant-store-image]: https://img.shields.io/github/stars/adriantanasa/connect-cloudant-store.svg?label=%E2%98%85
+
 [![★][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](http://www.couchbase.com/)-based session store.
 
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
 [connect-couchbase-image]: https://img.shields.io/github/stars/christophermina/connect-couchbase.svg?label=%E2%98%85
 
+[![★][connect-datacache-image] connect-datacache][connect-datacache-url] An [IBM Bluemix Data Cache](http://www.ibm.com/cloud-computing/bluemix/)-based session store.
+
+[connect-datacache-url]: https://www.npmjs.com/package/connect-datacache
+[connect-datacache-image]: https://img.shields.io/github/stars/adriantanasa/connect-datacache.svg?label=%E2%98%85
+
+[![★][connect-db2-image] connect-db2][connect-db2-url] An IBM DB2-based session store built using [ibm_db](https://www.npmjs.com/package/ibm_db) module.
+
+[connect-db2-url]: https://www.npmjs.com/package/connect-db2
+[connect-db2-image]: https://img.shields.io/github/stars/wallali/connect-db2.svg?label=%E2%98%85
+
 [![★][connect-dynamodb-image] connect-dynamodb][connect-dynamodb-url] A DynamoDB-based session store.
 
 [connect-dynamodb-url]: https://github.com/ca98am79/connect-dynamodb
 [connect-dynamodb-image]: https://img.shields.io/github/stars/ca98am79/connect-dynamodb.svg?label=%E2%98%85
+
+[![★][connect-loki-image] connect-loki][connect-loki-url] A Loki.js-based session store.
+
+[connect-loki-url]: https://www.npmjs.com/package/connect-loki
+[connect-loki-image]: https://img.shields.io/github/stars/Requarks/connect-loki.svg?label=%E2%98%85
+
+[![★][connect-ml-image] connect-ml][connect-ml-url] A MarkLogic Server-based session store.
+
+[connect-ml-url]: https://www.npmjs.com/package/connect-ml
+[connect-ml-image]: https://img.shields.io/github/stars/bluetorch/connect-ml.svg?label=%E2%98%85
 
 [![★][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
 
@@ -491,20 +594,62 @@ and other multi-core embedded devices).
 [express-mysql-session-url]: https://www.npmjs.com/package/express-mysql-session
 [express-mysql-session-image]: https://img.shields.io/github/stars/chill117/express-mysql-session.svg?label=%E2%98%85
 
+[![★][express-oracle-session-image] express-oracle-session][express-oracle-session-url] A session store using native
+[oracle](https://www.oracle.com/) via the [node-oracledb](https://www.npmjs.com/package/oracledb) module.
+
+[express-oracle-session-url]: https://www.npmjs.com/package/express-oracle-session
+[express-oracle-session-image]: https://img.shields.io/github/stars/slumber86/express-oracle-session.svg?label=%E2%98%85
+
+[![★][express-sessions-image] express-sessions][express-sessions-url]: A session store supporting both MongoDB and Redis.
+
+[express-sessions-url]: https://www.npmjs.com/package/express-sessions
+[express-sessions-image]: https://img.shields.io/github/stars/konteck/express-sessions.svg?label=%E2%98%85
+
 [![★][connect-sqlite3-image] connect-sqlite3][connect-sqlite3-url] A [SQLite3](https://github.com/mapbox/node-sqlite3) session store modeled after the TJ's `connect-redis` store.
 
 [connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
 [connect-sqlite3-image]: https://img.shields.io/github/stars/rawberg/connect-sqlite3.svg?label=%E2%98%85
+
+[![★][documentdb-session-image] documentdb-session][documentdb-session-url] A session store for Microsoft Azure's [DocumentDB](https://azure.microsoft.com/en-us/services/documentdb/) NoSQL database service.
+
+[documentdb-session-url]: https://www.npmjs.com/package/documentdb-session
+[documentdb-session-image]: https://img.shields.io/github/stars/dwhieb/documentdb-session.svg?label=%E2%98%85
 
 [![★][express-nedb-session-image] express-nedb-session][express-nedb-session-url] A NeDB-based session store.
 
 [express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
 [express-nedb-session-image]: https://img.shields.io/github/stars/louischatriot/express-nedb-session.svg?label=%E2%98%85
 
+[![★][express-session-level-image] express-session-level][express-session-level-url] A [LevelDB](https://github.com/Level/levelup) based session store.
+
+[express-session-level-url]: https://www.npmjs.com/package/express-session-level
+[express-session-level-image]: https://img.shields.io/github/stars/tgohn/express-session-level.svg?label=%E2%98%85
+
+[![★][express-etcd-image] express-etcd][express-etcd-url] An [etcd](https://github.com/stianeikeland/node-etcd) based session store.
+
+[express-etcd-url]: https://www.npmjs.com/package/express-etcd
+[express-etcd-image]: https://img.shields.io/github/stars/gildean/express-etcd.svg?label=%E2%98%85
+
+[![★][fortune-session-image] fortune-session][fortune-session-url] A [Fortune.js](https://github.com/fortunejs/fortune)
+based session store. Supports all backends supported by Fortune (MongoDB, Redis, Postgres, NeDB).
+
+[fortune-session-url]: https://www.npmjs.com/package/fortune-session
+[fortune-session-image]: https://img.shields.io/github/stars/aliceklipper/fortune-session.svg?label=%E2%98%85
+
+[![★][hazelcast-store-image] hazelcast-store][hazelcast-store-url] A Hazelcast-based session store built on the [Hazelcast Node Client](https://www.npmjs.com/package/hazelcast-client).
+
+[hazelcast-store-url]: https://www.npmjs.com/package/hazelcast-store
+[hazelcast-store-image]: https://img.shields.io/github/stars/jackspaniel/hazelcast-store.svg?label=%E2%98%85
+
 [![★][level-session-store-image] level-session-store][level-session-store-url] A LevelDB-based session store.
 
 [level-session-store-url]: https://www.npmjs.com/package/level-session-store
 [level-session-store-image]: https://img.shields.io/github/stars/scriptollc/level-session-store.svg?label=%E2%98%85
+
+[![★][medea-session-store-image] medea-session-store][medea-session-store-url] A Medea-based session store.
+
+[medea-session-store-url]: https://www.npmjs.com/package/medea-session-store
+[medea-session-store-image]: https://img.shields.io/github/stars/BenjaminVadant/medea-session-store.svg?label=%E2%98%85
 
 [![★][mssql-session-store-image] mssql-session-store][mssql-session-store-url] A SQL Server-based session store.
 

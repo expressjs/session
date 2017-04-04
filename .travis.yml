@@ -6,12 +6,27 @@ node_js:
   - "1.8"
   - "2.5"
   - "3.3"
-  - "4.2"
-  - "5.5"
+  - "4.8"
+  - "5.12"
+  - "6.10"
+  - "7.7"
+matrix:
+  include:
+    - node_js: "8.0"
+      env: "NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly"
+  allow_failures:
+    # Allow the nightly installs to fail
+    - env: "NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly"
 sudo: false
+cache:
+  directories:
+    - node_modules
 before_install:
   # Setup Node.js version-specific dependencies
   - "test $TRAVIS_NODE_VERSION != '0.8' || npm rm --save-dev istanbul"
+  # Update Node.js modules
+  - "test ! -d node_modules || npm prune"
+  - "test ! -d node_modules || npm rebuild"
 script:
   # Run test script, depending on istanbul install
   - "test ! -z $(npm -ps ls istanbul) || npm test"

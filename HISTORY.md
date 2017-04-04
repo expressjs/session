@@ -1,16 +1,69 @@
-unreleased
-==========
-
-  * Methods are no longer enumerable on `req.session` object
-
-1.13.1 / 2016-01-29
+1.15.2 / 2017-03-26
 ===================
 
+  * deps: debug@2.6.3
+    - Fix `DEBUG_MAX_ARRAY_LENGTH`
+  * deps: uid-safe@~2.1.4
+    - Remove `base64-url` dependency
+
+1.15.1 / 2017-02-10
+===================
+
+  * deps: debug@2.6.1
+    - Fix deprecation messages in WebStorm and other editors
+    - Undeprecate `DEBUG_FD` set to `1` or `2`
+
+1.15.0 / 2017-01-22
+===================
+
+  * Fix detecting modified session when session contains "cookie" property
+  * Fix resaving already-saved reloaded session at end of request
+  * deps: crc@3.4.4
+    - perf: use `Buffer.from` when available
+  * deps: debug@2.6.0
+    - Allow colors in workers
+    - Deprecated `DEBUG_FD` environment variable
+    - Use same color for same namespace
+    - Fix error when running under React Native
+    - deps: ms@0.7.2
+  * perf: remove unreachable branch in set-cookie method
+
+1.14.2 / 2016-10-30
+===================
+
+  * deps: crc@3.4.1
+    - Fix deprecation warning in Node.js 7.x
+  * deps: uid-safe@~2.1.3
+    - deps: base64-url@1.3.3
+
+1.14.1 / 2016-08-24
+===================
+
+  * Fix not always resetting session max age before session save
+  * Fix the cookie `sameSite` option to actually alter the `Set-Cookie`
+  * deps: uid-safe@~2.1.2
+    - deps: base64-url@1.3.2
+
+1.14.0 / 2016-07-01
+===================
+
+  * Correctly inherit from `EventEmitter` class in `Store` base class
+  * Fix issue where `Set-Cookie` `Expires` was not always updated
+  * Methods are no longer enumerable on `req.session` object
+  * deps: cookie@0.3.1
+    - Add `sameSite` option
+    - Improve error message when `encode` is not a function
+    - Improve error message when `expires` is not a `Date`
+    - perf: enable strict mode
+    - perf: use for loop in parse
+    - perf: use string concatination for serialization
   * deps: parseurl@~1.3.1
     - perf: enable strict mode
-  * deps: uid-safe@~2.1.0
+  * deps: uid-safe@~2.1.1
     - Use `random-bytes` for byte source
+    - deps: base64-url@1.2.2
   * perf: enable strict mode
+  * perf: remove argument reassignment
 
 1.13.0 / 2016-01-10
 ===================
