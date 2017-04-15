@@ -215,7 +215,7 @@ function session(options) {
     // get the session ID from the cookie
     var cookieId = req.sessionID = getcookie(req, name, secrets);
 
-    // set-cookie
+    // set cookie
     onHeaders(res, function(){
       if (!req.session) {
         debug('no session');
