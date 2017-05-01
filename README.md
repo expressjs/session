@@ -370,6 +370,8 @@ not necessary to call, as the session middleware does this for you.
 Each session has a unique ID associated with it. This property will
 contain the session ID and cannot be modified.
 
+> `req.session.id` is an alias of [`req.sessionID`](#reqsessionid-1). `req.session.id` has been added to make the session ID accessible from the `session` object.
+
 ### req.session.cookie
 
 Each session has a unique cookie object accompany it. This allows
