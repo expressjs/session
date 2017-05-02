@@ -626,6 +626,12 @@ and other multi-core embedded devices).
 [express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
 [express-nedb-session-image]: https://img.shields.io/github/stars/louischatriot/express-nedb-session.svg?label=%E2%98%85
 
+[![★][express-session-cache-manager-image] express-session-cache-manager][express-session-cache-manager-url] 
+A store that implements [node-cache-manager](https://github.com/BryanDonovan/node-cache-manager), which supports a [variety of storage types](https://github.com/BryanDonovan/node-cache-manager#store-engines)
+
+[express-session-cache-manager-url]: https://www.npmjs.com/package/express-session-cache-manager
+[express-session-cache-manager-image]: https://img.shields.io/github/stars/theogravity/express-session-cache-manager.svg?label=%E2%98%85
+
 [![★][express-session-level-image] express-session-level][express-session-level-url] A [LevelDB](https://github.com/Level/levelup) based session store.
 
 [express-session-level-url]: https://www.npmjs.com/package/express-session-level
