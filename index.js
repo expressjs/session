@@ -308,10 +308,11 @@ function session(options) {
           }
 
           debug('destroyed');
+          writetop();
           writeend();
         });
 
-        return writetop();
+        return;
       }
 
       // no session to save
@@ -332,10 +333,11 @@ function session(options) {
             defer(next, err);
           }
 
+          writetop();
           writeend();
         });
 
-        return writetop();
+        return
       } else if (storeImplementsTouch && shouldTouch(req)) {
         // store implements touch method
         debug('touching');
@@ -345,10 +347,11 @@ function session(options) {
           }
 
           debug('touched');
+          writetop();
           writeend();
         });
 
-        return writetop();
+        return
       }
 
       return _end.call(res, chunk, encoding);

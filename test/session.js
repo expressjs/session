@@ -1995,6 +1995,41 @@ describe('session()', function(){
     })
   })
 
+  describe('asynchronous store', function(){
+    it('should save data before the first chunk is sent', function(done){
+      var store = new AsyncStore()
+      var server = createServer({ store: store }, function (req, res) {
+        switch (req.url) {
+          case '/login':
+            req.session.user = 'testuser'
+            res.writeHead(302, { Location: '/secret-area' })
+            return res.end('Redirecting')
+          case '/secret-area':
+            if (!req.session.user) {
+              res.writeHead(401)
+              return res.end()
+            }
+            return res.end('Hello, ' + req.session.user)
+          default:
+            res.writeHead(404);
+            return res.end()
+        }
+      })
+
+      request(server)
+        .get('/login')
+        .end(function() {})
+        .req.once('response', function(res) {
+          setTimeout(function() {
+            request(server)
+              .get(res.headers.location)
+              .set('Cookie', cookie(res))
+              .expect(200, 'Hello, testuser', done)
+          }, 0)
+        })
+    })
+  })
+
   describe('cookieParser()', function () {
     it('should read from req.cookies', function(done){
       var app = express()
@@ -2308,10 +2343,20 @@ SyncStore.prototype.destroy = function destroy(sid, callback) {
 };
 
 SyncStore.prototype.get = function get(sid, callback) {
-  callback(null, JSON.parse(this.sessions[sid]));
+  callback(null, this.sessions[sid] && JSON.parse(this.sessions[sid]));
 };
 
 SyncStore.prototype.set = function set(sid, sess, callback) {
   this.sessions[sid] = JSON.stringify(sess);
   callback();
 };
+
+function AsyncStore () {
+  SyncStore.call(this)
+}
+
+util.inherits(AsyncStore, SyncStore)
+
+AsyncStore.prototype.set = function set(sid, sess, callback) {
+  setTimeout(SyncStore.prototype.set.bind(this, sid, sess, callback), 300)
+}
