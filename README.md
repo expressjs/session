@@ -360,10 +360,9 @@ req.session.save(function(err) {
 })
 ```
 
-#### Session.touch()
+#### Session.touch(callback)
 
-Updates the `.maxAge` property. Typically this is
-not necessary to call, as the session middleware does this for you.
+Updates the `.maxAge` property. This is done automatically when `rolling` is `true`.
 
 ### req.session.id
 
