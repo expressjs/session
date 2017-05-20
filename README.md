@@ -419,6 +419,38 @@ and **optional**.
   * Optional methods are ones this module does not call at all, but helps
     present uniform stores to users.
 
+Some methods (`createSession`, `load`, and `regenerate`) are already available from the `express-session` module. These methods are marked as "available from `express-session`" below. Instead of writing these methods yourself, it is recommended that you pass the `express-session` object to your store on initialization, and extend your store from `expressSession.Store`. See below for an example:
+
+In `app.js/server.js/index.js/etc.`:
+
+```js
+const expressSession = require('express-session');
+const MyStore = require('my-store')(expressSession);
+
+app.use(expressSession({
+  store: new MyStore(options),
+  secret: 'mycookiesecret'
+}));
+```
+
+In your store's `index.js` (main) file:
+
+```js
+module.exports = expressSession => {
+
+  const Store = expressSession.Store;
+
+  class MyStore extends Store {
+    constructor(options) {
+      /* your store logic */
+    }
+  }
+
+  return MyStore;
+
+};
+```
+
 For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
 
 ### store.all(callback)
@@ -443,6 +475,16 @@ the session is destroyed.
 This optional method is used to delete all sessions from the store. The
 `callback` should be called as `callback(error)` once the store is cleared.
 
+### store.createSession(req, session)
+
+**Required** (available from `express-session`)
+
+This required method is used to create a session from JSON `session` data, set `session.cookie`, and set `req.session`. It should return the new session object.
+
+For an example implementation of `session.cookie`, see `express-session`'s [cookie module](https://github.com/expressjs/session/blob/master/session/cookie.js).
+
+For an example implementation of `req.session`, see `express-session`'s [session module](https://github.com/expressjs/session/blob/master/session/session.js).
+
 ### store.length(callback)
 
 **Optional**
@@ -460,6 +502,22 @@ ID (`sid`). The `callback` should be called as `callback(error, session)`.
 The `session` argument should be a session if found, otherwise `null` or
 `undefined` if the session was not found (and there was no error). A special
 case is made when `error.code === 'ENOENT'` to act like `callback(null, null)`.
+
+### store.load(sid, callback)
+
+**Required** (available from `express-session`)
+
+This required method is used to load a `Session` instance via the given session ID (`sid`), and then create the new session object by calling `store.createSession`. The `callback` should be called as `callback(error, session)`.
+
+For an example implementation, see `express-session`'s [`store.load` method](https://github.com/expressjs/session/blob/master/session/store.js#L67).
+
+### store.regenerate(req, callback)
+
+**Required** (available from `express-session`)
+
+This required method is used to regenerate the given request's (`req`) session, by first calling `store.destroy` and then `store.generate`. The `callback` should be called as `callback(error)`.
+
+For an example implementation see `express-session`'s [`store.regenerate` method](https://github.com/expressjs/session/blob/master/session/store.js#L50).
 
 ### store.set(sid, session, callback)
 
