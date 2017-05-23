@@ -518,6 +518,11 @@ and other multi-core embedded devices).
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
 [connect-couchbase-image]: https://img.shields.io/github/stars/christophermina/connect-couchbase.svg?label=%E2%98%85
 
+[![★][connect-cloudant-store-image] connect-cloudant-store][connect-cloudant-store-url] An [IBM Cloudant](https://cloudant.com/)-based session store.
+
+[connect-cloudant-store-url]: https://www.npmjs.com/package/connect-cloudant-store
+[connect-cloudant-store-image]: https://img.shields.io/github/stars/adriantanasa/connect-cloudant-store.svg?label=%E2%98%85
+
 [![★][connect-datacache-image] connect-datacache][connect-datacache-url] An [IBM Bluemix Data Cache](http://www.ibm.com/cloud-computing/bluemix/)-based session store.
 
 [connect-datacache-url]: https://www.npmjs.com/package/connect-datacache
