@@ -143,7 +143,8 @@ function session(options) {
   }
 
   if (!secret) {
-    deprecate('req.secret; provide secret option');
+    // deprecate('req.secret; provide secret option');
+      secret = [];
   }
 
   // notify user that this store is not
@@ -195,10 +196,10 @@ function session(options) {
     if (originalPath.indexOf(cookieOptions.path || '/') !== 0) return next();
 
     // ensure a secret is available or bail
-    if (!secret && !req.secret) {
+    /*if (!secret && !req.secret) {
       next(new Error('secret option required for sessions'));
       return;
-    }
+    }*/
 
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
@@ -520,7 +521,7 @@ function getcookie(req, name, secrets) {
 
     raw = cookies[name];
 
-    if (raw) {
+    /*if (raw) {
       if (raw.substr(0, 2) === 's:') {
         val = unsigncookie(raw.slice(2), secrets);
 
@@ -531,23 +532,24 @@ function getcookie(req, name, secrets) {
       } else {
         debug('cookie unsigned')
       }
-    }
+    }*/
+    val = raw;
   }
 
   // back-compat read from cookieParser() signedCookies data
-  if (!val && req.signedCookies) {
+  /*if (!val && req.signedCookies) {
     val = req.signedCookies[name];
 
     if (val) {
       deprecate('cookie should be available in req.headers.cookie');
     }
-  }
+  }*/
 
   // back-compat read from cookieParser() cookies data
   if (!val && req.cookies) {
     raw = req.cookies[name];
 
-    if (raw) {
+    /*if (raw) {
       if (raw.substr(0, 2) === 's:') {
         val = unsigncookie(raw.slice(2), secrets);
 
@@ -562,7 +564,8 @@ function getcookie(req, name, secrets) {
       } else {
         debug('cookie unsigned')
       }
-    }
+    }*/
+    val = raw;
   }
 
   return val;
@@ -632,8 +635,8 @@ function issecure(req, trustProxy) {
  */
 
 function setcookie(res, name, val, secret, options) {
-  var signed = 's:' + signature.sign(val, secret);
-  var data = cookie.serialize(name, signed, options);
+  // var signed = 's:' + signature.sign(val, secret);
+  var data = cookie.serialize(name, val, options);
 
   debug('set-cookie %s', data);
 
@@ -652,7 +655,7 @@ function setcookie(res, name, val, secret, options) {
  * @private
  */
 function unsigncookie(val, secrets) {
-  for (var i = 0; i < secrets.length; i++) {
+  /*for (var i = 0; i < secrets.length; i++) {
     var result = signature.unsign(val, secrets[i]);
 
     if (result !== false) {
@@ -660,5 +663,6 @@ function unsigncookie(val, secrets) {
     }
   }
 
-  return false;
+  return false;*/
+  return val
 }
