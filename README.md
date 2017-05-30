@@ -471,6 +471,26 @@ called as `callback(error)` once the session has been set in the store.
 
 ### store.touch(sid, session, callback)
 
+
+##### sessionid
+
+Function to manually set the sessionID. This is most helpful for environments where
+cookies are not possible. When the expression returns no value, the regular sessionID
+will be used or generated.
+
+**NOTE** be careful with unsecured connections. When you don't use SSL, a man in the
+middle could intercept a sessionID and pick up a session from there.
+
+```js
+app.use(session({
+  sessionid: function(req) {
+    return req.query.sessionID;
+  },
+  secret: 'keyboard cat'
+}))
+```
+
+
 **Recommended**
 
 This recommended method is used to "touch" a given session given a
