@@ -61,7 +61,7 @@ var warning = 'Warning: connect.session() MemoryStore is not\n'
  */
 
 /* istanbul ignore next */
-var defer = typeof setImmediate === 'function'
+var defer = typeof setImmediate == 'function'
   ? setImmediate
   : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
 
@@ -113,7 +113,7 @@ function session(options) {
   // get the cookie signing secret
   var secret = opts.secret
 
-  if (typeof generateId !== 'function') {
+  if (typeof generateId != 'function') {
     throw new TypeError('genid option must be a function');
   }
 
@@ -164,7 +164,7 @@ function session(options) {
     }
   };
 
-  var storeImplementsTouch = typeof store.touch === 'function';
+  var storeImplementsTouch = typeof store.touch == 'function';
 
   // register event listeners for the store to track readiness
   var storeReady = true
@@ -414,7 +414,7 @@ function session(options) {
     // determine if session should be saved to store
     function shouldSave(req) {
       // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
+      if (typeof req.sessionID != 'string') {
         debug('session ignored because of bogus req.sessionID %o', req.sessionID);
         return false;
       }
@@ -427,7 +427,7 @@ function session(options) {
     // determine if session should be touched
     function shouldTouch(req) {
       // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
+      if (typeof req.sessionID != 'string') {
         debug('session ignored because of bogus req.sessionID %o', req.sessionID);
         return false;
       }
@@ -438,7 +438,7 @@ function session(options) {
     // determine if cookie should be set on response
     function shouldSetCookie(req) {
       // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
+      if (typeof req.sessionID != 'string') {
         return false;
       }
 
@@ -610,7 +610,7 @@ function issecure(req, trustProxy) {
   // no explicit trust; try req.secure from express
   if (trustProxy !== true) {
     var secure = req.secure;
-    return typeof secure === 'boolean'
+    return typeof secure == 'boolean'
       ? secure
       : false;
   }

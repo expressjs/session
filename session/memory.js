@@ -22,7 +22,7 @@ var util = require('util')
  */
 
 /* istanbul ignore next */
-var defer = typeof setImmediate === 'function'
+var defer = typeof setImmediate == 'function'
   ? setImmediate
   : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
 
@@ -171,7 +171,7 @@ function getSession(sessionId) {
   // parse
   sess = JSON.parse(sess)
 
-  var expires = typeof sess.cookie.expires === 'string'
+  var expires = typeof sess.cookie.expires == 'string'
     ? new Date(sess.cookie.expires)
     : sess.cookie.expires
 
