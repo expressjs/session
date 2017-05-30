@@ -29,7 +29,7 @@ Create a session middleware with the given `options`.
 **Note** Session data is _not_ saved in the cookie itself, just the session ID.
 Session data is stored server-side.
 
-**Note** Since version 1.5.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
+**Note** Since version 1.15.0, the [`cookie-parser` middleware](https://www.npmjs.com/package/cookie-parser)
 no longer needs to be used for this module to work. This module now directly reads
 and writes cookies on `req`/`res`. Using `cookie-parser` may result in issues
 if the `secret` is not the same between this module and `cookie-parser`.
