@@ -696,41 +696,41 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 A simple example using `express-session` to store page views for a user.
 
 ```js
-var express = require('express')
-var parseurl = require('parseurl')
-var session = require('express-session')
+var express = require('express');
+var parseurl = require('parseurl');
+var session = require('express-session');
 
-var app = express()
+var app = express();
 
 app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true
-}))
+}));
 
 app.use(function (req, res, next) {
-  var views = req.session.views
+  var views = req.session.views;
 
   if (!views) {
-    views = req.session.views = {}
+    views = req.session.views = {};
   }
 
-  // get the url pathname
-  var pathname = parseurl(req).pathname
+  // get the url pathName
+  var pathname = parseurl(req).pathname;
 
   // count the views
-  views[pathname] = (views[pathname] || 0) + 1
+  views[pathname] = (views[pathname] || 0) + 1;
 
-  next()
-})
+  next();
+});
 
 app.get('/foo', function (req, res, next) {
-  res.send('you viewed this page ' + req.session.views['/foo'] + ' times')
-})
+  res.send('you viewed this page ' + req.session.views['/foo'] + ' times');
+});
 
 app.get('/bar', function (req, res, next) {
-  res.send('you viewed this page ' + req.session.views['/bar'] + ' times')
-})
+  res.send('you viewed this page ' + req.session.views['/bar'] + ' times');
+});
 ```
 
 ## License
