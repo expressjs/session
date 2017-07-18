@@ -351,8 +351,8 @@ session data has been altered (though this behavior can be altered with various
 options in the middleware constructor). Because of this, typically this method
 does not need to be called.
 
-There are some cases where it is useful to call this method, for example, long-
-lived requests or in WebSockets.
+There are some cases where it is useful to call this method, for example,
+redirects, long-lived requests or in WebSockets.
 
 ```js
 req.session.save(function(err) {
