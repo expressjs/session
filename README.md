@@ -670,6 +670,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [medea-session-store-url]: https://www.npmjs.com/package/medea-session-store
 [medea-session-store-image]: https://img.shields.io/github/stars/BenjaminVadant/medea-session-store.svg?label=%E2%98%85
 
+[![★][memorystore-image] memorystore][memorystore-url] A memory session store made for production.
+
+[memorystore-url]: https://www.npmjs.com/package/memorystore
+[memorystore-image]: https://img.shields.io/github/stars/roccomuso/memorystore.svg?label=%E2%98%85
+
 [![★][mssql-session-store-image] mssql-session-store][mssql-session-store-url] A SQL Server-based session store.
 
 [mssql-session-store-url]: https://www.npmjs.com/package/mssql-session-store
