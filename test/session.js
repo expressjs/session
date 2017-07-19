@@ -2315,7 +2315,7 @@ describe('MemoryStore', function(done){
   it('should count all entries in the store', function(done){
     var store = new session.MemoryStore()
     var k = 10
-    i = 0
+    var i = 0
     for (i = 0; i < k; i++)
       store.set(i, {cookie: {maxAge: 1000}})
 
