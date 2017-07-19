@@ -2293,21 +2293,17 @@ describe('MemoryStore', function(done){
     var store = new session.MemoryStore()
     var k = 10
     var i = 0
-    for (i = 0; i < k; i++)
-      store.set('sess' + i, {cookie: {maxAge: 1000}, i: i})
+    for (i = 0; i < k; i++) { store.set('sess-' + i, {cookie: {maxAge: 1000}, i: i}) }
 
-    store.all(function(err, all){
+    store.all(function (err, all) {
       if (err) return done(err)
-      assert.ok(Array.isArray(all), 'all should be an Array')
-      i = 10
-      all.forEach(function(entry){
-        --i
-        assert.equal(entry.id, 'sess' + i, 'got expected key')
-        assert.equal(entry.i, i, 'got expected value')
+      assert.equal(typeof all, 'object', 'all should be an Object')
+      Object.keys(all).forEach(function (sid) {
+        var v = sid.split('-')[1]
+        assert.equal(all[sid].i, v, 'got expected value')
       })
       done()
     })
-
   })
 
   it('should count all entries in the store', function(done){
