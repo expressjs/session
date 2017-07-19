@@ -2106,15 +2106,13 @@ describe('MemoryStore', function(done){
       checkPeriod: 10*1000,
       ttl: 36000,
       dispose: null,
-      stale: true,
-      noDisposeOnSet: true
+      stale: true
     })
     assert.equal(store.options.max, 10, 'should set the max option')
     assert.equal(store.options.checkPeriod, 10*1000, 'should set checkPeriod')
     assert.equal(store.options.ttl, 36000, 'should set the TTL')
     assert.equal(store.options.dispose, null, 'should set dispose')
     assert.equal(store.options.stale, true, 'should set stale')
-    assert.equal(store.options.noDisposeOnSet, true, 'should set noDisposeOnSet')
     done()
   })
 
