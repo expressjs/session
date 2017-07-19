@@ -596,6 +596,11 @@ and other multi-core embedded devices).
 [connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
 [connect-session-sequelize-image]: https://img.shields.io/github/stars/mweibel/connect-session-sequelize.svg?label=%E2%98%85
 
+[![★][dynamodb-store-image] dynamodb-store][dynamodb-store-url] A DynamoDB-based session store.
+
+[dynamodb-store-url]: https://github.com/rafaelrpinto/dynamodb-store
+[dynamodb-store-image]: https://img.shields.io/github/stars/rafaelrpinto/dynamodb-store.svg?label=%E2%98%85
+
 [![★][express-mysql-session-image] express-mysql-session][express-mysql-session-url] A session store using native
 [MySQL](https://www.mysql.com/) via the [node-mysql](https://github.com/felixge/node-mysql) module.
 
@@ -628,7 +633,7 @@ and other multi-core embedded devices).
 [express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
 [express-nedb-session-image]: https://img.shields.io/github/stars/louischatriot/express-nedb-session.svg?label=%E2%98%85
 
-[![★][express-session-cache-manager-image] express-session-cache-manager][express-session-cache-manager-url] 
+[![★][express-session-cache-manager-image] express-session-cache-manager][express-session-cache-manager-url]
 A store that implements [cache-manager](https://www.npmjs.com/package/cache-manager), which supports
 a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-engines).
 
