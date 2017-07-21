@@ -15,7 +15,7 @@
     "crc": "3.4.4",
     "debug": "2.6.8",
     "depd": "~1.1.0",
-    "memorystore": "1.3.2",
+    "memorystore": "1.5.0",
     "on-headers": "~1.0.1",
     "parseurl": "~1.3.1",
     "uid-safe": "~2.1.4",
