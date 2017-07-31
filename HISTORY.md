@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * deps: depd@~1.1.1
+   - Remove unnecessary `Buffer` loading
+
 1.15.4 / 2017-07-18
 ===================
 
