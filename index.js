@@ -191,7 +191,7 @@ function session(options) {
     }
 
     // pathname mismatch
-    var originalPath = parseUrl.original(req).pathname;
+    var originalPath = parseUrl.original(req).pathname || '/'
     if (originalPath.indexOf(cookieOptions.path || '/') !== 0) return next();
 
     // ensure a secret is available or bail

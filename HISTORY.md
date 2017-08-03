@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Fix `TypeError` when `req.url` is an empty string
   * deps: depd@~1.1.1
    - Remove unnecessary `Buffer` loading
 

@@ -164,6 +164,17 @@ describe('session()', function(){
     .expect(200, 'session created', cb)
   })
 
+  it('should handle empty req.url', function (done) {
+    function setup (req) {
+      req.url = ''
+    }
+
+    request(createServer(setup))
+    .get('/')
+    .expect(shouldSetCookie('connect.sid'))
+    .expect(200, done)
+  })
+
   it('should handle multiple res.end calls', function(done){
     var server = createServer(null, function (req, res) {
       res.setHeader('Content-Type', 'text/plain')
