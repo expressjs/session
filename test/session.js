@@ -707,6 +707,41 @@ describe('session()', function(){
   })
 
   describe('cookie option', function () {
+    describe('when "path" set to "/foo/bar"', function () {
+      before(function () {
+        this.server = createServer({ cookie: { path: '/foo/bar' } })
+      })
+
+      it('should not set cookie for "/" request', function (done) {
+        request(this.server)
+        .get('/')
+        .expect(shouldNotHaveHeader('Set-Cookie'))
+        .expect(200, done)
+      })
+
+      it('should not set cookie for "http://foo/bar" request', function (done) {
+        request(this.server)
+        .get('/')
+        .set('host', 'http://foo/bar')
+        .expect(shouldNotHaveHeader('Set-Cookie'))
+        .expect(200, done)
+      })
+
+      it('should set cookie for "/foo/bar" request', function (done) {
+        request(this.server)
+        .get('/foo/bar/baz')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, done)
+      })
+
+      it('should set cookie for "/foo/bar/baz" request', function (done) {
+        request(this.server)
+        .get('/foo/bar/baz')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, done)
+      })
+    })
+
     describe('when "secure" set to "auto"', function () {
       describe('when "proxy" is "true"', function () {
         before(function () {
@@ -1773,60 +1808,6 @@ describe('session()', function(){
           request(server)
           .get('/')
           .expect(shouldNotHaveHeader('Set-Cookie'))
-          .expect(200, done)
-        })
-      })
-
-      describe('when the pathname does not match cookie.path', function(){
-        it('should not set-cookie', function(done){
-          var server = createServer({ cookie: { path: '/foo/bar' } }, function (req, res) {
-            if (req.session) req.session.foo = Math.random()
-            res.end()
-          })
-
-          request(server)
-          .get('/')
-          .expect(shouldNotHaveHeader('Set-Cookie'))
-          .expect(200, done)
-        })
-
-        it('should not set-cookie even for FQDN', function(done){
-          var server = createServer({ cookie: { path: '/foo/bar' } }, function (req, res) {
-            if (req.session) req.session.foo = Math.random()
-            res.end()
-          })
-
-          request(server)
-          .get('/')
-          .set('host', 'http://foo/bar')
-          .expect(shouldNotHaveHeader('Set-Cookie'))
-          .expect(200, done)
-        })
-      })
-
-      describe('when the pathname does match cookie.path', function(){
-        it('should set-cookie', function(done){
-          var server = createServer({ cookie: { path: '/foo/bar' } }, function (req, res) {
-            req.session.foo = Math.random()
-            res.end()
-          })
-
-          request(server)
-          .get('/foo/bar/baz')
-          .expect(shouldSetCookie('connect.sid'))
-          .expect(200, done)
-        })
-
-        it('should set-cookie even for FQDN', function(done){
-          var server = createServer({ cookie: { path: '/foo/bar' } }, function (req, res) {
-            req.session.foo = Math.random()
-            res.end()
-          })
-
-          request(server)
-          .get('/foo/bar/baz')
-          .set('host', 'http://example.com')
-          .expect(shouldSetCookie('connect.sid'))
           .expect(200, done)
         })
       })
