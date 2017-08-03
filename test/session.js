@@ -740,6 +740,26 @@ describe('session()', function(){
         .expect(shouldSetCookie('connect.sid'))
         .expect(200, done)
       })
+
+      describe('when mounted at "/foo"', function () {
+        before(function () {
+          this.server = createServer(mountAt('/foo'), { cookie: { path: '/foo/bar' } })
+        })
+
+        it('should set cookie for "/foo/bar" request', function (done) {
+          request(this.server)
+          .get('/foo/bar')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, done)
+        })
+
+        it('should not set cookie for "/foo/foo/bar" request', function (done) {
+          request(this.server)
+          .get('/foo/foo/bar')
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(200, done)
+        })
+      })
     })
 
     describe('when "secure" set to "auto"', function () {
@@ -2134,6 +2154,15 @@ function end(req, res) {
 function expires (res) {
   var header = cookie(res)
   return header && parseSetCookie(header).expires
+}
+
+function mountAt (path) {
+  return function (req, res) {
+    if (req.url.indexOf(path) === 0) {
+      req.originalUrl = req.url
+      req.url = req.url.slice(path.length)
+    }
+  }
 }
 
 function parseSetCookie (header) {
