@@ -1,5 +1,5 @@
-unreleased
-==========
+1.15.5 / 2017-08-02
+===================
 
   * Fix `TypeError` when `req.url` is an empty string
   * deps: depd@~1.1.1
