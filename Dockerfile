@@ -1,2 +1,2 @@
-FROM aboutdotme/node:onbuild
+FROM aboutdotme/node:8-onbuild
 
