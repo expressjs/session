@@ -7,7 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "cookie": "0.1.2",
-    "cookie-signature": "1.0.5",
+    "cookie-signature": "^1.0.5",
     "crc": "3.0.0",
     "debug": "~2.2.0",
     "depd": "~1.0.0",
