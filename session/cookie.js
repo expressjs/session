@@ -96,7 +96,7 @@ Cookie.prototype = {
 
   get data() {
     return {
-        originalMaxAge: this.originalMaxAge
+      originalMaxAge: this.originalMaxAge
       , expires: this._expires
       , secure: this.secure
       , httpOnly: this.httpOnly

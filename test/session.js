@@ -652,17 +652,17 @@ describe('session()', function(){
 
     describe('when disabled', function(){
       before(function () {
-          function setup (req) {
-            req.secure = req.headers['x-secure']
+        function setup (req) {
+          req.secure = req.headers['x-secure']
               ? JSON.parse(req.headers['x-secure'])
               : undefined
-          }
+        }
 
-          function respond (req, res) {
-            res.end(String(req.secure))
-          }
+        function respond (req, res) {
+          res.end(String(req.secure))
+        }
 
-          this.server = createServer(setup, { proxy: false, cookie: { secure: true }}, respond)
+        this.server = createServer(setup, { proxy: false, cookie: { secure: true }}, respond)
       })
 
       it('should not trust X-Forwarded-Proto', function(done){
@@ -685,17 +685,17 @@ describe('session()', function(){
 
     describe('when unspecified', function(){
       before(function () {
-          function setup (req) {
-            req.secure = req.headers['x-secure']
+        function setup (req) {
+          req.secure = req.headers['x-secure']
               ? JSON.parse(req.headers['x-secure'])
               : undefined
-          }
+        }
 
-          function respond (req, res) {
-            res.end(String(req.secure))
-          }
+        function respond (req, res) {
+          res.end(String(req.secure))
+        }
 
-          this.server = createServer(setup, { cookie: { secure: true }}, respond)
+        this.server = createServer(setup, { cookie: { secure: true }}, respond)
       })
 
       it('should not trust X-Forwarded-Proto', function(done){
