@@ -632,7 +632,7 @@ and other multi-core embedded devices).
 [express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
 [express-nedb-session-image]: https://img.shields.io/github/stars/louischatriot/express-nedb-session.svg?label=%E2%98%85
 
-[![★][express-session-cache-manager-image] express-session-cache-manager][express-session-cache-manager-url] 
+[![★][express-session-cache-manager-image] express-session-cache-manager][express-session-cache-manager-url]
 A store that implements [cache-manager](https://www.npmjs.com/package/cache-manager), which supports
 a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-engines).
 
