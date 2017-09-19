@@ -1,6 +1,9 @@
 unreleased
 ==========
 
+  * deps: parseurl@~1.3.2
+    - perf: reduce overhead for full URLs
+    - perf: unroll the "fast-path" `RegExp`
   * deps: uid-safe@~2.1.5
     - perf: remove only trailing `=`
 
