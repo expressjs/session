@@ -704,10 +704,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 
 A simple example using `express-session` to store page views for a user.
 
-```json
-```
+```sh
 npm init
 npm i --save express parseurl express-session
+```
+
 ```js
 #!/usr/bin/env node
 
