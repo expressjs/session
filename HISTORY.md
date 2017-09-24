@@ -6,6 +6,7 @@ unreleased
     - perf: unroll the "fast-path" `RegExp`
   * deps: uid-safe@~2.1.5
     - perf: remove only trailing `=`
+  * deps: utils-merge@1.0.1
 
 1.15.5 / 2017-08-02
 ===================
