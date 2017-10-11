@@ -595,6 +595,11 @@ and other multi-core embedded devices).
 [connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
 [connect-session-sequelize-image]: https://img.shields.io/github/stars/mweibel/connect-session-sequelize.svg?label=%E2%98%85
 
+[![★][couchdb-expression-image] couchdb-expression][couchdb-expression-url] A [CouchDB](https://couchdb.apache.org/)-based session store.
+
+[couchdb-expression-url]: https://www.npmjs.com/package/couchdb-expression
+[couchdb-expression-image]: https://img.shields.io/github/stars/tkshnwesper/couchdb-expression.svg?label=%E2%98%85
+
 [![★][dynamodb-store-image] dynamodb-store][dynamodb-store-url] A DynamoDB-based session store.
 
 [dynamodb-store-url]: https://www.npmjs.com/package/dynamodb-store
