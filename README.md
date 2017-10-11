@@ -702,8 +702,8 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 
 [![★][couchdb-expression-image] couchdb-expression][couchdb-expression-url] A [CouchDB](http://couchdb.apache.org/)-based session store.
 
-[session-rethinkdb-url]: https://www.npmjs.com/package/couchdb-expression
-[session-rethinkdb-image]: https://img.shields.io/github/stars/tkshnwesper/couchdb-expression.svg?label=%E2%98%85
+[couchdb-expression-url]: https://www.npmjs.com/package/couchdb-expression
+[couchdb-expression-image]: https://img.shields.io/github/stars/tkshnwesper/couchdb-expression.svg?label=%E2%98%85
 
 ## Example
 
