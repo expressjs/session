@@ -400,6 +400,11 @@ to its original value.
 req.session.cookie.maxAge // => 30000
 ```
 
+#### Cookie.originalMaxAge
+
+To get the original time-to-live, in milliseconds, of the session cookie,
+access `req.session.cookie.originalMaxAge`.
+
 ### req.sessionID
 
 To get the ID of the loaded session, access the request property
