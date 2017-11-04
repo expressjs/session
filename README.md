@@ -700,6 +700,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [session-rethinkdb-url]: https://www.npmjs.com/package/session-rethinkdb
 [session-rethinkdb-image]: https://img.shields.io/github/stars/llambda/session-rethinkdb.svg?label=%E2%98%85
 
+[![★][sessionstore-image] sessionstore][sessionstore-url] Sessionstore is a node.js module for multiple databases. It can be very useful if you work with express or connect.
+
+[sessionstore-url]: https://www.npmjs.com/package/sessionstore
+[sessionstore-image]: https://img.shields.io/github/stars/llambda/sessionstore.svg?label=%E2%98%85
+
 ## Example
 
 A simple example using `express-session` to store page views for a user.
