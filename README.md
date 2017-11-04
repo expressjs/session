@@ -703,7 +703,7 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [![★][sessionstore-image] sessionstore][sessionstore-url] Sessionstore is a node.js module for multiple databases. It can be very useful if you work with express or connect.
 
 [sessionstore-url]: https://www.npmjs.com/package/sessionstore
-[sessionstore-image]: https://img.shields.io/github/stars/llambda/sessionstore.svg?label=%E2%98%85
+[sessionstore-image]: https://img.shields.io/github/stars/adrai/sessionstore.svg?label=%E2%98%85
 
 ## Example
 
