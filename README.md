@@ -182,6 +182,19 @@ app.use(session({
 }))
 ```
 
+##### ignoreErrors
+
+Setting `ignoreErrors` as true, any errors while fetching the session from the
+store will be ignored. If the session is not fetched, the `req.session` will be
+undefined. This flag can be used to harden your website against store failures.
+In case of failure, the response will not be HTTP 500 Internal Server Error.
+However your application code needs to be able to gracefully handle a
+non-existing `req.session`.
+
+Furthermore it's inadvisable to add a temporary fake `req.session` object, since
+the connection might fail afterward on the store touch or save calls. As long as
+the `req.session` is undefined, the middleware will not save it in the store.
+
 ##### name
 
 The name of the session ID cookie to set in the response (and read from in the
