@@ -609,10 +609,7 @@ function issecure(req, trustProxy) {
 
   // no explicit trust; try req.secure from express
   if (trustProxy !== true) {
-    var secure = req.secure;
-    return typeof secure === 'boolean'
-      ? secure
-      : false;
+    return req.secure === true;
   }
 
   // read the proto from x-forwarded-proto header
