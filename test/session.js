@@ -1098,6 +1098,28 @@ describe('session()', function(){
         .end(cb)
       })
     })
+
+    it('should not touch with bogus req.sessionID', function (done) {
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, resave: false, rolling: true }, function (req, res) {
+        req.sessionID = function () {}
+        req.session.test1 = 1
+        req.session.test2 = 'b'
+        res.end()
+      })
+
+      request(server)
+      .get('/')
+      .expect(shouldNotHaveHeader('Set-Cookie'))
+      .expect(200, function (err) {
+        if (err) return done(err)
+        store.length(function (err, length) {
+          if (err) return done(err)
+          assert.equal(length, 0)
+          done()
+        })
+      })
+    })
   });
 
   describe('saveUninitialized option', function(){
