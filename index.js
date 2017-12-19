@@ -336,7 +336,7 @@ function session(options) {
         });
 
         return writetop();
-      } else if (storeImplementsTouch && shouldTouch(req)) {
+      } else if (rollingSessions && storeImplementsTouch && shouldTouch(req)) {
         // store implements touch method
         debug('touching');
         store.touch(req.sessionID, req.session, function ontouch(err) {
