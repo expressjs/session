@@ -92,6 +92,9 @@ function session(options) {
   // get the session id generate function
   var generateId = opts.genid || generateSessionId
 
+  // ignore errors when store fails
+  var ignoreErrors = !!opts.ignoreErrors
+
   // get the session cookie name
   var name = opts.name || opts.key || 'connect.sid'
 
@@ -463,6 +466,11 @@ function session(options) {
         debug('error %j', err);
 
         if (err.code !== 'ENOENT') {
+          if (ignoreErrors) {
+            debug('ignoring fetch error');
+            return next();
+          }
+
           next(err);
           return;
         }

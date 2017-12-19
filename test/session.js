@@ -874,6 +874,30 @@ describe('session()', function(){
     });
   });
 
+  describe('ignoreErrors option', function(){
+    it('should work without session on fetch error', function (done) {
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, ignoreErrors: true }, function (req, res) {
+        res.end('hello, world')
+      })
+
+      store.get = function destroy(sid, callback) {
+        callback(new Error('boom!'))
+      }
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, 'hello, world', function (err, res) {
+        if (err) return done(err)
+        request(server)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(200, 'hello, world', done)
+      })
+    });
+  });
+
   describe('key option', function(){
     it('should default to "connect.sid"', function(done){
       request(createServer())
