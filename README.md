@@ -700,6 +700,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [session-rethinkdb-url]: https://www.npmjs.com/package/session-rethinkdb
 [session-rethinkdb-image]: https://img.shields.io/github/stars/llambda/session-rethinkdb.svg?label=%E2%98%85
 
+[![★][couchdb-expression-image] couchdb-expression][couchdb-expression-url] A [CouchDB](http://couchdb.apache.org/)-based session store.
+
+[couchdb-expression-url]: https://www.npmjs.com/package/couchdb-expression
+[couchdb-expression-image]: https://img.shields.io/github/stars/tkshnwesper/couchdb-expression.svg?label=%E2%98%85
+
 ## Example
 
 A simple example using `express-session` to store page views for a user.
