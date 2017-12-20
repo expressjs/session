@@ -76,6 +76,7 @@ var defer = typeof setImmediate === 'function'
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
+ * @param {Boolean} [options.alwaysTouchUnmodified] Always touch unmodified sessions
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
@@ -110,6 +111,9 @@ function session(options) {
   // get the save uninitialized session option
   var saveUninitializedSession = opts.saveUninitialized
 
+  // get the save uninitialized session option
+  var alwaysTouchUnmodified = opts.alwaysTouchUnmodified
+
   // get the cookie signing secret
   var secret = opts.secret
 
@@ -125,6 +129,10 @@ function session(options) {
   if (saveUninitializedSession === undefined) {
     deprecate('undefined saveUninitialized option; provide saveUninitialized option');
     saveUninitializedSession = true;
+  }
+
+  if (alwaysTouchUnmodified === undefined) {
+    alwaysTouchUnmodified = true;
   }
 
   if (opts.unset && opts.unset !== 'destroy' && opts.unset !== 'keep') {
@@ -336,7 +344,7 @@ function session(options) {
         });
 
         return writetop();
-      } else if (rollingSessions && storeImplementsTouch && shouldTouch(req)) {
+      } else if ((alwaysTouchUnmodified || rollingSessions) && storeImplementsTouch && shouldTouch(req)) {
         // store implements touch method
         debug('touching');
         store.touch(req.sessionID, req.session, function ontouch(err) {

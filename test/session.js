@@ -963,88 +963,6 @@ describe('session()', function(){
       .expect(shouldSetCookie('connect.sid'))
       .expect(200, done);
     });
-
-    it('should touch unmodified sessions when set', function(done){
-      var store = new session.MemoryStore()
-      var server = createServer({ store: store, resave: false, rolling: true, saveUninitialized: true })
-
-      request(server)
-      .get('/')
-      .expect(shouldSetCookie('connect.sid'))
-      .expect(200, function(err, res){
-        if (err) return done(err);
-
-        var touched = false
-        var _touch = store.touch;
-        store.touch = function touch(sid, sess, callback) {
-          touched = true;
-          _touch.call(store, sid, sess, callback);
-        }
-
-        var id = sid(res)
-        store.get(id, function (err, sess) {
-          if (err) return done(err);
-
-          var expires1 = new Date(sess.cookie.expires);
-          request(server)
-          .get('/')
-          .set('Cookie', cookie(res))
-          .expect(shouldSetCookie('connect.sid'))
-          .expect(200, function (err, res) {
-            if (err) return done(err);
-
-            assert.ok(touched);
-            store.get(id, function (err, sess) {
-              if (err) return done(err);
-              var expires2 = new Date(sess.cookie.expires);
-              assert(expires1.getTime() < expires2.getTime());
-              done();
-            });
-          });
-        });
-      });
-    });
-
-    it('should not touch unmodified sessions when unset', function(done){
-      var store = new session.MemoryStore()
-      var server = createServer({ store: store, resave: false, rolling: false, saveUninitialized: true })
-
-      request(server)
-      .get('/')
-      .expect(shouldSetCookie('connect.sid'))
-      .expect(200, function(err, res){
-        if (err) return done(err);
-
-        var touched = false
-        var _touch = store.touch;
-        store.touch = function touch(sid, sess, callback) {
-          touched = true;
-          _touch.call(store, sid, sess, callback);
-        }
-
-        var id = sid(res)
-        store.get(id, function (err, sess) {
-          if (err) return done(err);
-
-          var expires1 = new Date(sess.cookie.expires);
-          request(server)
-          .get('/')
-          .set('Cookie', cookie(res))
-          .expect(shouldNotHaveHeader('Set-Cookie'))
-          .expect(200, function (err, res) {
-            if (err) return done(err);
-
-            assert.ok(!touched);
-            store.get(id, function (err, sess) {
-              if (err) return done(err);
-              var expires2 = new Date(sess.cookie.expires);
-              assert.equal(expires1.getTime(), expires2.getTime());
-              done();
-            });
-          });
-        });
-      });
-    });
   });
 
   describe('resave option', function(){
@@ -1290,6 +1208,170 @@ describe('session()', function(){
       .get('/')
       .expect(200, cb)
     })
+  });
+
+  describe('alwaysTouchUnmodified option', function(){
+    it('should touch unmodified rolling sessions when set', function(done){
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, alwaysTouchUnmodified: true, rolling: true, resave: false })
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err);
+
+        var touched = false
+        var _touch = store.touch;
+        store.touch = function touch(sid, sess, callback) {
+          touched = true;
+          _touch.call(store, sid, sess, callback);
+        }
+
+        var id = sid(res)
+        store.get(id, function (err, sess) {
+          if (err) return done(err);
+
+          var expires1 = new Date(sess.cookie.expires);
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, function (err, res) {
+            if (err) return done(err);
+
+            assert.ok(touched);
+            store.get(id, function (err, sess) {
+              if (err) return done(err);
+              var expires2 = new Date(sess.cookie.expires);
+              assert(expires1.getTime() < expires2.getTime());
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should touch unmodified non-rolling sessions when set', function(done){
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, alwaysTouchUnmodified: true, rolling: false, resave: false })
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err);
+
+        var touched = false
+        var _touch = store.touch;
+        store.touch = function touch(sid, sess, callback) {
+          touched = true;
+          _touch.call(store, sid, sess, callback);
+        }
+
+        var id = sid(res)
+        store.get(id, function (err, sess) {
+          if (err) return done(err);
+
+          var expires1 = new Date(sess.cookie.expires);
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(200, function (err, res) {
+            if (err) return done(err);
+
+            assert.ok(touched);
+            store.get(id, function (err, sess) {
+              if (err) return done(err);
+              var expires2 = new Date(sess.cookie.expires);
+              assert(expires1.getTime() < expires2.getTime());
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should touch unmodified rolling sessions when unset', function(done){
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, alwaysTouchUnmodified: false, rolling: true, resave: false })
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err);
+
+        var touched = false
+        var _touch = store.touch;
+        store.touch = function touch(sid, sess, callback) {
+          touched = true;
+          _touch.call(store, sid, sess, callback);
+        }
+
+        var id = sid(res)
+        store.get(id, function (err, sess) {
+          if (err) return done(err);
+
+          var expires1 = new Date(sess.cookie.expires);
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, function (err, res) {
+            if (err) return done(err);
+
+            assert.ok(touched);
+            store.get(id, function (err, sess) {
+              if (err) return done(err);
+              var expires2 = new Date(sess.cookie.expires);
+              assert(expires1.getTime() < expires2.getTime());
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should not touch unmodified non-rolling sessions when unset', function(done){
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store, alwaysTouchUnmodified: false, rolling: false, resave: false })
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err);
+
+        var touched = false
+        var _touch = store.touch;
+        store.touch = function touch(sid, sess, callback) {
+          touched = true;
+          _touch.call(store, sid, sess, callback);
+        }
+
+        var id = sid(res)
+        store.get(id, function (err, sess) {
+          if (err) return done(err);
+
+          var expires1 = new Date(sess.cookie.expires);
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(200, function (err, res) {
+            if (err) return done(err);
+
+            assert.ok(!touched);
+            store.get(id, function (err, sess) {
+              if (err) return done(err);
+              var expires2 = new Date(sess.cookie.expires);
+              assert.equal(expires1.getTime(), expires2.getTime());
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('secret option', function () {
