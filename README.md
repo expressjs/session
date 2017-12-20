@@ -263,7 +263,7 @@ always touched in the store at the end of each request. If set to `false`,
 unmodified sessions are only touched when `rolling` is enabled.
 
 The default value is `true`. This means the expiration date in the cookie can
-differ from that in the store when `rolling` is enabled since the cookie
+differ from that in the store when `rolling` is disabled since the cookie
 expiration date is only updated if the session is modified but the session in
 the store is updated regardless.
 
