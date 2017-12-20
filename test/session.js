@@ -1073,7 +1073,7 @@ describe('session()', function(){
     it('should pass session touch error', function (done) {
       var cb = after(2, done)
       var store = new session.MemoryStore()
-      var server = createServer({ store: store, resave: false, rolling: true }, function (req, res) {
+      var server = createServer({ store: store, resave: false }, function (req, res) {
         req.session.hit = true
         res.end('session saved')
       })
@@ -1096,28 +1096,6 @@ describe('session()', function(){
         .get('/')
         .set('Cookie', cookie(res))
         .end(cb)
-      })
-    })
-
-    it('should not touch with bogus req.sessionID', function (done) {
-      var store = new session.MemoryStore()
-      var server = createServer({ store: store, resave: false, rolling: true }, function (req, res) {
-        req.sessionID = function () {}
-        req.session.test1 = 1
-        req.session.test2 = 'b'
-        res.end()
-      })
-
-      request(server)
-      .get('/')
-      .expect(shouldNotHaveHeader('Set-Cookie'))
-      .expect(200, function (err) {
-        if (err) return done(err)
-        store.length(function (err, length) {
-          if (err) return done(err)
-          assert.equal(length, 0)
-          done()
-        })
       })
     })
   });
@@ -1887,7 +1865,7 @@ describe('session()', function(){
     describe('.touch()', function () {
       it('should reset session expiration', function (done) {
         var store = new session.MemoryStore()
-        var server = createServer({ resave: false, rolling: true, store: store, cookie: { maxAge: min } }, function (req, res) {
+        var server = createServer({ resave: false, store: store, cookie: { maxAge: min } }, function (req, res) {
           req.session.hit = true
           req.session.touch()
           res.end()
