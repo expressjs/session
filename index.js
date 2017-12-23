@@ -76,6 +76,7 @@ var defer = typeof setImmediate === 'function'
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
+ * @param {Function} [options.sessionid] Manually set session ID
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
@@ -112,6 +113,8 @@ function session(options) {
 
   // get the cookie signing secret
   var secret = opts.secret
+
+  var getManualSessionId = options.sessionid || function(req) {};
 
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
@@ -155,7 +158,7 @@ function session(options) {
 
   // generates the new session
   store.generate = function(req){
-    req.sessionID = generateId(req);
+    req.sessionID = getManualSessionId(req) ? getManualSessionId(req) : generateId(req);
     req.session = new Session(req);
     req.session.cookie = new Cookie(cookieOptions);
 
@@ -213,7 +216,7 @@ function session(options) {
     req.sessionStore = store;
 
     // get the session ID from the cookie
-    var cookieId = req.sessionID = getcookie(req, name, secrets);
+    var cookieId = req.sessionID = getManualSessionId(req) ? getManualSessionId(req) : getcookie(req, name, secrets);
 
     // set-cookie
     onHeaders(res, function(){
