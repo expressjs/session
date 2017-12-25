@@ -690,6 +690,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [nedb-session-store-url]: https://www.npmjs.com/package/nedb-session-store
 [nedb-session-store-image]: https://img.shields.io/github/stars/JamesMGreene/nedb-session-store.svg?label=%E2%98%85
 
+[![★][restsession-image] restsession][restsession-url] Store sessions utilizing a RESTful API
+
+[restsession-url]: https://www.npmjs.com/package/restsession
+[restsession-image]: https://img.shields.io/github/stars/jankal/restsession.svg?label=%E2%98%85
+
 [![★][sequelstore-connect-image] sequelstore-connect][sequelstore-connect-url] A session store using [Sequelize.js](http://sequelizejs.com/).
 
 [sequelstore-connect-url]: https://www.npmjs.com/package/sequelstore-connect
