@@ -705,6 +705,12 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [session-rethinkdb-url]: https://www.npmjs.com/package/session-rethinkdb
 [session-rethinkdb-image]: https://img.shields.io/github/stars/llambda/session-rethinkdb.svg?label=%E2%98%85
 
+[![★][restsession-image] restsession][restsession-url] Store sessions utilizing a RESTful API
+
+[restsession-url]: https://www.npmjs.com/package/restsession
+[restsession-image]: https://img.shields.io/github/stars/jankal/restsession.svg?label=%E2%98%85
+
+
 ## Example
 
 A simple example using `express-session` to store page views for a user.
