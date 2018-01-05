@@ -255,6 +255,17 @@ will add an empty Passport object to the session for use after a user is
 authenticated, which will be treated as a modification to the session, causing
 it to be saved. *This has been fixed in PassportJS 0.3.0*
 
+##### alwaysTouchUnmodified
+
+If set to `true` and the store supports "touching", unmodified sessions are
+always touched in the store at the end of each request. If set to `false`,
+unmodified sessions are only touched when `rolling` is enabled.
+
+The default value is `true`. This means the expiration date in the cookie can
+differ from that in the store when `rolling` is disabled since the cookie
+expiration date is only updated if the session is modified but the session in
+the store is updated regardless.
+
 ##### secret
 
 **Required option**
