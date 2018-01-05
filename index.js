@@ -344,7 +344,7 @@ function session(options) {
         });
 
         return writetop();
-      } else if ((alwaysTouchUnmodified || rollingSessions) && storeImplementsTouch && shouldTouch(req)) {
+      } else if (storeImplementsTouch && shouldTouch(req)) {
         // store implements touch method
         debug('touching');
         store.touch(req.sessionID, req.session, function ontouch(err) {
@@ -440,7 +440,8 @@ function session(options) {
         return false;
       }
 
-      return cookieId === req.sessionID && !shouldSave(req);
+      return cookieId === req.sessionID && !shouldSave(req) &&
+        (rollingSessions || alwaysTouchUnmodified);
     }
 
     // determine if cookie should be set on response

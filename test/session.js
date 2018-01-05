@@ -1211,21 +1211,23 @@ describe('session()', function(){
           if (err) return done(err);
 
           var expires1 = new Date(sess.cookie.expires);
-          request(server)
-          .get('/')
-          .set('Cookie', cookie(res))
-          .expect(shouldSetCookie('connect.sid'))
-          .expect(200, function (err, res) {
-            if (err) return done(err);
+          setTimeout(function () {
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(shouldSetCookie('connect.sid'))
+              .expect(200, function (err, res) {
+                if (err) return done(err);
 
-            assert.ok(touched);
-            store.get(id, function (err, sess) {
-              if (err) return done(err);
-              var expires2 = new Date(sess.cookie.expires);
-              assert(expires1.getTime() < expires2.getTime());
-              done();
-            });
-          });
+                assert.ok(touched);
+                store.get(id, function (err, sess) {
+                  if (err) return done(err);
+                  var expires2 = new Date(sess.cookie.expires);
+                  assert(expires1.getTime() < expires2.getTime());
+                  done();
+                });
+              });
+          }, 10);
         });
       });
     });
@@ -1252,20 +1254,22 @@ describe('session()', function(){
           if (err) return done(err);
 
           var expires1 = new Date(sess.cookie.expires);
-          request(server)
-          .get('/')
-          .set('Cookie', cookie(res))
-          .expect(200, function (err, res) {
-            if (err) return done(err);
+          setTimeout(function () {
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(200, function (err, res) {
+                if (err) return done(err);
 
-            assert.ok(touched);
-            store.get(id, function (err, sess) {
-              if (err) return done(err);
-              var expires2 = new Date(sess.cookie.expires);
-              assert(expires1.getTime() < expires2.getTime());
-              done();
-            });
-          });
+                assert.ok(touched);
+                store.get(id, function (err, sess) {
+                  if (err) return done(err);
+                  var expires2 = new Date(sess.cookie.expires);
+                  assert(expires1.getTime() < expires2.getTime());
+                  done();
+                });
+              });
+          }, 10);
         });
       });
     });
@@ -1292,21 +1296,23 @@ describe('session()', function(){
           if (err) return done(err);
 
           var expires1 = new Date(sess.cookie.expires);
-          request(server)
-          .get('/')
-          .set('Cookie', cookie(res))
-          .expect(shouldSetCookie('connect.sid'))
-          .expect(200, function (err, res) {
-            if (err) return done(err);
+          setTimeout(function () {
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(shouldSetCookie('connect.sid'))
+              .expect(200, function (err, res) {
+                if (err) return done(err);
 
-            assert.ok(touched);
-            store.get(id, function (err, sess) {
-              if (err) return done(err);
-              var expires2 = new Date(sess.cookie.expires);
-              assert(expires1.getTime() < expires2.getTime());
-              done();
-            });
-          });
+                assert.ok(touched);
+                store.get(id, function (err, sess) {
+                  if (err) return done(err);
+                  var expires2 = new Date(sess.cookie.expires);
+                  assert(expires1.getTime() < expires2.getTime());
+                  done();
+                });
+              });
+          }, 10);
         });
       });
     });
@@ -1333,20 +1339,22 @@ describe('session()', function(){
           if (err) return done(err);
 
           var expires1 = new Date(sess.cookie.expires);
-          request(server)
-          .get('/')
-          .set('Cookie', cookie(res))
-          .expect(200, function (err, res) {
-            if (err) return done(err);
+          setTimeout(function () {
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(200, function (err, res) {
+                if (err) return done(err);
 
-            assert.ok(!touched);
-            store.get(id, function (err, sess) {
-              if (err) return done(err);
-              var expires2 = new Date(sess.cookie.expires);
-              assert.equal(expires1.getTime(), expires2.getTime());
-              done();
-            });
-          });
+                assert.ok(!touched);
+                store.get(id, function (err, sess) {
+                  if (err) return done(err);
+                  var expires2 = new Date(sess.cookie.expires);
+                  assert.equal(expires1.getTime(), expires2.getTime());
+                  done();
+                });
+              });
+          }, 10);
         });
       });
     });
