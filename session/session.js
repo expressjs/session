@@ -87,7 +87,8 @@ defineMethod(Session.prototype, 'save', function save(fn) {
 
 defineMethod(Session.prototype, 'reload', function reload(fn) {
   var req = this.req
-    , store = this.req.sessionStore;
+  var store = this.req.sessionStore
+
   store.get(this.id, function(err, sess){
     if (err) return fn(err);
     if (!sess) return fn(new Error('failed to load session'));

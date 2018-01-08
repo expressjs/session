@@ -17,15 +17,15 @@ var cookie = require('cookie');
 var crc = require('crc').crc32;
 var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
+var onHeaders = require('on-headers')
 var parseUrl = require('parseurl');
+var signature = require('cookie-signature')
 var uid = require('uid-safe').sync
-  , onHeaders = require('on-headers')
-  , signature = require('cookie-signature')
 
+var Cookie = require('./session/cookie')
+var MemoryStore = require('./session/memory')
 var Session = require('./session/session')
-  , MemoryStore = require('./session/memory')
-  , Cookie = require('./session/cookie')
-  , Store = require('./session/store')
+var Store = require('./session/store')
 
 // environment
 

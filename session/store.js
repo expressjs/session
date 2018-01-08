@@ -85,7 +85,8 @@ Store.prototype.load = function(sid, fn){
 
 Store.prototype.createSession = function(req, sess){
   var expires = sess.cookie.expires
-    , orig = sess.cookie.originalMaxAge;
+  var orig = sess.cookie.originalMaxAge
+
   sess.cookie = new Cookie(sess.cookie);
   if ('string' == typeof expires) sess.cookie.expires = new Date(expires);
   sess.cookie.originalMaxAge = orig;

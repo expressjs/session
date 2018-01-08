@@ -11,8 +11,8 @@
  * Module dependencies.
  */
 
+var cookie = require('cookie')
 var merge = require('utils-merge')
-  , cookie = require('cookie');
 
 /**
  * Initialize a new `Cookie` with the given `options`.

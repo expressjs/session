@@ -3,15 +3,16 @@ process.env.NO_DEPRECATION = 'express-session';
 
 var after = require('after')
 var assert = require('assert')
+var cookieParser = require('cookie-parser')
 var express = require('express')
-  , request = require('supertest')
-  , cookieParser = require('cookie-parser')
-  , session = require('../')
-  , Cookie = require('../session/cookie')
 var fs = require('fs')
 var http = require('http')
 var https = require('https')
+var request = require('supertest')
+var session = require('../')
 var util = require('util')
+
+var Cookie = require('../session/cookie')
 
 var min = 60 * 1000;
 
