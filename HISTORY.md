@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Use `safe-buffer` for improved Buffer API
   * deps: crc@3.5.0
 
 1.15.6 / 2017-09-26

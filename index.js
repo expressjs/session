@@ -13,6 +13,7 @@
  * @private
  */
 
+var Buffer = require('safe-buffer').Buffer
 var cookie = require('cookie');
 var crc = require('crc').crc32;
 var debug = require('debug')('express-session');
@@ -281,7 +282,7 @@ function session(options) {
         if (!isNaN(contentLength) && contentLength > 0) {
           // measure chunk
           chunk = !Buffer.isBuffer(chunk)
-            ? new Buffer(chunk, encoding)
+            ? Buffer.from(chunk, encoding)
             : chunk;
           encoding = undefined;
 
