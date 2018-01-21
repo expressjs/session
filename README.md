@@ -719,6 +719,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [sessionstore-url]: https://www.npmjs.com/package/sessionstore
 [sessionstore-image]: https://img.shields.io/github/stars/adrai/sessionstore.svg?label=%E2%98%85
 
+[![★][session-pouchdb-store-image] session-pouchdb-store][session-pouchdb-store-url] Session store for PouchDB / CouchDB. Accepts embedded, custom, or remote PouchDB instance and realtime synchronization.
+
+[session-pouchdb-store-url]: https://www.npmjs.com/package/session-pouchdb-store
+[session-pouchdb-store-image]: https://img.shields.io/github/stars/solzimer/session-pouchdb-store.svg?label=%E2%98%85
+
 ## Example
 
 A simple example using `express-session` to store page views for a user.
