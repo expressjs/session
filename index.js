@@ -18,7 +18,7 @@ var crc = require('crc').crc32;
 var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
 var parseUrl = require('parseurl');
-var uid = require('uid-safe').sync
+var uid = require('uid-safe')
   , onHeaders = require('on-headers')
   , signature = require('cookie-signature')
 
@@ -89,8 +89,11 @@ function session(options) {
   // get the cookie options
   var cookieOptions = opts.cookie || {}
 
+  // toggle asynchronous session generation
+  var isAsync = !!opts.async
+
   // get the session id generate function
-  var generateId = opts.genid || generateSessionId
+  var generateId = opts.genid || (isAsync ? generateSessionId : generateSessionIdSync)
 
   // get the session cookie name
   var name = opts.name || opts.key || 'connect.sid'
@@ -154,13 +157,27 @@ function session(options) {
   }
 
   // generates the new session
-  store.generate = function(req){
-    req.sessionID = generateId(req);
-    req.session = new Session(req);
-    req.session.cookie = new Cookie(cookieOptions);
+  store.generate = function(req, callback) {
+    if (isAsync) {
+      generateId(req, initializeSession);
+    } else {
+      initializeSession(null, generateId(req));
+    }
 
-    if (cookieOptions.secure === 'auto') {
-      req.session.cookie.secure = issecure(req, trustProxy);
+    // Initializes session and cookie
+    function initializeSession(err, sessionID) {
+      if(err) throw err;
+
+      req.sessionID = sessionID;
+
+      req.session = new Session(req);
+      req.session.cookie = new Cookie(cookieOptions);
+
+      if (cookieOptions.secure === 'auto') {
+        req.session.cookie.secure = issecure(req, trustProxy);
+      }
+
+      callback(req);
     }
   };
 
@@ -207,7 +224,6 @@ function session(options) {
     var originalHash;
     var originalId;
     var savedHash;
-    var touched = false
 
     // expose store
     req.sessionStore = store;
@@ -232,11 +248,8 @@ function session(options) {
         return;
       }
 
-      if (!touched) {
-        // touch session
-        req.session.touch()
-        touched = true
-      }
+      // touch session
+      req.session.touch();
 
       // set cookie
       setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
@@ -320,12 +333,6 @@ function session(options) {
         return _end.call(res, chunk, encoding);
       }
 
-      if (!touched) {
-        // touch session
-        req.session.touch()
-        touched = true
-      }
-
       if (shouldSave(req)) {
         req.session.save(function onsave(err) {
           if (err) {
@@ -355,11 +362,13 @@ function session(options) {
     };
 
     // generate the session
-    function generate() {
-      store.generate(req);
-      originalId = req.sessionID;
-      originalHash = hash(req.session);
-      wrapmethods(req.session);
+    function generate(callback) {
+      store.generate(req, function(req) {
+        originalId = req.sessionID;
+        originalHash = hash(req.session);
+        wrapmethods(req.session);
+        callback && callback();
+      });
     }
 
     // wrap session methods
@@ -450,8 +459,9 @@ function session(options) {
     // generate a session if the browser doesn't send a sessionID
     if (!req.sessionID) {
       debug('no SID sent, generating session');
-      generate();
-      next();
+      generate(function(){
+        next();
+      });
       return;
     }
 
@@ -467,11 +477,15 @@ function session(options) {
           return;
         }
 
-        generate();
+        generate(function(){
+          next();
+        });
       // no session
       } else if (!sess) {
         debug('no session found');
-        generate();
+        generate(function(){
+          next();
+        });
       // populate req.session
       } else {
         debug('session found');
@@ -484,9 +498,9 @@ function session(options) {
         }
 
         wrapmethods(req.session);
-      }
 
-      next();
+        next();
+      }
     });
   };
 };
@@ -498,8 +512,19 @@ function session(options) {
  * @private
  */
 
-function generateSessionId(sess) {
-  return uid(24);
+function generateSessionId(sess, callback) {
+  return uid(24, callback);
+}
+
+/**
+ * Generate a session ID for a new session synchronously.
+ *
+ * @return {String}
+ * @private
+ */
+
+function generateSessionIdSync(sess, callback) {
+  return uid.sync(24);
 }
 
 /**
