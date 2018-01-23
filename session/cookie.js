@@ -26,7 +26,15 @@ var Cookie = module.exports = function Cookie(options) {
   this.path = '/';
   this.maxAge = null;
   this.httpOnly = true;
-  if (options) merge(this, options);
+
+  if (options) {
+    if (typeof options !== 'object') {
+      throw new TypeError('argument options must be a object')
+    }
+
+    merge(this, options)
+  }
+
   this.originalMaxAge = undefined == this.originalMaxAge
     ? this.maxAge
     : this.originalMaxAge;

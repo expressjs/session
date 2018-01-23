@@ -32,6 +32,13 @@ describe('new Cookie()', function () {
       assert.equal(typeof new Cookie({}), 'object')
     })
 
+    it('should reject non-objects', function () {
+      assert.throws(function () { new Cookie(42) }, /argument options/)
+      assert.throws(function () { new Cookie('foo') }, /argument options/)
+      assert.throws(function () { new Cookie(true) }, /argument options/)
+      assert.throws(function () { new Cookie(function () {}) }, /argument options/)
+    })
+
     it('should set expires', function () {
       var expires = new Date()
       var cookie = new Cookie({ expires: expires })
