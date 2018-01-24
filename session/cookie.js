@@ -29,7 +29,7 @@ var Cookie = module.exports = function Cookie(options) {
   if (options && typeof options == 'object') {
     merge(this, options);
   } else {
-    throw new Error('options must be a object');
+    throw new TypeError('options must be a object');
   }
   this.originalMaxAge = undefined == this.originalMaxAge
     ? this.maxAge
