@@ -21,6 +21,22 @@ describe('session()', function(){
     assert.equal(typeof session.Store, 'function')
     assert.equal(typeof session.MemoryStore, 'function')
   })
+  
+  it('should require object', function() {
+    var bool = true
+    var func = function() {}
+    var str = ''
+    
+    assert.throws(function() {
+      new Cookie(bool)
+    }, Error)
+    assert.throws(function() {
+      new Cookie(func)
+    }, Error)
+    assert.throws(function() {
+      new Cookie(str)
+    }, Error)
+  })
 
   it('should do nothing if req.session exists', function(done){
     function setup (req) {
