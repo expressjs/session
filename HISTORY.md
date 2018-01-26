@@ -3,6 +3,8 @@ unreleased
 
   * Use `safe-buffer` for improved Buffer API
   * deps: crc@3.5.0
+  * deps: depd@~1.1.2
+    - perf: remove argument reassignment
 
 1.15.6 / 2017-09-26
 ===================
