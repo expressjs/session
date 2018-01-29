@@ -279,6 +279,13 @@ The default value is `'keep'`.
   - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
 
+##### signature
+
+Pass in your own cookie signing object/module here that implements the
+`sign(value, secret)` and `unsign(value, secret)` functions.
+
+The default value is the [`cookie-signature`](https://github.com/tj/node-cookie-signature) module.
+
 ### req.session
 
 To store or access session data, simply use the request property `req.session`,

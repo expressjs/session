@@ -2075,6 +2075,44 @@ describe('session()', function(){
       })
     })
 
+    it('should reject invalid custom signature objects', function(){
+      assert.throws(session.bind(null, { signature: { sign: 'bogus!' } }), /signature.*sign.*unsign/)
+    });
+
+    it('should use a custom signature object if passed in', function(done){
+      var app = express()
+        .use(cookieParser())
+        .use(function(req, res, next){ req.headers.cookie = 'foo=bar'; next() })
+        .use(session({ 
+          secret: 'keyboard cat',
+          key: 'sessid',
+          signature: {
+            sign: function(val, secret) {
+              return secret + val + secret;
+            },
+            unsign: function(val, secret) {
+              return val.replace(/secret/g, '')
+            }
+          }
+        }))
+        .use(function(req, res, next){
+          req.session.count = req.session.count || 0
+          req.session.count++
+          res.end(req.session.count.toString())
+        })
+
+      request(app)
+      .get('/')
+      .expect(200, '1', function (err, res) {
+        if (err) return done(err)
+        var val = cookie(res).replace(/...\./, '.')
+        request(app)
+        .get('/')
+        .set('Cookie', val)
+        .expect(200, '1', done)
+      })
+    })
+
     it('should read from req.signedCookies', function(done){
       var app = express()
         .use(cookieParser('keyboard cat'))
