@@ -526,6 +526,11 @@ and other multi-core embedded devices).
 [connect-datacache-url]: https://www.npmjs.com/package/connect-datacache
 [connect-datacache-image]: https://img.shields.io/github/stars/adriantanasa/connect-datacache.svg?label=%E2%98%85
 
+[![★][@google-cloud/connect-datastore-image] @google-cloud/connect-datastore][@google-cloud/connect-datastore-url] A [Google Cloud Datastore](https://cloud.google.com/datastore/docs/concepts/overview)-based session store.
+
+[@google-cloud/connect-datastore-url]: https://www.npmjs.com/package/@google-cloud/connect-datastore
+[@google-cloud/connect-datastore-image]: https://img.shields.io/github/stars/GoogleCloudPlatform/cloud-datastore-session-node.svg?label=%E2%98%85
+
 [![★][connect-db2-image] connect-db2][connect-db2-url] An IBM DB2-based session store built using [ibm_db](https://www.npmjs.com/package/ibm_db) module.
 
 [connect-db2-url]: https://www.npmjs.com/package/connect-db2
