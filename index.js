@@ -110,6 +110,8 @@ function session(options) {
   // get the save uninitialized session option
   var saveUninitializedSession = opts.saveUninitialized
 
+  var ignoreMiddleware = opts.ignoreMiddleware || function (req, res, next) { next() }
+
   // get the cookie signing secret
   var secret = opts.secret
 
@@ -175,320 +177,325 @@ function session(options) {
     storeReady = true
   })
 
-  return function session(req, res, next) {
-    // self-awareness
-    if (req.session) {
+  return [ignoreMiddleware, function session(req, res, next) {
+    if (req.isSessionIgnore) {
       next()
-      return
-    }
+    } else {
+      // self-awareness
+      if (req.session) {
+        next()
 
-    // Handle connection as if there is no session if
-    // the store has temporarily disconnected etc
-    if (!storeReady) {
-      debug('store is disconnected')
-      next()
-      return
-    }
+        return
+      }
 
-    // pathname mismatch
-    var originalPath = parseUrl.original(req).pathname || '/'
-    if (originalPath.indexOf(cookieOptions.path || '/') !== 0) return next();
+      // Handle connection as if there is no session if
+      // the store has temporarily disconnected etc
+      if (!storeReady) {
+        debug('store is disconnected')
+        next()
+        return
+      }
 
-    // ensure a secret is available or bail
-    if (!secret && !req.secret) {
-      next(new Error('secret option required for sessions'));
-      return;
-    }
+      // pathname mismatch
+      var originalPath = parseUrl.original(req).pathname || '/'
+      if (originalPath.indexOf(cookieOptions.path || '/') !== 0) return next();
 
-    // backwards compatibility for signed cookies
-    // req.secret is passed from the cookie parser middleware
-    var secrets = secret || [req.secret];
-
-    var originalHash;
-    var originalId;
-    var savedHash;
-    var touched = false
-
-    // expose store
-    req.sessionStore = store;
-
-    // get the session ID from the cookie
-    var cookieId = req.sessionID = getcookie(req, name, secrets);
-
-    // set-cookie
-    onHeaders(res, function(){
-      if (!req.session) {
-        debug('no session');
+      // ensure a secret is available or bail
+      if (!secret && !req.secret) {
+        next(new Error('secret option required for sessions'));
         return;
       }
 
-      if (!shouldSetCookie(req)) {
-        return;
-      }
+      // backwards compatibility for signed cookies
+      // req.secret is passed from the cookie parser middleware
+      var secrets = secret || [req.secret];
 
-      // only send secure cookies via https
-      if (req.session.cookie.secure && !issecure(req, trustProxy)) {
-        debug('not secured');
-        return;
-      }
+      var originalHash;
+      var originalId;
+      var savedHash;
+      var touched = false
 
-      if (!touched) {
-        // touch session
-        req.session.touch()
-        touched = true
-      }
+      // expose store
+      req.sessionStore = store;
 
-      // set cookie
-      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
-    });
+      // get the session ID from the cookie
+      var cookieId = req.sessionID = getcookie(req, name, secrets);
 
-    // proxy end() to commit the session
-    var _end = res.end;
-    var _write = res.write;
-    var ended = false;
-    res.end = function end(chunk, encoding) {
-      if (ended) {
-        return false;
-      }
-
-      ended = true;
-
-      var ret;
-      var sync = true;
-
-      function writeend() {
-        if (sync) {
-          ret = _end.call(res, chunk, encoding);
-          sync = false;
+      // set-cookie
+      onHeaders(res, function(){
+        if (!req.session) {
+          debug('no session');
           return;
         }
 
-        _end.call(res);
-      }
-
-      function writetop() {
-        if (!sync) {
-          return ret;
+        if (!shouldSetCookie(req)) {
+          return;
         }
 
-        if (chunk == null) {
-          ret = true;
-          return ret;
+        // only send secure cookies via https
+        if (req.session.cookie.secure && !issecure(req, trustProxy)) {
+          debug('not secured');
+          return;
         }
 
-        var contentLength = Number(res.getHeader('Content-Length'));
+        if (!touched) {
+          // touch session
+          req.session.touch()
+          touched = true
+        }
 
-        if (!isNaN(contentLength) && contentLength > 0) {
-          // measure chunk
-          chunk = !Buffer.isBuffer(chunk)
-            ? new Buffer(chunk, encoding)
-            : chunk;
-          encoding = undefined;
+        // set cookie
+        setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
+      });
 
-          if (chunk.length !== 0) {
-            debug('split response');
-            ret = _write.call(res, chunk.slice(0, chunk.length - 1));
-            chunk = chunk.slice(chunk.length - 1, chunk.length);
+      // proxy end() to commit the session
+      var _end = res.end;
+      var _write = res.write;
+      var ended = false;
+      res.end = function end(chunk, encoding) {
+        if (ended) {
+          return false;
+        }
+
+        ended = true;
+
+        var ret;
+        var sync = true;
+
+        function writeend() {
+          if (sync) {
+            ret = _end.call(res, chunk, encoding);
+            sync = false;
+            return;
+          }
+
+          _end.call(res);
+        }
+
+        function writetop() {
+          if (!sync) {
             return ret;
           }
-        }
 
-        ret = _write.call(res, chunk, encoding);
-        sync = false;
-
-        return ret;
-      }
-
-      if (shouldDestroy(req)) {
-        // destroy session
-        debug('destroying');
-        store.destroy(req.sessionID, function ondestroy(err) {
-          if (err) {
-            defer(next, err);
+          if (chunk == null) {
+            ret = true;
+            return ret;
           }
 
-          debug('destroyed');
-          writeend();
-        });
+          var contentLength = Number(res.getHeader('Content-Length'));
 
-        return writetop();
-      }
+          if (!isNaN(contentLength) && contentLength > 0) {
+            // measure chunk
+            chunk = !Buffer.isBuffer(chunk)
+              ? new Buffer(chunk, encoding)
+              : chunk;
+            encoding = undefined;
 
-      // no session to save
-      if (!req.session) {
-        debug('no session');
+            if (chunk.length !== 0) {
+              debug('split response');
+              ret = _write.call(res, chunk.slice(0, chunk.length - 1));
+              chunk = chunk.slice(chunk.length - 1, chunk.length);
+              return ret;
+            }
+          }
+
+          ret = _write.call(res, chunk, encoding);
+          sync = false;
+
+          return ret;
+        }
+
+        if (shouldDestroy(req)) {
+          // destroy session
+          debug('destroying');
+          store.destroy(req.sessionID, function ondestroy(err) {
+            if (err) {
+              defer(next, err);
+            }
+
+            debug('destroyed');
+            writeend();
+          });
+
+          return writetop();
+        }
+
+        // no session to save
+        if (!req.session) {
+          debug('no session');
+          return _end.call(res, chunk, encoding);
+        }
+
+        if (!touched) {
+          // touch session
+          req.session.touch()
+          touched = true
+        }
+
+        if (shouldSave(req)) {
+          req.session.save(function onsave(err) {
+            if (err) {
+              defer(next, err);
+            }
+
+            writeend();
+          });
+
+          return writetop();
+        } else if (storeImplementsTouch && shouldTouch(req)) {
+          // store implements touch method
+          debug('touching');
+          store.touch(req.sessionID, req.session, function ontouch(err) {
+            if (err) {
+              defer(next, err);
+            }
+
+            debug('touched');
+            writeend();
+          });
+
+          return writetop();
+        }
+
         return _end.call(res, chunk, encoding);
-      }
+      };
 
-      if (!touched) {
-        // touch session
-        req.session.touch()
-        touched = true
-      }
-
-      if (shouldSave(req)) {
-        req.session.save(function onsave(err) {
-          if (err) {
-            defer(next, err);
-          }
-
-          writeend();
-        });
-
-        return writetop();
-      } else if (storeImplementsTouch && shouldTouch(req)) {
-        // store implements touch method
-        debug('touching');
-        store.touch(req.sessionID, req.session, function ontouch(err) {
-          if (err) {
-            defer(next, err);
-          }
-
-          debug('touched');
-          writeend();
-        });
-
-        return writetop();
-      }
-
-      return _end.call(res, chunk, encoding);
-    };
-
-    // generate the session
-    function generate() {
-      store.generate(req);
-      originalId = req.sessionID;
-      originalHash = hash(req.session);
-      wrapmethods(req.session);
-    }
-
-    // wrap session methods
-    function wrapmethods(sess) {
-      var _reload = sess.reload
-      var _save = sess.save;
-
-      function reload(callback) {
-        debug('reloading %s', this.id)
-        _reload.call(this, function () {
-          wrapmethods(req.session)
-          callback.apply(this, arguments)
-        })
-      }
-
-      function save() {
-        debug('saving %s', this.id);
-        savedHash = hash(this);
-        _save.apply(this, arguments);
-      }
-
-      Object.defineProperty(sess, 'reload', {
-        configurable: true,
-        enumerable: false,
-        value: reload,
-        writable: true
-      })
-
-      Object.defineProperty(sess, 'save', {
-        configurable: true,
-        enumerable: false,
-        value: save,
-        writable: true
-      });
-    }
-
-    // check if session has been modified
-    function isModified(sess) {
-      return originalId !== sess.id || originalHash !== hash(sess);
-    }
-
-    // check if session has been saved
-    function isSaved(sess) {
-      return originalId === sess.id && savedHash === hash(sess);
-    }
-
-    // determine if session should be destroyed
-    function shouldDestroy(req) {
-      return req.sessionID && unsetDestroy && req.session == null;
-    }
-
-    // determine if session should be saved to store
-    function shouldSave(req) {
-      // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
-        debug('session ignored because of bogus req.sessionID %o', req.sessionID);
-        return false;
-      }
-
-      return !saveUninitializedSession && cookieId !== req.sessionID
-        ? isModified(req.session)
-        : !isSaved(req.session)
-    }
-
-    // determine if session should be touched
-    function shouldTouch(req) {
-      // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
-        debug('session ignored because of bogus req.sessionID %o', req.sessionID);
-        return false;
-      }
-
-      return cookieId === req.sessionID && !shouldSave(req);
-    }
-
-    // determine if cookie should be set on response
-    function shouldSetCookie(req) {
-      // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
-        return false;
-      }
-
-      return cookieId != req.sessionID
-        ? saveUninitializedSession || isModified(req.session)
-        : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
-    }
-
-    // generate a session if the browser doesn't send a sessionID
-    if (!req.sessionID) {
-      debug('no SID sent, generating session');
-      generate();
-      next();
-      return;
-    }
-
-    // generate the session object
-    debug('fetching %s', req.sessionID);
-    store.get(req.sessionID, function(err, sess){
-      // error handling
-      if (err) {
-        debug('error %j', err);
-
-        if (err.code !== 'ENOENT') {
-          next(err);
-          return;
-        }
-
-        generate();
-      // no session
-      } else if (!sess) {
-        debug('no session found');
-        generate();
-      // populate req.session
-      } else {
-        debug('session found');
-        store.createSession(req, sess);
+      // generate the session
+      function generate() {
+        store.generate(req);
         originalId = req.sessionID;
-        originalHash = hash(sess);
-
-        if (!resaveSession) {
-          savedHash = originalHash
-        }
-
+        originalHash = hash(req.session);
         wrapmethods(req.session);
       }
 
-      next();
-    });
-  };
+      // wrap session methods
+      function wrapmethods(sess) {
+        var _reload = sess.reload
+        var _save = sess.save;
+
+        function reload(callback) {
+          debug('reloading %s', this.id)
+          _reload.call(this, function () {
+            wrapmethods(req.session)
+            callback.apply(this, arguments)
+          })
+        }
+
+        function save() {
+          debug('saving %s', this.id);
+          savedHash = hash(this);
+          _save.apply(this, arguments);
+        }
+
+        Object.defineProperty(sess, 'reload', {
+          configurable: true,
+          enumerable: false,
+          value: reload,
+          writable: true
+        })
+
+        Object.defineProperty(sess, 'save', {
+          configurable: true,
+          enumerable: false,
+          value: save,
+          writable: true
+        });
+      }
+
+      // check if session has been modified
+      function isModified(sess) {
+        return originalId !== sess.id || originalHash !== hash(sess);
+      }
+
+      // check if session has been saved
+      function isSaved(sess) {
+        return originalId === sess.id && savedHash === hash(sess);
+      }
+
+      // determine if session should be destroyed
+      function shouldDestroy(req) {
+        return req.sessionID && unsetDestroy && req.session == null;
+      }
+
+      // determine if session should be saved to store
+      function shouldSave(req) {
+        // cannot set cookie without a session ID
+        if (typeof req.sessionID !== 'string') {
+          debug('session ignored because of bogus req.sessionID %o', req.sessionID);
+          return false;
+        }
+
+        return !saveUninitializedSession && cookieId !== req.sessionID
+          ? isModified(req.session)
+          : !isSaved(req.session)
+      }
+
+      // determine if session should be touched
+      function shouldTouch(req) {
+        // cannot set cookie without a session ID
+        if (typeof req.sessionID !== 'string') {
+          debug('session ignored because of bogus req.sessionID %o', req.sessionID);
+          return false;
+        }
+
+        return cookieId === req.sessionID && !shouldSave(req);
+      }
+
+      // determine if cookie should be set on response
+      function shouldSetCookie(req) {
+        // cannot set cookie without a session ID
+        if (typeof req.sessionID !== 'string') {
+          return false;
+        }
+
+        return cookieId != req.sessionID
+          ? saveUninitializedSession || isModified(req.session)
+          : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
+      }
+
+      // generate a session if the browser doesn't send a sessionID
+      if (!req.sessionID) {
+        debug('no SID sent, generating session');
+        generate();
+        next();
+        return;
+      }
+
+      // generate the session object
+      debug('fetching %s', req.sessionID);
+      store.get(req.sessionID, function(err, sess){
+        // error handling
+        if (err) {
+          debug('error %j', err);
+
+          if (err.code !== 'ENOENT') {
+            next(err);
+            return;
+          }
+
+          generate();
+        // no session
+        } else if (!sess) {
+          debug('no session found');
+          generate();
+        // populate req.session
+        } else {
+          debug('session found');
+          store.createSession(req, sess);
+          originalId = req.sessionID;
+          originalHash = hash(sess);
+
+          if (!resaveSession) {
+            savedHash = originalHash
+          }
+
+          wrapmethods(req.session);
+        }
+
+        next();
+      });
+    }
+  }];
 };
 
 /**
@@ -609,7 +616,10 @@ function issecure(req, trustProxy) {
 
   // no explicit trust; try req.secure from express
   if (trustProxy !== true) {
-    return req.secure === true
+    var secure = req.secure;
+    return typeof secure === 'boolean'
+      ? secure
+      : false;
   }
 
   // read the proto from x-forwarded-proto header
