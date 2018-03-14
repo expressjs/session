@@ -474,19 +474,14 @@ describe('session()', function(){
       .expect(shouldSetCookie('connect.sid'))
       .expect(200, 'session 1', function (err, res) {
         if (err) return done(err)
-        var val = sid(res)
-        assert.ok(val)
         store.clear(function (err) {
           if (err) return done(err)
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
           .expect(shouldSetCookie('connect.sid'))
-          .expect(200, 'session 2', function (err, res) {
-            if (err) return done(err)
-            assert.notEqual(sid(res), val)
-            done()
-          })
+          .expect(shouldSetCookieToDifferentSessionId(res))
+          .expect(200, 'session 2', done)
         })
       })
     })
@@ -512,6 +507,7 @@ describe('session()', function(){
         .get('/')
         .set('Cookie', 'sessid=' + val)
         .expect(shouldSetCookie('sessid'))
+        .expect(shouldSetCookieToDifferentSessionId(val))
         .expect(200, 'session created', done)
       })
     })
@@ -578,18 +574,13 @@ describe('session()', function(){
       .expect(shouldSetCookie('connect.sid'))
       .expect(200, 'session 1', function (err, res) {
         if (err) return done(err)
-        var val = sid(res)
-        assert.ok(val)
         setTimeout(function () {
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
           .expect(shouldSetCookie('connect.sid'))
-          .expect(200, 'session 2', function (err, res) {
-            if (err) return done(err)
-            assert.notEqual(sid(res), val)
-            done()
-          })
+          .expect(shouldSetCookieToDifferentSessionId(sid(res)))
+          .expect(200, 'session 2', done)
         }, 15)
       })
     })
@@ -1545,16 +1536,12 @@ describe('session()', function(){
         .expect(shouldSetCookie('connect.sid'))
         .expect(200, function (err, res) {
           if (err) return done(err)
-          var id = sid(res)
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
           .expect(shouldSetCookie('connect.sid'))
-          .expect(200, 'false', function (err, res) {
-            if (err) return done(err)
-            assert.notEqual(sid(res), id)
-            done();
-          });
+          .expect(shouldSetCookieToDifferentSessionId(sid(res)))
+          .expect(200, 'false', done)
         });
       })
     })
@@ -2223,6 +2210,12 @@ function shouldSetCookie (name) {
   }
 }
 
+function shouldSetCookieToDifferentSessionId (id) {
+  return function (res) {
+    assert.notEqual(sid(res), id)
+  }
+}
+
 function shouldSetCookieToExpireIn (name, delta) {
   return function (res) {
     var header = cookie(res)
@@ -2290,10 +2283,12 @@ function shouldSetSessionInStore(store) {
   }
 }
 
-function sid(res) {
-  var match = /^[^=]+=s%3A([^;\.]+)[\.;]/.exec(cookie(res))
-  var val = match ? match[1] : undefined
-  return val
+function sid (res) {
+  var header = cookie(res)
+  var data = header && parseSetCookie(header)
+  var value = data && unescape(data.value)
+  var sid = value && value.substring(2, value.indexOf('.'))
+  return sid || undefined
 }
 
 function writePatch (res) {
