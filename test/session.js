@@ -1,6 +1,4 @@
 
-process.env.NO_DEPRECATION = 'express-session';
-
 var after = require('after')
 var assert = require('assert')
 var cookieParser = require('cookie-parser')
