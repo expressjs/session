@@ -663,6 +663,11 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-etcd-url]: https://www.npmjs.com/package/express-etcd
 [express-etcd-image]: https://img.shields.io/github/stars/gildean/express-etcd.svg?label=%E2%98%85
 
+[![★][express-session-etcd3-image] express-session-etcd3][express-session-etcd3-url] An [etcd3](https://github.com/mixer/etcd3) based session store.
+
+[express-session-etcd3-url]: https://www.npmjs.com/package/express-session-etcd3
+[express-session-etcd3-image]: https://img.shields.io/github/stars/willgm/express-session-etcd3.svg?label=%E2%98%85
+
 [![★][fortune-session-image] fortune-session][fortune-session-url] A [Fortune.js](https://github.com/fortunejs/fortune)
 based session store. Supports all backends supported by Fortune (MongoDB, Redis, Postgres, NeDB).
 
