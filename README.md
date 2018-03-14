@@ -499,6 +499,11 @@ module. Please make a PR to add additional modules :)
 [cassandra-store-url]: https://www.npmjs.com/package/cassandra-store
 [cassandra-store-image]: https://img.shields.io/github/stars/webcc/cassandra-store.svg?label=%E2%98%85
 
+[![★][cloud-datastore-session-node-image] cloud-datastore-session-node][cloud-datastore-session-node-url] A [Google Cloud Datastore](https://cloud.google.com/datastore/docs/concepts/overview)-based session store.
+
+[cloud-datastore-session-node-url]: https://www.npmjs.com/package/@google-cloud/connect-datastore
+[cloud-datastore-session-node-image]: https://img.shields.io/github/stars/GoogleCloudPlatform/cloud-datastore-session-node.svg?label=%E2%98%85
+
 [![★][cluster-store-image] cluster-store][cluster-store-url] A wrapper for using in-process / embedded
 stores - such as SQLite (via knex), leveldb, files, or memory - with node cluster (desirable for Raspberry Pi 2
 and other multi-core embedded devices).
