@@ -658,6 +658,11 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-etcd-url]: https://www.npmjs.com/package/express-etcd
 [express-etcd-image]: https://img.shields.io/github/stars/gildean/express-etcd.svg?label=%E2%98%85
 
+[![★][firestore-store-image] firestore-store][firestore-store-url] A [Firestore](https://github.com/hendrysadrak/firestore-store)-based session store.
+
+[firestore-store-url]: https://github.com/hendrysadrak/firestore-store
+[firestore-store-image]: https://img.shields.io/github/stars/hendrysadrak/firestore-store.svg?label=%E2%98%85
+
 [![★][fortune-session-image] fortune-session][fortune-session-url] A [Fortune.js](https://github.com/fortunejs/fortune)
 based session store. Supports all backends supported by Fortune (MongoDB, Redis, Postgres, NeDB).
 
