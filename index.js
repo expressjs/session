@@ -635,10 +635,10 @@ function setcookie(res, name, val, secret, options) {
 
   debug('set-cookie %s', data);
 
-  var prev = res.getHeader('set-cookie') || [];
+  var prev = res.getHeader('Set-Cookie') || []
   var header = Array.isArray(prev) ? prev.concat(data) : [prev, data];
 
-  res.setHeader('set-cookie', header)
+  res.setHeader('Set-Cookie', header)
 }
 
 /**
