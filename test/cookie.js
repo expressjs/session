@@ -93,6 +93,12 @@ describe('new Cookie()', function () {
         assert.ok(maxAge.getTime() - Date.now() - 1000 <= cookie.maxAge)
         assert.ok(maxAge.getTime() - Date.now() + 1000 >= cookie.maxAge)
       })
+
+      it('should reject invalid types', function() {
+        assert.throws(function() { new Cookie({ maxAge: '42' }) }, /maxAge/)
+        assert.throws(function() { new Cookie({ maxAge: true }) }, /maxAge/)
+        assert.throws(function() { new Cookie({ maxAge: function () {} }) }, /maxAge/)
+      })
     })
 
     describe('path', function () {

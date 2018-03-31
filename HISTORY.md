@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Catch invalid `cookie.maxAge` value earlier
   * Fix issue where `resave: false` may not save altered sessions
   * Use `safe-buffer` for improved Buffer API
   * Use `Set-Cookie` as cookie header name for compatibility

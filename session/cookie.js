@@ -77,6 +77,10 @@ Cookie.prototype = {
    */
 
   set maxAge(ms) {
+    if (ms && typeof ms !== 'number' && !(ms instanceof Date)) {
+      throw new TypeError('maxAge must be a number or Date')
+    }
+
     this.expires = 'number' == typeof ms
       ? new Date(Date.now() + ms)
       : ms;
