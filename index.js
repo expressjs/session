@@ -332,6 +332,13 @@ function session(options) {
           if (err) {
             defer(next, err);
           }
+          
+          // Sometimes requests are already finished
+          // (see https://github.com/amekkawi/express-ws-routes/issues/7)
+          if (req.finished) {
+            debug('session save ignored because request is already finished');
+            return;
+          }
 
           writeend();
         });
@@ -414,13 +421,6 @@ function session(options) {
 
     // determine if session should be saved to store
     function shouldSave(req) {
-      // Sometimes requests are already finished
-      // (see https://github.com/amekkawi/express-ws-routes/issues/7)
-      if (req.finished) {
-        debug('session ignored because request is already finished');
-        return false;
-      }
-
       // cannot set cookie without a session ID
       if (typeof req.sessionID !== 'string') {
         debug('session ignored because of bogus req.sessionID %o', req.sessionID);
