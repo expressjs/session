@@ -473,6 +473,9 @@ function session(options) {
       } else if (!sess) {
         debug('no session found');
         generate();
+      // session expired
+      } else if (sess.cookie.expires && new Date(sess.cookie.expires) < new Date()) {
+        debug('session expired');
       // populate req.session
       } else {
         debug('session found');
