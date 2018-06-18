@@ -286,6 +286,89 @@ describe('session()', function(){
     });
   });
 
+  it('should keep session in maxDuration', function(done) {
+    var store = new session.MemoryStore();
+    var server = createServer({store: store, maxDuration: 10}, function(req, res) {
+      req.session.user = 'bob';
+      res.write('hello, world');
+      res.end();
+    });
+
+    request(server)
+    .get('/')
+    .expect(shouldSetCookie('connect.sid'))
+    .expect(200, function(err, res) {
+      if (err) return done(err);
+      var originalExpires = expires(res);
+      setTimeout(function() {
+        request(server)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldNotHaveHeader('Set-Cookie'))
+        .expect(200, done);
+      }, 100);
+    });
+  });
+
+  it('should destroy session after maxDuration', function(done) {
+    var store = new session.MemoryStore();
+    var server = createServer({ store: store, maxDuration: .1 }, function(req, res) {
+      req.session.user = 'bob';
+      res.write('hello, world');
+      res.end();
+    });
+
+    request(server)
+    .get('/')
+    .expect(shouldSetCookie('connect.sid'))
+    .expect(200, function (err, res) {
+      if (err) return done(err);
+      var originalCookie = cookie(res);
+      setTimeout(function () {
+        request(server)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(function (res) { assert.notEqual(originalCookie, cookie(res)); })
+        .expect(200, done);
+      }, 200);
+    });
+  });
+
+  it('should destroy session after maxDuration even with rolling sessions', function (done) {
+    var store = new session.MemoryStore();
+    var server = createServer({ store: store, maxDuration: .1, rolling: true }, function(req, res) {
+      req.session.user = 'bob';
+      res.write('hello, world');
+      res.end();
+    });
+
+    request(server)
+    .get('/')
+    .expect(shouldSetCookie('connect.sid'))
+    .expect(200, function (err, res) {
+      if (err) return done(err);
+      var originalCookie = cookie(res);
+      setTimeout(function () {
+        request(server)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function (err, res) {
+          if (err) return done(err);
+          setTimeout(function () {
+            request(server)
+            .get('/')
+            .set('Cookie', cookie(res))
+            .expect(shouldSetCookie('connect.sid'))
+            .expect(function (res) { assert.notEqual(originalCookie, cookie(res)); })
+            .expect(200, done);
+          }, 100);
+        });
+      }, 100);
+    });
+  });
+
   describe('when response ended', function () {
     it('should have saved session', function (done) {
       var saved = false
