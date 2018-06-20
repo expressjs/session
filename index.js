@@ -290,9 +290,9 @@ function session(options) {
 
         if (!isNaN(contentLength) && contentLength > 0) {
           // measure chunk
-          chunk = !Buffer.isBuffer(chunk) 
+          chunk = !Buffer.isBuffer(chunk)
             ? Buffer.from(chunk, encoding)
-             : chunk;
+            : chunk;
           encoding = undefined;
 
           if (chunk.length !== 0) {

@@ -1274,7 +1274,6 @@ describe('session()', function(){
         res.write('hello, world');
         res.end();
       });
-  
       request(server)
       .get('/')
       .expect(shouldSetCookie('connect.sid'))
@@ -1299,7 +1298,6 @@ describe('session()', function(){
         res.write('hello, world');
         res.end();
       });
-  
       request(server)
       .get('/')
       .expect(shouldSetCookie('connect.sid'))
@@ -1325,7 +1323,6 @@ describe('session()', function(){
         res.write('hello, world');
         res.end();
       });
-  
       request(server)
       .get('/')
       .expect(shouldSetCookie('connect.sid'))
@@ -1350,7 +1347,6 @@ describe('session()', function(){
         res.write('hello, world');
         res.end();
       });
-  
       request(server)
       .get('/')
       .expect(shouldSetCookie('connect.sid'))
@@ -1375,7 +1371,6 @@ describe('session()', function(){
         res.write('hello, world');
         res.end();
       });
-  
       request(server)
       .get('/')
       .expect(shouldSetCookie('connect.sid'))
