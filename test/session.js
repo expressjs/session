@@ -1339,7 +1339,7 @@ describe('session()', function(){
         }, 100);
       });
     });
-  
+
     it('should destroy session after maxDuration', function(done) {
       var store = new session.MemoryStore();
       var server = createServer({ store: store, maxDuration: .1 }, function(req, res) {
@@ -1363,7 +1363,7 @@ describe('session()', function(){
         }, 200);
       });
     });
-  
+
     it('should destroy session after maxDuration even with rolling sessions', function (done) {
       var store = new session.MemoryStore();
       var server = createServer({ store: store, maxDuration: .1, rolling: true }, function(req, res) {
