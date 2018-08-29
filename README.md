@@ -392,8 +392,8 @@ req.session.cookie.maxAge = hour
 
 For example when `maxAge` is set to `60000` (one minute), and 30 seconds
 has elapsed it will return `30000` until the current request has completed,
-at which time `req.session.touch()` is called to reset `req.session.maxAge`
-to its original value.
+at which time `req.session.touch()` is called to reset
+`req.session.cookie.maxAge` to its original value.
 
 ```js
 req.session.cookie.maxAge // => 30000
