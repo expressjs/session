@@ -592,6 +592,11 @@ and other multi-core embedded devices).
 [connect-memjs-url]: https://www.npmjs.com/package/connect-memjs
 [connect-memjs-image]: https://img.shields.io/github/stars/liamdon/connect-memjs.svg?label=%E2%98%85
 
+[![★][connect-session-firebase-image] connect-session-firebase][connect-session-firebase-url] A session store based on the [Firebase Realtime Database](https://firebase.google.com/docs/database/)
+
+[connect-session-firebase-url]: https://www.npmjs.com/package/connect-session-firebase
+[connect-session-firebase-image]: https://img.shields.io/github/stars/benweier/connect-session-firebase.svg?label=%E2%98%85
+
 [![★][connect-session-knex-image] connect-session-knex][connect-session-knex-url] A session store using
 [Knex.js](http://knexjs.org/), which is a SQL query builder for PostgreSQL, MySQL, MariaDB, SQLite3, and Oracle.
 
