@@ -37,6 +37,15 @@ before_install:
     if [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -eq 0 && "$(cut -d. -f2 <<< "$TRAVIS_NODE_VERSION")" -lt 10 ]]; then
       npm rm --save-dev istanbul
     fi
+  - |
+    # mocha for testing
+    # - use 2.x for Node.js < 0.10
+    # - use 3.x for Node.js < 6
+    if [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -eq 0 && "$(cut -d. -f2 <<< "$TRAVIS_NODE_VERSION")" -lt 10 ]]; then
+      npm install --save-dev mocha@2.5.3
+    elif [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -lt 6 ]]; then
+      npm install --save-dev mocha@3.5.3
+    fi
   # Update Node.js modules
   - |
     # Prune & rebuild node_modules

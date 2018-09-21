@@ -28,7 +28,7 @@
     "eslint-plugin-markdown": "1.0.0-beta.6",
     "express": "4.16.3",
     "istanbul": "0.4.5",
-    "mocha": "2.5.3",
+    "mocha": "5.2.0",
     "supertest": "1.1.0"
   },
   "files": [
