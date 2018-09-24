@@ -16,9 +16,9 @@ var min = 60 * 1000;
 
 describe('session()', function(){
   it('should export constructors', function(){
-    assert.equal(typeof session.Session, 'function')
-    assert.equal(typeof session.Store, 'function')
-    assert.equal(typeof session.MemoryStore, 'function')
+    assert.strictEqual(typeof session.Session, 'function')
+    assert.strictEqual(typeof session.Store, 'function')
+    assert.strictEqual(typeof session.MemoryStore, 'function')
   })
 
   it('should do nothing if req.session exists', function(done){
@@ -62,7 +62,7 @@ describe('session()', function(){
       if (err) return done(err)
       store.length(function (err, len) {
         if (err) return done(err)
-        assert.equal(len, 1)
+        assert.strictEqual(len, 1)
         done()
       })
     })
@@ -149,7 +149,7 @@ describe('session()', function(){
       if (err) return done(err)
       store.all(function (err, sess) {
         if (err) return done(err)
-        assert.equal(Object.keys(sess).length, 2)
+        assert.strictEqual(Object.keys(sess).length, 2)
         done()
       })
     }
@@ -254,7 +254,7 @@ describe('session()', function(){
       if (err) return done(err)
       store.length(function (err, length) {
         if (err) return done(err)
-        assert.equal(length, 0)
+        assert.strictEqual(length, 0)
         done()
       })
     })
@@ -280,7 +280,7 @@ describe('session()', function(){
         .get('/')
         .set('Cookie', cookie(res))
         .expect(shouldSetCookie('connect.sid'))
-        .expect(function (res) { assert.notEqual(originalExpires, expires(res)); })
+        .expect(function (res) { assert.notStrictEqual(originalExpires, expires(res)); })
         .expect(200, done);
       }, (1000 - (Date.now() % 1000) + 200));
     });
@@ -416,7 +416,7 @@ describe('session()', function(){
           if (err) return done(err)
           assert.ok(sess, 'session saved to store')
           var exp = new Date(sess.cookie.expires)
-          assert.equal(exp.toUTCString(), expires(res))
+          assert.strictEqual(exp.toUTCString(), expires(res))
           setTimeout(function () {
             request(server)
             .get('/')
@@ -425,9 +425,9 @@ describe('session()', function(){
               if (err) return done(err)
               store.get(id, function (err, sess) {
                 if (err) return done(err)
-                assert.equal(res.text, id)
+                assert.strictEqual(res.text, id)
                 assert.ok(sess, 'session still in store')
-                assert.notEqual(new Date(sess.cookie.expires).toUTCString(), exp.toUTCString(), 'session cookie expiration updated')
+                assert.notStrictEqual(new Date(sess.cookie.expires).toUTCString(), exp.toUTCString(), 'session cookie expiration updated')
                 done()
               })
             })
@@ -601,7 +601,7 @@ describe('session()', function(){
         setTimeout(function () {
           store.all(function (err, sess) {
             if (err) return done(err)
-            assert.equal(Object.keys(sess).length, 0)
+            assert.strictEqual(Object.keys(sess).length, 0)
             done()
           })
         }, 10)
@@ -1091,7 +1091,7 @@ describe('session()', function(){
 
       server.on('error', function onerror(err) {
         assert.ok(err)
-        assert.equal(err.message, 'boom!')
+        assert.strictEqual(err.message, 'boom!')
         cb()
       })
 
@@ -1169,7 +1169,7 @@ describe('session()', function(){
 
       server.on('error', function onerror(err) {
         assert.ok(err)
-        assert.equal(err.message, 'boom!')
+        assert.strictEqual(err.message, 'boom!')
         cb()
       })
 
@@ -1283,7 +1283,7 @@ describe('session()', function(){
         if (err) return done(err);
         store.length(function(err, len){
           if (err) return done(err);
-          assert.equal(len, 1)
+          assert.strictEqual(len, 1)
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
@@ -1291,7 +1291,7 @@ describe('session()', function(){
             if (err) return done(err);
             store.length(function(err, len){
               if (err) return done(err);
-              assert.equal(len, 1)
+              assert.strictEqual(len, 1)
               done();
             });
           });
@@ -1314,7 +1314,7 @@ describe('session()', function(){
         if (err) return done(err);
         store.length(function(err, len){
           if (err) return done(err);
-          assert.equal(len, 1)
+          assert.strictEqual(len, 1)
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
@@ -1322,7 +1322,7 @@ describe('session()', function(){
             if (err) return done(err);
             store.length(function(err, len){
               if (err) return done(err);
-              assert.equal(len, 0)
+              assert.strictEqual(len, 0)
               done();
             });
           });
@@ -1344,7 +1344,7 @@ describe('session()', function(){
         if (err) return done(err);
         store.length(function(err, len){
           if (err) return done(err);
-          assert.equal(len, 0)
+          assert.strictEqual(len, 0)
           done();
         });
       });
@@ -1364,7 +1364,7 @@ describe('session()', function(){
 
       server.on('error', function onerror(err) {
         assert.ok(err)
-        assert.equal(err.message, 'boom!')
+        assert.strictEqual(err.message, 'boom!')
         cb()
       })
 
@@ -1726,7 +1726,7 @@ describe('session()', function(){
                 if (err) return done(err);
                 store.get(id, function (err, sess) {
                   if (err) return done(err)
-                  assert.notEqual(new Date(sess.cookie.expires).getTime(), exp.getTime())
+                  assert.notStrictEqual(new Date(sess.cookie.expires).getTime(), exp.getTime())
                   done()
                 })
               })
@@ -2222,13 +2222,13 @@ function shouldSetCookie (name) {
     var header = cookie(res)
     var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
-    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.strictEqual(data.name, name, 'should set cookie ' + name)
   }
 }
 
 function shouldSetCookieToDifferentSessionId (id) {
   return function (res) {
-    assert.notEqual(sid(res), id)
+    assert.notStrictEqual(sid(res), id)
   }
 }
 
@@ -2237,10 +2237,10 @@ function shouldSetCookieToExpireIn (name, delta) {
     var header = cookie(res)
     var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
-    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.strictEqual(data.name, name, 'should set cookie ' + name)
     assert.ok(('expires' in data), 'should set cookie with attribute Expires')
     assert.ok(('date' in res.headers), 'should have a date header')
-    assert.equal((Date.parse(data.expires) - Date.parse(res.headers.date)), delta, 'should set cookie ' + name + ' to expire in ' + delta + ' ms')
+    assert.strictEqual((Date.parse(data.expires) - Date.parse(res.headers.date)), delta, 'should set cookie ' + name + ' to expire in ' + delta + ' ms')
   }
 }
 
@@ -2249,8 +2249,8 @@ function shouldSetCookieToValue (name, val) {
     var header = cookie(res)
     var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
-    assert.equal(data.name, name, 'should set cookie ' + name)
-    assert.equal(data.value, val, 'should set cookie ' + name + ' to ' + val)
+    assert.strictEqual(data.name, name, 'should set cookie ' + name)
+    assert.strictEqual(data.value, val, 'should set cookie ' + name + ' to ' + val)
   }
 }
 
@@ -2259,7 +2259,7 @@ function shouldSetCookieWithAttribute (name, attrib) {
     var header = cookie(res)
     var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
-    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.strictEqual(data.name, name, 'should set cookie ' + name)
     assert.ok((attrib.toLowerCase() in data), 'should set cookie with attribute ' + attrib)
   }
 }
@@ -2269,9 +2269,9 @@ function shouldSetCookieWithAttributeAndValue (name, attrib, value) {
     var header = cookie(res)
     var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
-    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.strictEqual(data.name, name, 'should set cookie ' + name)
     assert.ok((attrib.toLowerCase() in data), 'should set cookie with attribute ' + attrib)
-    assert.equal(data[attrib.toLowerCase()], value, 'should set cookie with attribute ' + attrib + ' set to ' + value)
+    assert.strictEqual(data[attrib.toLowerCase()], value, 'should set cookie with attribute ' + attrib + ' set to ' + value)
   }
 }
 
@@ -2280,7 +2280,7 @@ function shouldSetCookieWithoutAttribute (name, attrib) {
     var header = cookie(res)
     var data = header && parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
-    assert.equal(data.name, name, 'should set cookie ' + name)
+    assert.strictEqual(data.name, name, 'should set cookie ' + name)
     assert.ok(!(attrib.toLowerCase() in data), 'should set cookie without attribute ' + attrib)
   }
 }
