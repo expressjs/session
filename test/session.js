@@ -993,116 +993,120 @@ describe('session()', function(){
       });
     });
 
-    it('should force save on unmodified session', function(done){
-      var store = new session.MemoryStore()
-      var server = createServer({ store: store, resave: true }, function (req, res) {
-        req.session.user = 'bob'
-        res.end()
-      })
+    describe('when true', function () {
+      it('should force save on unmodified session', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store, resave: true }, function (req, res) {
+          req.session.user = 'bob'
+          res.end()
+        })
 
-      request(server)
-      .get('/')
-      .expect(shouldSetSessionInStore(store))
-      .expect(200, function(err, res){
-        if (err) return done(err);
         request(server)
         .get('/')
-        .set('Cookie', cookie(res))
         .expect(shouldSetSessionInStore(store))
-        .expect(200, done);
-      });
-    });
-
-    it('should prevent save on unmodified session', function(done){
-      var store = new session.MemoryStore()
-      var server = createServer({ store: store, resave: false }, function (req, res) {
-        req.session.user = 'bob'
-        res.end()
-      })
-
-      request(server)
-      .get('/')
-      .expect(shouldSetSessionInStore(store))
-      .expect(200, function(err, res){
-        if (err) return done(err);
-        request(server)
-        .get('/')
-        .set('Cookie', cookie(res))
-        .expect(shouldNotSetSessionInStore(store))
-        .expect(200, done);
-      });
-    });
-
-    it('should still save modified session', function(done){
-      var store = new session.MemoryStore()
-      var server = createServer({ store: store, resave: false }, function (req, res) {
-        req.session.count = req.session.count || 0
-        req.session.count++
-        res.end()
-      })
-
-      request(server)
-      .get('/')
-      .expect(shouldSetSessionInStore(store))
-      .expect(200, function(err, res){
-        if (err) return done(err);
-        request(server)
-        .get('/')
-        .set('Cookie', cookie(res))
-        .expect(shouldSetSessionInStore(store))
-        .expect(200, done);
-      });
-    });
-
-    it('should detect a "cookie" property as modified', function (done) {
-      var store = new session.MemoryStore()
-      var server = createServer({ store: store, resave: false }, function (req, res) {
-        req.session.user = req.session.user || {}
-        req.session.user.name = 'bob'
-        req.session.user.cookie = req.session.user.cookie || 0
-        req.session.user.cookie++
-        res.end()
-      })
-
-      request(server)
-      .get('/')
-      .expect(shouldSetSessionInStore(store))
-      .expect(200, function (err, res) {
-        if (err) return done(err)
-        request(server)
-        .get('/')
-        .set('Cookie', cookie(res))
-        .expect(shouldSetSessionInStore(store))
-        .expect(200, done)
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetSessionInStore(store))
+          .expect(200, done)
+        })
       })
     })
 
-    it('should pass session touch error', function (done) {
-      var cb = after(2, done)
-      var store = new session.MemoryStore()
-      var server = createServer({ store: store, resave: false }, function (req, res) {
-        req.session.hit = true
-        res.end('session saved')
-      })
+    describe('when false', function () {
+      it('should prevent save on unmodified session', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store, resave: false }, function (req, res) {
+          req.session.user = 'bob'
+          res.end()
+        })
 
-      store.touch = function touch(sid, sess, callback) {
-        callback(new Error('boom!'))
-      }
-
-      server.on('error', function onerror(err) {
-        assert.ok(err)
-        assert.strictEqual(err.message, 'boom!')
-        cb()
-      })
-
-      request(server)
-      .get('/')
-      .expect(200, 'session saved', function (err, res) {
-        if (err) return cb(err)
         request(server)
         .get('/')
-        .set('Cookie', cookie(res))
-        .end(cb)
+        .expect(shouldSetSessionInStore(store))
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldNotSetSessionInStore(store))
+          .expect(200, done)
+        })
+      })
+
+      it('should still save modified session', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store, resave: false }, function (req, res) {
+          req.session.count = req.session.count || 0
+          req.session.count++
+          res.end()
+        })
+
+        request(server)
+        .get('/')
+        .expect(shouldSetSessionInStore(store))
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetSessionInStore(store))
+          .expect(200, done)
+        })
+      })
+
+      it('should detect a "cookie" property as modified', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store, resave: false }, function (req, res) {
+          req.session.user = req.session.user || {}
+          req.session.user.name = 'bob'
+          req.session.user.cookie = req.session.user.cookie || 0
+          req.session.user.cookie++
+          res.end()
+        })
+
+        request(server)
+        .get('/')
+        .expect(shouldSetSessionInStore(store))
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetSessionInStore(store))
+          .expect(200, done)
+        })
+      })
+
+      it('should pass session touch error', function (done) {
+        var cb = after(2, done)
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store, resave: false }, function (req, res) {
+          req.session.hit = true
+          res.end('session saved')
+        })
+
+        store.touch = function touch (sid, sess, callback) {
+          callback(new Error('boom!'))
+        }
+
+        server.on('error', function onerror (err) {
+          assert.ok(err)
+          assert.strictEqual(err.message, 'boom!')
+          cb()
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'session saved', function (err, res) {
+          if (err) return cb(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .end(cb)
+        })
       })
     })
   });
