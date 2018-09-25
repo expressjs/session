@@ -332,6 +332,13 @@ function session(options) {
           if (err) {
             defer(next, err);
           }
+          
+          // Sometimes requests are already finished
+          // (see https://github.com/amekkawi/express-ws-routes/issues/7)
+          if (req.finished) {
+            debug('session save ignored because request is already finished');
+            return;
+          }
 
           writeend();
         });
