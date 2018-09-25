@@ -1038,22 +1038,37 @@ describe('session()', function(){
 
       it('should still save modified session', function (done) {
         var store = new session.MemoryStore()
-        var server = createServer({ store: store, resave: false }, function (req, res) {
-          req.session.count = req.session.count || 0
-          req.session.count++
-          res.end()
+        var server = createServer({ resave: false, store: store }, function (req, res) {
+          if (req.method === 'PUT') {
+            req.session.token = req.url.substr(1)
+          }
+          res.end('token=' + (req.session.token || ''))
         })
 
         request(server)
-        .get('/')
+        .put('/w6RHhwaA')
+        .expect(200)
         .expect(shouldSetSessionInStore(store))
-        .expect(200, function (err, res) {
+        .expect('token=w6RHhwaA')
+        .end(function (err, res) {
           if (err) return done(err)
+          var sess = cookie(res)
           request(server)
           .get('/')
-          .set('Cookie', cookie(res))
-          .expect(shouldSetSessionInStore(store))
-          .expect(200, done)
+          .set('Cookie', sess)
+          .expect(200)
+          .expect(shouldNotSetSessionInStore(store))
+          .expect('token=w6RHhwaA')
+          .end(function (err) {
+            if (err) return done(err)
+            request(server)
+            .put('/zfQ3rzM3')
+            .set('Cookie', sess)
+            .expect(200)
+            .expect(shouldSetSessionInStore(store))
+            .expect('token=zfQ3rzM3')
+            .end(done)
+          })
         })
       })
 
