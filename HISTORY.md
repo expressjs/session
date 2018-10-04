@@ -1,9 +1,9 @@
 unreleased
 ==========
 
+  * Fix issue where `resave: false` may not save altered sessions
   * Use `safe-buffer` for improved Buffer API
   * Use `Set-Cookie` as cookie header name for compatibility
-  * deps: crc@3.5.0
   * deps: depd@~1.1.2
     - perf: remove argument reassignment
 

@@ -4,7 +4,7 @@ var Cookie = require('../session/cookie')
 
 describe('new Cookie()', function () {
   it('should create a new cookie object', function () {
-    assert.equal(typeof new Cookie(), 'object')
+    assert.strictEqual(typeof new Cookie(), 'object')
   })
 
   it('should default expires to null', function () {
@@ -29,7 +29,7 @@ describe('new Cookie()', function () {
 
   describe('with options', function () {
     it('should create a new cookie object', function () {
-      assert.equal(typeof new Cookie({}), 'object')
+      assert.strictEqual(typeof new Cookie({}), 'object')
     })
 
     it('should reject non-objects', function () {

@@ -10,25 +10,76 @@ node_js:
   - "5.12"
   - "6.14"
   - "7.10"
-  - "8.11"
-  - "9.10"
+  - "8.12"
+  - "9.11"
+  - "10.11"
 sudo: false
 cache:
   directories:
     - node_modules
 before_install:
-  # Skip updating shrinkwrap / lock
-  - "npm config set shrinkwrap false"
+  # Configure npm
+  - |
+    # Skip updating shrinkwrap / lock
+    npm config set shrinkwrap false
   # Setup Node.js version-specific dependencies
-  - "test $TRAVIS_NODE_VERSION != '0.8' || npm rm --save-dev istanbul"
-  - "test $(echo $TRAVIS_NODE_VERSION | cut -d. -f1) -ge 4 || npm rm --save-dev eslint eslint-plugin-markdown"
+  - |
+    # eslint for linting
+    # - remove on Node.js < 4
+    if [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -lt 4 ]]; then
+      node -pe 'Object.keys(require("./package").devDependencies).join("\n")' | \
+        grep -E '^eslint(-|$)' | \
+        xargs npm rm --save-dev
+    fi
+  - |
+    # istanbul for coverage
+    # - remove on Node.js < 0.10
+    if [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -eq 0 && "$(cut -d. -f2 <<< "$TRAVIS_NODE_VERSION")" -lt 10 ]]; then
+      npm rm --save-dev istanbul
+    fi
+  - |
+    # mocha for testing
+    # - use 2.x for Node.js < 0.10
+    # - use 3.x for Node.js < 6
+    if [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -eq 0 && "$(cut -d. -f2 <<< "$TRAVIS_NODE_VERSION")" -lt 10 ]]; then
+      npm install --save-dev mocha@2.5.3
+    elif [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -lt 6 ]]; then
+      npm install --save-dev mocha@3.5.3
+    fi
+  - |
+    # supertest for http calls
+    # - use 1.1.0 for Node.js < 0.10
+    # - use 2.0.0 for Node.js < 4
+    if [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -eq 0 && "$(cut -d. -f2 <<< "$TRAVIS_NODE_VERSION")" -lt 10 ]]; then
+      npm install --save-dev supertest@1.1.0
+    elif [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -lt 4 ]]; then
+      npm install --save-dev supertest@2.0.0
+    fi
   # Update Node.js modules
-  - "test ! -d node_modules || npm prune"
-  - "test ! -d node_modules || npm rebuild"
+  - |
+    # Prune & rebuild node_modules
+    if [[ -d node_modules ]]; then
+      npm prune
+      npm rebuild
+    fi
+
 script:
-  # Run test script, depending on istanbul install
-  - "test ! -z $(npm -ps ls istanbul) || npm test"
-  - "test   -z $(npm -ps ls istanbul) || npm run-script test-travis"
-  - "test   -z $(npm -ps ls eslint) || npm run-script lint"
+  - |
+    # Run test script, depending on istanbul install
+    if [[ -n "$(npm -ps ls istanbul)" ]]; then
+      npm run-script test-travis
+    else
+      npm test
+    fi
+  - |
+    # Run linting, depending on eslint install
+    if [[ -n "$(npm -ps ls eslint)" ]]; then
+      npm run-script lint
+    fi
 after_script:
-  - "test -e ./coverage/lcov.info && npm install coveralls@2 && cat ./coverage/lcov.info | coveralls"
+  - |
+    # Upload coverage to coveralls, if exists
+    if [[ -f ./coverage/lcov.info ]]; then
+      npm install --save-dev coveralls@2
+      coveralls < ./coverage/lcov.info
+    fi
