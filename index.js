@@ -15,7 +15,8 @@
 
 var Buffer = require('safe-buffer').Buffer
 var cookie = require('cookie');
-var crc = require('crc').crc32;
+var omit = require('lodash.omit');
+var hasher = require('object-hash');
 var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
 var onHeaders = require('on-headers')
@@ -578,14 +579,8 @@ function getcookie(req, name, secrets) {
  */
 
 function hash(sess) {
-  return crc(JSON.stringify(sess, function (key, val) {
-    // ignore sess.cookie property
-    if (this === sess && key === 'cookie') {
-      return
-    }
-
-    return val
-  }))
+  var hashObj = omit(sess, 'cookie');
+  return hasher(hashObj, {respectType: false});
 }
 
 /**
