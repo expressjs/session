@@ -900,7 +900,6 @@ describe('session()', function(){
     it('should default to false and not roll cookie', function(done){
       var callCount = 0;
       var server = createServer(null, function (req, res) {
-        console.log(callCount);
         if (callCount % 2 === 0) {
           req.session.user = { name: 'bob', id: 15 }
         } else {
