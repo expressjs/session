@@ -897,7 +897,6 @@ describe('session()', function(){
   })
 
   describe('rolling option', function(){
-
     it('should default to false', function(done){
       var server = createServer(null, function (req, res) {
         req.session.user = 'bob'
