@@ -897,7 +897,27 @@ describe('session()', function(){
   })
 
   describe('rolling option', function(){
-    it('should default to false and not roll cookie', function(done){
+
+    it('should default to false', function(done){
+      var server = createServer(null, function (req, res) {
+        req.session.user = 'bob'
+        res.end()
+      })
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        request(server)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldNotHaveHeader('Set-Cookie'))
+        .expect(200, done)
+      });
+    });
+
+    it('should check session object modification correctly', function(done){
       var callCount = 0;
       var server = createServer(null, function (req, res) {
         if (callCount % 2 === 0) {
