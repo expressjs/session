@@ -12,6 +12,11 @@ describe('new Cookie()', function () {
     assert.strictEqual(cookie.expires, null)
   })
 
+  it('should default maxAge to null', function () {
+    var cookie = new Cookie()
+    assert.strictEqual(cookie.maxAge, null)
+  })
+
   it('should default httpOnly to true', function () {
     var cookie = new Cookie()
     assert.strictEqual(cookie.httpOnly, true)
@@ -51,6 +56,15 @@ describe('new Cookie()', function () {
       var cookie = new Cookie({ httpOnly: false })
 
       assert.strictEqual(cookie.httpOnly, false)
+    })
+
+    it('should set maxAge', function () {
+      var maxAge = 60000
+      var cookie = new Cookie({ maxAge: maxAge })
+
+      assert.ok(cookie.expires.getTime() - Date.now() - 1000 <= maxAge)
+      assert.ok(cookie.expires.getTime() - Date.now() + 1000 >= maxAge)
+      assert.strictEqual(cookie.maxAge, maxAge)
     })
 
     it('should set path', function () {
