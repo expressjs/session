@@ -84,6 +84,15 @@ describe('new Cookie()', function () {
 
         assert.strictEqual(cookie.maxAge, maxAge)
       })
+
+      it('should accept Date object', function () {
+        var maxAge = new Date(Date.now() + 60000)
+        var cookie = new Cookie({ maxAge: maxAge })
+
+        assert.strictEqual(cookie.expires.getTime(), maxAge.getTime())
+        assert.ok(maxAge.getTime() - Date.now() - 1000 <= cookie.maxAge)
+        assert.ok(maxAge.getTime() - Date.now() + 1000 >= cookie.maxAge)
+      })
     })
 
     describe('path', function () {
