@@ -44,33 +44,54 @@ describe('new Cookie()', function () {
       assert.throws(function () { new Cookie(function () {}) }, /argument options/)
     })
 
-    it('should set expires', function () {
-      var expires = new Date()
-      var cookie = new Cookie({ expires: expires })
+    describe('expires', function () {
+      it('should set expires', function () {
+        var expires = new Date(Date.now() + 60000)
+        var cookie = new Cookie({ expires: expires })
 
-      assert.strictEqual(cookie.expires, expires)
-      assert.notStrictEqual(cookie.maxAge, null)
+        assert.strictEqual(cookie.expires, expires)
+      })
+
+      it('should set maxAge', function () {
+        var expires = new Date(Date.now() + 60000)
+        var cookie = new Cookie({ expires: expires })
+
+        assert.ok(expires.getTime() - Date.now() - 1000 <= cookie.maxAge)
+        assert.ok(expires.getTime() - Date.now() + 1000 >= cookie.maxAge)
+      })
     })
 
-    it('should set httpOnly', function () {
-      var cookie = new Cookie({ httpOnly: false })
+    describe('httpOnly', function () {
+      it('should set httpOnly', function () {
+        var cookie = new Cookie({ httpOnly: false })
 
-      assert.strictEqual(cookie.httpOnly, false)
+        assert.strictEqual(cookie.httpOnly, false)
+      })
     })
 
-    it('should set maxAge', function () {
-      var maxAge = 60000
-      var cookie = new Cookie({ maxAge: maxAge })
+    describe('maxAge', function () {
+      it('should set expires', function () {
+        var maxAge = 60000
+        var cookie = new Cookie({ maxAge: maxAge })
 
-      assert.ok(cookie.expires.getTime() - Date.now() - 1000 <= maxAge)
-      assert.ok(cookie.expires.getTime() - Date.now() + 1000 >= maxAge)
-      assert.strictEqual(cookie.maxAge, maxAge)
+        assert.ok(cookie.expires.getTime() - Date.now() - 1000 <= maxAge)
+        assert.ok(cookie.expires.getTime() - Date.now() + 1000 >= maxAge)
+      })
+
+      it('should set maxAge', function () {
+        var maxAge = 60000
+        var cookie = new Cookie({ maxAge: maxAge })
+
+        assert.strictEqual(cookie.maxAge, maxAge)
+      })
     })
 
-    it('should set path', function () {
-      var cookie = new Cookie({ path: '/foo' })
+    describe('path', function () {
+      it('should set path', function () {
+        var cookie = new Cookie({ path: '/foo' })
 
-      assert.strictEqual(cookie.path, '/foo')
+        assert.strictEqual(cookie.path, '/foo')
+      })
     })
   })
 })
