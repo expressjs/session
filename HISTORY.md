@@ -4,7 +4,9 @@ unreleased
   * Fix issue where `resave: false` may not save altered sessions
   * Use `safe-buffer` for improved Buffer API
   * Use `Set-Cookie` as cookie header name for compatibility
-  * deps: depd@~1.1.2
+  * deps: depd@~2.0.0
+    - Replace internal `eval` usage with `Function` constructor
+    - Use instance methods on `process` to check for listeners
     - perf: remove argument reassignment
 
 1.15.6 / 2017-09-26

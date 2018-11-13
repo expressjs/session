@@ -744,6 +744,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [sessionstore-url]: https://www.npmjs.com/package/sessionstore
 [sessionstore-image]: https://img.shields.io/github/stars/adrai/sessionstore.svg?label=%E2%98%85
 
+[![★][tch-nedb-session-image] tch-nedb-session][tch-nedb-session-url] A file system session store based on NeDB.
+
+[tch-nedb-session-url]: https://www.npmjs.com/package/tch-nedb-session
+[tch-nedb-session-image]: https://img.shields.io/github/stars/tomaschyly/NeDBSession.svg?label=%E2%98%85
+
 ## Example
 
 A simple example using `express-session` to store page views for a user.
