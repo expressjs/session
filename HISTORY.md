@@ -3,6 +3,7 @@ unreleased
 
   * Catch invalid `cookie.maxAge` value earlier
   * Fix issue where `resave: false` may not save altered sessions
+  * Remove `utils-merge` dependency
   * Use `safe-buffer` for improved Buffer API
   * Use `Set-Cookie` as cookie header name for compatibility
   * deps: depd@~2.0.0

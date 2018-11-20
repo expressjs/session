@@ -12,7 +12,6 @@
  */
 
 var cookie = require('cookie')
-var merge = require('utils-merge')
 
 /**
  * Initialize a new `Cookie` with the given `options`.
@@ -32,7 +31,9 @@ var Cookie = module.exports = function Cookie(options) {
       throw new TypeError('argument options must be a object')
     }
 
-    merge(this, options)
+    for (var key in options) {
+      this[key] = options[key]
+    }
   }
 
   this.originalMaxAge = undefined == this.originalMaxAge
