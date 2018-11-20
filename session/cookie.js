@@ -12,6 +12,7 @@
  */
 
 var cookie = require('cookie')
+var deprecate = require('depd')('express-session')
 
 /**
  * Initialize a new `Cookie` with the given `options`.
@@ -80,6 +81,10 @@ Cookie.prototype = {
   set maxAge(ms) {
     if (ms && typeof ms !== 'number' && !(ms instanceof Date)) {
       throw new TypeError('maxAge must be a number or Date')
+    }
+
+    if (ms instanceof Date) {
+      deprecate('maxAge as Date; pass number of milliseconds instead')
     }
 
     this.expires = 'number' == typeof ms

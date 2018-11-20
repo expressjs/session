@@ -2,6 +2,7 @@ unreleased
 ==========
 
   * Catch invalid `cookie.maxAge` value earlier
+  * Deprecate setting `cookie.maxAge` to a `Date` object
   * Fix issue where `resave: false` may not save altered sessions
   * Remove `utils-merge` dependency
   * Use `safe-buffer` for improved Buffer API
