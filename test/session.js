@@ -896,6 +896,72 @@ describe('session()', function(){
     })
   })
 
+  describe('regenerate option', function () {
+    it('should set the session nonce', function (done) {
+      request(createServer({ regenerate: true }))
+      .get('/')
+      .expect(shouldSetCookie('connect.sidnonce'))
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, done)
+    })
+
+    it('sets new nonce on a second request', function () {
+      const server = createServer({ regenerate: true });
+
+      return request(server)
+      .get('/')
+      .expect(200)
+      .then(function (res) {
+        const firstNonce = getCookie(res, 'connect.sidnonce');
+        return request(server)
+          .get('/')
+          .expect(200)
+          .then(function (res) {
+            const secondNonce = getCookie(res, 'connect.sidnonce');
+            assert.notStrictEqual(firstNonce.value, secondNonce.value);
+          })
+      })
+    })
+
+    it('rejects a request with an old nonce', function () {
+      const server = createServer({ regenerate: true });
+
+      return request(server)
+      .get('/')
+      .expect(200)
+      .then(function (res) {
+        const nonce = getCookie(res, 'connect.sidnonce');
+        const sid = getCookie(res, 'connect.sid');
+        const cookieHeader = 'connect.sidnonce=' + nonce.value + ';connect.sid=' + sid.value
+
+        return request(server)
+          .get('/')
+          .set('Cookie', cookieHeader)
+          .expect(200)
+          .then(function (res) {
+            return request(server)
+              .get('/')
+              .set('Cookie', cookieHeader)
+          })
+          .then(function (res) {
+            assert.strictEqual(res.error.text, 'Nonce mismatch, session invalid')
+          })
+      })
+    })
+
+    it('uses the specified cookie name', function (done) {
+      request(createServer({ regenerate: true, regenerateCookieName: 'supercustom' }))
+      .get('/')
+      .expect(shouldSetCookie('supercustom'))
+      .expect(function (res) {
+        const oldName = getCookie(res, 'connect.sidnonce')
+        assert.equal(oldName, null)
+      })
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, done)
+    })
+  })
+
   describe('rolling option', function(){
     it('should default to false', function(done){
       var server = createServer(null, function (req, res) {
@@ -2125,6 +2191,26 @@ function cookie(res) {
   return (setCookie && setCookie[0]) || undefined;
 }
 
+function cookies(res) {
+  return res.headers['set-cookie'];
+}
+  
+function getCookie(res, name) {
+  const header = cookies(res);
+  return header.reduce(function(found, cookie) {
+    if (found) {
+      return found;
+    }
+
+    const parsed = parseSetCookie(cookie);
+    if (parsed.name === name) {
+      return parsed;
+    } else {
+      return null;
+    }
+  }, null);
+}
+
 function createServer (options, respond) {
   var fn = respond
   var opts = options
@@ -2238,10 +2324,19 @@ function shouldNotSetSessionInStore(store) {
 
 function shouldSetCookie (name) {
   return function (res) {
-    var header = cookie(res)
-    var data = header && parseSetCookie(header)
-    assert.ok(header, 'should have a cookie header')
-    assert.strictEqual(data.name, name, 'should set cookie ' + name)
+    var header = cookies(res)
+    assert.ok(header.length, 'should have a cookie header')
+
+    var foundCookie = header.reduce(function (found, header) {
+      if (found) {
+        return found;
+      }
+
+      var data = header && parseSetCookie(header);
+      return data.name === name;
+    }, false);
+
+    assert.ok(foundCookie, 'should set cookie ' + name)
   }
 }
 
