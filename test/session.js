@@ -15,7 +15,7 @@ var Cookie = require('../session/cookie')
 var min = 60 * 1000;
 
 describe('session()', function(){
-  it('should export constructors', function(){
+  it('should export varructors', function(){
     assert.strictEqual(typeof session.Session, 'function')
     assert.strictEqual(typeof session.Store, 'function')
     assert.strictEqual(typeof session.MemoryStore, 'function')
@@ -906,33 +906,33 @@ describe('session()', function(){
     })
 
     it('sets new nonce on a second request', function () {
-      const server = createServer({ regenerate: true });
+      var server = createServer({ regenerate: true });
 
       return request(server)
       .get('/')
       .expect(200)
       .then(function (res) {
-        const firstNonce = getCookie(res, 'connect.sidnonce');
+        var firstNonce = getCookie(res, 'connect.sidnonce');
         return request(server)
           .get('/')
           .expect(200)
           .then(function (res) {
-            const secondNonce = getCookie(res, 'connect.sidnonce');
+            var secondNonce = getCookie(res, 'connect.sidnonce');
             assert.notStrictEqual(firstNonce.value, secondNonce.value);
           })
       })
     })
 
     it('rejects a request with an old nonce', function () {
-      const server = createServer({ regenerate: true });
+      var server = createServer({ regenerate: true });
 
       return request(server)
       .get('/')
       .expect(200)
       .then(function (res) {
-        const nonce = getCookie(res, 'connect.sidnonce');
-        const sid = getCookie(res, 'connect.sid');
-        const cookieHeader = 'connect.sidnonce=' + nonce.value + ';connect.sid=' + sid.value
+        var nonce = getCookie(res, 'connect.sidnonce');
+        var sid = getCookie(res, 'connect.sid');
+        var cookieHeader = 'connect.sidnonce=' + nonce.value + ';connect.sid=' + sid.value
 
         return request(server)
           .get('/')
@@ -954,7 +954,7 @@ describe('session()', function(){
       .get('/')
       .expect(shouldSetCookie('supercustom'))
       .expect(function (res) {
-        const oldName = getCookie(res, 'connect.sidnonce')
+        var oldName = getCookie(res, 'connect.sidnonce')
         assert.equal(oldName, null)
       })
       .expect(shouldSetCookie('connect.sid'))
@@ -2194,15 +2194,15 @@ function cookie(res) {
 function cookies(res) {
   return res.headers['set-cookie'];
 }
-  
+
 function getCookie(res, name) {
-  const header = cookies(res);
+  var header = cookies(res);
   return header.reduce(function(found, cookie) {
     if (found) {
       return found;
     }
 
-    const parsed = parseSetCookie(cookie);
+    var parsed = parseSetCookie(cookie);
     if (parsed.name === name) {
       return parsed;
     } else {
