@@ -905,47 +905,56 @@ describe('session()', function(){
       .expect(200, done)
     })
 
-    it('sets new nonce on a second request', function () {
+    it('sets new nonce on a second request', function (done) {
       var server = createServer({ regenerate: true });
 
-      return request(server)
+      console.log('blah');
+      request(server)
       .get('/')
       .expect(200)
-      .then(function (res) {
+      .end(function (err, res) {
+        if (err) return done(err);
+
         var firstNonce = getCookie(res, 'connect.sidnonce');
-        return request(server)
+        request(server)
           .get('/')
           .expect(200)
-          .then(function (res) {
-            var secondNonce = getCookie(res, 'connect.sidnonce');
-            assert.notStrictEqual(firstNonce.value, secondNonce.value);
+          .end(function (err, res) {
+            if (err) return done(err);
+            var secondNonce = getCookie(res, 'connect.sidnonce')
+            assert.notStrictEqual(firstNonce.value, secondNonce.value)
+            done();
           })
       })
     })
 
-    it('rejects a request with an old nonce', function () {
+    it('rejects a request with an old nonce', function (done) {
       var server = createServer({ regenerate: true });
 
-      return request(server)
+      request(server)
       .get('/')
       .expect(200)
-      .then(function (res) {
+      .end(function (err, res) {
+        if (err) return done(err);
         var nonce = getCookie(res, 'connect.sidnonce');
         var sid = getCookie(res, 'connect.sid');
         var cookieHeader = 'connect.sidnonce=' + nonce.value + ';connect.sid=' + sid.value
 
-        return request(server)
+        request(server)
           .get('/')
           .set('Cookie', cookieHeader)
           .expect(200)
-          .then(function (res) {
-            return request(server)
+          .end(function (err, res) {
+            if (err) return done(err);
+            request(server)
               .get('/')
               .set('Cookie', cookieHeader)
-          })
-          .then(function (res) {
-            assert.strictEqual(res.error.text, 'Nonce mismatch, session invalid')
-          })
+              .end(function (err, res) {
+                if (err) return done(err);
+                assert.strictEqual(res.error.text, 'Nonce mismatch, session invalid');
+                done();
+              });
+          });
       })
     })
 
