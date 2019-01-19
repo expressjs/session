@@ -11,8 +11,8 @@
  * Module dependencies.
  */
 
-var cookie = require('cookie')
-var deprecate = require('depd')('express-session')
+var cookie = require('cookie');
+var deprecate = require('depd')('express-session');
 
 /**
  * Initialize a new `Cookie` with the given `options`.
@@ -29,11 +29,11 @@ var Cookie = module.exports = function Cookie(options) {
 
   if (options) {
     if (typeof options !== 'object') {
-      throw new TypeError('argument options must be a object')
+      throw new TypeError('argument options must be a object');
     }
 
     for (var key in options) {
-      this[key] = options[key]
+      this[key] = options[key];
     }
   }
 
@@ -80,11 +80,11 @@ Cookie.prototype = {
 
   set maxAge(ms) {
     if (ms && typeof ms !== 'number' && !(ms instanceof Date)) {
-      throw new TypeError('maxAge must be a number or Date')
+      throw new TypeError('maxAge must be a number or Date');
     }
 
     if (ms instanceof Date) {
-      deprecate('maxAge as Date; pass number of milliseconds instead')
+      deprecate('maxAge as Date; pass number of milliseconds instead');
     }
 
     this.expires = 'number' == typeof ms
@@ -121,7 +121,7 @@ Cookie.prototype = {
       , domain: this.domain
       , path: this.path
       , sameSite: this.sameSite
-    }
+    };
   },
 
   /**

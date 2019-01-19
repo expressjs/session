@@ -12,17 +12,17 @@
  * @private
  */
 
-var Cookie = require('./cookie')
-var EventEmitter = require('events').EventEmitter
-var Session = require('./session')
-var util = require('util')
+var Cookie = require('./cookie');
+var EventEmitter = require('events').EventEmitter;
+var Session = require('./session');
+var util = require('util');
 
 /**
  * Module exports.
  * @public
  */
 
-module.exports = Store
+module.exports = Store;
 
 /**
  * Abstract base class for session stores.
@@ -30,14 +30,14 @@ module.exports = Store
  */
 
 function Store () {
-  EventEmitter.call(this)
+  EventEmitter.call(this);
 }
 
 /**
  * Inherit from EventEmitter.
  */
 
-util.inherits(Store, EventEmitter)
+util.inherits(Store, EventEmitter);
 
 /**
  * Re-generate the given requests's session.
@@ -70,7 +70,7 @@ Store.prototype.load = function(sid, fn){
     if (err) return fn(err);
     if (!sess) return fn();
     var req = { sessionID: sid, sessionStore: self };
-    fn(null, self.createSession(req, sess))
+    fn(null, self.createSession(req, sess));
   });
 };
 
@@ -84,8 +84,8 @@ Store.prototype.load = function(sid, fn){
  */
 
 Store.prototype.createSession = function(req, sess){
-  var expires = sess.cookie.expires
-  var orig = sess.cookie.originalMaxAge
+  var expires = sess.cookie.expires;
+  var orig = sess.cookie.originalMaxAge;
 
   sess.cookie = new Cookie(sess.cookie);
   if ('string' == typeof expires) sess.cookie.expires = new Date(expires);

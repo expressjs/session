@@ -5,3 +5,4 @@ rules:
   no-mixed-spaces-and-tabs: error
   no-trailing-spaces: error
   one-var: ["error", { "initialized": "never" }]
+  semi: 1
