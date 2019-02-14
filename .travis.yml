@@ -67,14 +67,14 @@ before_install:
 script:
   - |
     # Run test script, depending on istanbul install
-    if [[ -n "$(npm -ps ls istanbul)" ]]; then
+    if npm -ps ls istanbul | grep -q istanbul; then
       npm run-script test-travis
     else
       npm test
     fi
   - |
     # Run linting, depending on eslint install
-    if [[ -n "$(npm -ps ls eslint)" ]]; then
+    if npm -ps ls eslint | grep -q eslint; then
       npm run-script lint
     fi
 after_script:
