@@ -916,6 +916,31 @@ describe('session()', function(){
       });
     });
 
+    it('should check session object modification correctly', function(done){
+      var callCount = 0;
+      var server = createServer(null, function (req, res) {
+        if (callCount % 2 === 0) {
+          req.session.user = { name: 'bob', id: 15 }
+        } else {
+          req.session.user = { id: 15, name: 'bob' }
+        }
+        callCount++;
+        res.end()
+      })
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res){
+        if (err) return done(err);
+        request(server)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldNotHaveHeader('Set-Cookie'))
+        .expect(200, done)
+      });
+    });
+
     it('should force cookie on unmodified session', function(done){
       var server = createServer({ rolling: true }, function (req, res) {
         req.session.user = 'bob'

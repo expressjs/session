@@ -15,7 +15,8 @@
 
 var Buffer = require('safe-buffer').Buffer
 var cookie = require('cookie');
-var crypto = require('crypto')
+var omit = require('lodash.omit');
+var hasher = require('object-hash');
 var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
 var onHeaders = require('on-headers')
@@ -578,21 +579,8 @@ function getcookie(req, name, secrets) {
  */
 
 function hash(sess) {
-  // serialize
-  var str = JSON.stringify(sess, function (key, val) {
-    // ignore sess.cookie property
-    if (this === sess && key === 'cookie') {
-      return
-    }
-
-    return val
-  })
-
-  // hash
-  return crypto
-    .createHash('sha1')
-    .update(str, 'utf8')
-    .digest('hex')
+  var hashObj = omit(sess, 'cookie');
+  return hasher(hashObj, {respectType: false});
 }
 
 /**
