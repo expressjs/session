@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "after": "0.8.2",
-    "cookie-parser": "1.4.3",
+    "cookie-parser": "1.4.4",
     "eslint": "3.19.0",
     "eslint-plugin-markdown": "1.0.0",
     "express": "4.16.4",
