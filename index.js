@@ -363,6 +363,19 @@ function session(options) {
       wrapmethods(req.session);
     }
 
+    // inflate the session
+    function inflate (req, sess) {
+      store.createSession(req, sess)
+      originalId = req.sessionID
+      originalHash = hash(sess)
+
+      if (!resaveSession) {
+        savedHash = originalHash
+      }
+
+      wrapmethods(req.session)
+    }
+
     // wrap session methods
     function wrapmethods(sess) {
       var _reload = sess.reload
@@ -460,34 +473,26 @@ function session(options) {
     debug('fetching %s', req.sessionID);
     store.get(req.sessionID, function(err, sess){
       // error handling
-      if (err) {
+      if (err && err.code !== 'ENOENT') {
         debug('error %j', err);
-
-        if (err.code !== 'ENOENT') {
-          next(err);
-          return;
-        }
-
-        generate();
-      // no session
-      } else if (!sess) {
-        debug('no session found');
-        generate();
-      // populate req.session
-      } else {
-        debug('session found');
-        store.createSession(req, sess);
-        originalId = req.sessionID;
-        originalHash = hash(sess);
-
-        if (!resaveSession) {
-          savedHash = originalHash
-        }
-
-        wrapmethods(req.session);
+        next(err)
+        return
       }
 
-      next();
+      try {
+        if (err || !sess) {
+          debug('no session found')
+          generate()
+        } else {
+          debug('session found')
+          inflate(req, sess)
+        }
+      } catch (e) {
+        next(e)
+        return
+      }
+
+      next()
     });
   };
 };
