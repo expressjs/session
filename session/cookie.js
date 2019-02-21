@@ -121,6 +121,7 @@ Cookie.prototype = {
       , domain: this.domain
       , path: this.path
       , sameSite: this.sameSite
+      , createdAt: this.createdAt
     }
   },
 

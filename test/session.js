@@ -1282,6 +1282,141 @@ describe('session()', function(){
     })
   })
 
+  describe('maxDuration option', function () {
+    it('should reject unknown values', function () {
+      assert.throws(createServer.bind(null, { maxDuration: "baddata" }), /maxDuration needs to be specified as a number/);
+    })
+    it('should keep session in maxDuration', function(done) {
+      var store = new session.MemoryStore();
+      var server = createServer({store: store, maxDuration: 10}, function(req, res) {
+        req.session.user = 'bob';
+        res.write('hello, world');
+        res.end();
+      });
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res) {
+        if (err) return done(err);
+        var originalExpires = expires(res);
+        setTimeout(function() {
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(200, done);
+        }, 100);
+      });
+    });
+
+    it('should start a new session if createdAt is corrupt', function(done) {
+      var store = new session.MemoryStore();
+      var server = createServer({store: store, maxDuration: 10}, function(req, res) {
+        req.session.user = 'bob';
+        req.session.cookie.createdAt = null;
+        res.write('hello, world');
+        res.end();
+      });
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res) {
+        if (err) return done(err);
+        var originalCookie = cookie(res);
+        setTimeout(function() {
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(function (res) { assert.notEqual(originalCookie, cookie(res)); })
+          .expect(200, done);
+        }, 100);
+      });
+    });
+
+    it('it should handle a user mucking up the createdAt date', function(done) {
+      var store = new session.MemoryStore();
+      var server = createServer({store: store, maxDuration: 10}, function(req, res) {
+        req.session.user = 'bob';
+        req.session.cookie.createdAt = 'some really bad data';
+        res.write('hello, world');
+        res.end();
+      });
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function(err, res) {
+        if (err) return done(err);
+        var originalCookie = cookie(res);
+        setTimeout(function() {
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(function (res) { assert.notEqual(originalCookie, cookie(res)); })
+          .expect(200, done);
+        }, 100);
+      });
+    });
+
+    it('should destroy session after maxDuration', function(done) {
+      var store = new session.MemoryStore();
+      var server = createServer({ store: store, maxDuration: .1 }, function(req, res) {
+        req.session.user = 'bob';
+        res.write('hello, world');
+        res.end();
+      });
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function (err, res) {
+        if (err) return done(err);
+        var originalCookie = cookie(res);
+        setTimeout(function () {
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(function (res) { assert.notEqual(originalCookie, cookie(res)); })
+          .expect(200, done);
+        }, 200);
+      });
+    });
+
+    it('should destroy session after maxDuration even with rolling sessions', function (done) {
+      var store = new session.MemoryStore();
+      var server = createServer({ store: store, maxDuration: .1, rolling: true }, function(req, res) {
+        req.session.user = 'bob';
+        res.write('hello, world');
+        res.end();
+      });
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function (err, res) {
+        if (err) return done(err);
+        var originalCookie = cookie(res);
+        setTimeout(function () {
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, function (err, res) {
+            if (err) return done(err);
+            setTimeout(function () {
+              request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(shouldSetCookie('connect.sid'))
+              .expect(function (res) { assert.notEqual(originalCookie, cookie(res)); })
+              .expect(200, done);
+            }, 100);
+          });
+        }, 100);
+      });
+    });
+  });
+
   describe('unset option', function () {
     it('should reject unknown values', function(){
       assert.throws(session.bind(null, { unset: 'bogus!' }), /unset.*must/)

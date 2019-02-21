@@ -53,7 +53,7 @@ exports.MemoryStore = MemoryStore;
  */
 
 var warning = 'Warning: connect.session() MemoryStore is not\n'
-  + 'designed for a production environment, as it will leak\n'
+ + 'designed for a production environment, as it will leak\n'
   + 'memory, and will not scale past a single process.';
 
 /**
@@ -63,7 +63,7 @@ var warning = 'Warning: connect.session() MemoryStore is not\n'
 
 /* istanbul ignore next */
 var defer = typeof setImmediate === 'function'
-  ? setImmediate
+ ? setImmediate
   : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
 
 /**
@@ -80,6 +80,7 @@ var defer = typeof setImmediate === 'function'
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
+ * @param {Number} [options.maxDuration] Sets the maximum total age in seconds for a session to minimize session replay duration
  * @return {Function} middleware
  * @public
  */
@@ -143,6 +144,10 @@ function session(options) {
     secret = [secret];
   }
 
+  if (opts.maxDuration && typeof opts.maxDuration !== 'number') {
+    throw new TypeError('maxDuration needs to be specified as a number');
+  }
+
   if (!secret) {
     deprecate('req.secret; provide secret option');
   }
@@ -162,6 +167,10 @@ function session(options) {
 
     if (cookieOptions.secure === 'auto') {
       req.session.cookie.secure = issecure(req, trustProxy);
+    }
+
+    if (opts.maxDuration > 0) {
+      req.session.cookie.createdAt = new Date();
     }
   };
 
@@ -421,7 +430,7 @@ function session(options) {
       }
 
       return !saveUninitializedSession && cookieId !== req.sessionID
-        ? isModified(req.session)
+       ? isModified(req.session)
         : !isSaved(req.session)
     }
 
@@ -444,8 +453,26 @@ function session(options) {
       }
 
       return cookieId != req.sessionID
-        ? saveUninitializedSession || isModified(req.session)
+       ? saveUninitializedSession || isModified(req.session)
         : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
+    }
+
+    // if opts.maxDuration is set, check to see if the createdAt value of the cookie is has
+    // expired.
+    function hasReachedMaxDuration (sess, opts) {
+      if (!opts || !opts.maxDuration || opts.maxDuration <= 0) {
+        return false;
+      }
+      if (!sess || !sess.cookie || !sess.cookie.createdAt) {
+        debug('session should be timed out, but the createdAt value is not saved')
+        return true;
+      }
+      var createdDate = new Date(sess.cookie.createdAt);
+      var nowDate = new Date();
+      if ((nowDate.getTime() - createdDate.getTime()) / 1000 < opts.maxDuration) {
+        return false;
+      }
+      return true;
     }
 
     // generate a session if the browser doesn't send a sessionID
@@ -469,11 +496,14 @@ function session(options) {
         }
 
         generate();
-      // no session
+        // no session
       } else if (!sess) {
         debug('no session found');
         generate();
-      // populate req.session
+        // populate req.session
+      } else if (hasReachedMaxDuration(sess, opts)) {
+        debug('session has reached the max duration');
+        generate();
       } else {
         debug('session found');
         store.createSession(req, sess);
@@ -624,7 +654,7 @@ function issecure(req, trustProxy) {
   var header = req.headers['x-forwarded-proto'] || '';
   var index = header.indexOf(',');
   var proto = index !== -1
-    ? header.substr(0, index).toLowerCase().trim()
+   ? header.substr(0, index).toLowerCase().trim()
     : header.toLowerCase().trim()
 
   return proto === 'https';

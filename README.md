@@ -181,6 +181,22 @@ app.use(session({
 }))
 ```
 
+##### maxDuration
+
+The maximum amount of time that a session can stay open *even* if there are continuous
+requests that keep the session alive.  This is to minimize the total footprint of a session
+replay attack in the case where a session identifier is stolen.  This will treat the session as
+expired and generate a new session.  Rolling sessions do not update this behavior.
+
+The default is none.
+
+```js
+app.use(session({
+  maxDuration: 28800, // duration in seconds (this would be 8 hours)
+  secret: 'keyboard cat'
+}))
+```
+
 ##### name
 
 The name of the session ID cookie to set in the response (and read from in the
