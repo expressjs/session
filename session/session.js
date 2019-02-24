@@ -137,10 +137,24 @@ defineMethod(Session.prototype, 'reload', function reload (fn) {
  */
 
 defineMethod(Session.prototype, 'destroy', function destroy(fn) {
-  delete this.req.session;
-  this.req.sessionStore.destroy(this.id, fn);
-  return this;
-});
+  delete this.req.session
+  if (fn) {
+    this.req.sessionStore.destroy(this.id, fn)
+    return
+  }
+
+  if (!fn && !global.Promise) {
+    throw new Error('must use callback without promises')
+  }
+
+  var parent = this
+  return new Promise(function (resolve, reject) {
+    parent.req.sessionStore.destroy(parent.id, function(err) {
+      if (err) reject(err)
+      resolve()
+    })
+  })
+})
 
 /**
  * Regenerate this request's session.
