@@ -1655,6 +1655,100 @@ describe('session()', function(){
           .expect(500, 'failed to load session', done)
         })
       })
+
+      describe('with global Promise', function () {
+        beforeEach(function () {
+          global.Promise = Promise
+        })
+
+        afterEach(function () {
+          global.Promise = undefined
+        })
+
+        it('should return Promise without callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            if (req.url === '/') {
+              req.session.active = true
+              res.end('session created')
+              return
+            }
+
+            req.session.url = req.url
+
+            if (req.url === '/bar') {
+              res.end('saw ' + req.session.url)
+              return
+            }
+
+            request(server)
+            .get('/bar')
+            .set('Cookie', val)
+            .expect(200, 'saw /bar', function (err, resp) {
+              if (err) return done(err)
+              req.session.reload()
+                .then(function () {
+                  res.end('saw ' + req.session.url)
+                })
+                .catch(function (err) {
+                  if (err) return done(err)
+                })
+            })
+          })
+          var val
+
+          request(server)
+          .get('/')
+          .expect(200, 'session created', function (err, res) {
+            if (err) return done(err)
+            val = cookie(res)
+            request(server)
+            .get('/foo')
+            .set('Cookie', val)
+            .expect(200, 'saw /bar', done)
+          })
+        })
+
+        it('should not return promise with callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            if (req.url === '/') {
+              req.session.active = true
+              res.end('session created')
+              return
+            }
+
+            req.session.url = req.url
+
+            if (req.url === '/bar') {
+              res.end('saw ' + req.session.url)
+              return
+            }
+
+            request(server)
+            .get('/bar')
+            .set('Cookie', val)
+            .expect(200, 'saw /bar', function (err, resp) {
+              if (err) return done(err)
+              var ret = req.session.reload(function (err) {
+                if (err) return done(err)
+                res.statusCode = (ret === undefined) ? 200 : 500
+                res.end('saw ' + req.session.url)
+              })
+            })
+          })
+          var val
+
+          request(server)
+          .get('/')
+          .expect(200, 'session created', function (err, res) {
+            if (err) return done(err)
+            val = cookie(res)
+            request(server)
+            .get('/foo')
+            .set('Cookie', val)
+            .expect(200, 'saw /bar', done)
+          })
+        })
+      })
     })
 
     describe('.save()', function () {
