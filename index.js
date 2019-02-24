@@ -370,16 +370,31 @@ function session(options) {
 
       function reload(callback) {
         debug('reloading %s', this.id)
-        _reload.call(this, function () {
-          wrapmethods(req.session)
-          callback.apply(this, arguments)
-        })
+        if (callback) {
+          _reload.call(this, function () {
+            wrapmethods(req.session)
+            callback.apply(this, arguments)
+          })
+          return
+        }
+
+        if (!callback && !global.Promise) {
+          throw new Error('must use callback without Promise')
+        }
+
+        return _reload.call(this)
+          .then(function() {
+            return wrapmethods(req.session)
+          })
+          .catch(function(err) {
+            return err
+          })
       }
 
       function save() {
         debug('saving %s', this.id);
         savedHash = hash(this);
-        _save.apply(this, arguments);
+        return _save.apply(this, arguments);
       }
 
       Object.defineProperty(sess, 'reload', {

@@ -12,6 +12,11 @@ var util = require('util')
 
 var Cookie = require('../session/cookie')
 
+var Promise = global.Promise || require('bluebird')
+
+// Add Promise to mocha's global list
+global.Promise = global.Promise
+
 var min = 60 * 1000;
 
 describe('session()', function(){
@@ -1716,6 +1721,76 @@ describe('session()', function(){
           .set('Cookie', cookie(res))
           .expect(shouldSetSessionInStore(store))
           .expect(200, 'saved', done)
+        })
+      })
+
+      describe('with global Promise', function () {
+        beforeEach(function () {
+          global.Promise = Promise
+        })
+
+        afterEach(function () {
+          global.Promise = undefined
+        })
+
+        it('should return Promise without callback', function (done) {
+          var store = new session.MemoryStore()
+          var server = createServer({ store: store }, function (req, res) {
+            req.session.hit = true
+            req.session.save()
+              .then(function () {
+                store.get(req.session.id, function (err, sess) {
+                  if (err) return res.end(err.message)
+                  res.end(sess ? 'stored' : 'empty')
+                })
+              })
+              .catch(function (err) {
+                res.statusCode = 500
+                res.end(err.message)
+              })
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, 'stored', done)
+        })
+
+        it('should not return Promise with callback', function (done) {
+          var store = new session.MemoryStore()
+          var server = createServer({ store: store }, function (req, res) {
+            req.session.hit = true
+            var ret = req.session.save(function (err) {
+              res.statusCode = (!err && ret === undefined) ? 200 : 500
+              res.end()
+            })
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, done)
+        })
+      })
+
+      describe('without global Promise', function () {
+        beforeEach(function () {
+          global.Promise = undefined
+        })
+
+        afterEach(function () {
+          global.Promise = Promise
+        })
+
+        it('should work without callback', function (done) {
+          var store = new session.MemoryStore()
+          var server = createServer({ store: store }, function (req, res) {
+            req.session.hit = true
+            req.session.save()
+            res.end()
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, done)
         })
       })
     })

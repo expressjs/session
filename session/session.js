@@ -63,15 +63,30 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
 /**
  * Save the session data with optional callback `fn(err)`.
  *
- * @param {Function} fn
- * @return {Session} for chaining
+ * @param {Function} [fn]
+ * @return {Promise}
  * @api public
  */
 
-defineMethod(Session.prototype, 'save', function save(fn) {
-  this.req.sessionStore.set(this.id, this, fn || function(){});
-  return this;
-});
+defineMethod(Session.prototype, 'save', function save (fn) {
+  if (fn) {
+    this.req.sessionStore.set(this.id, this, fn)
+    return
+  }
+
+  if (!fn && !global.Promise) {
+    this.req.sessionStore.set(this.id, this, function(){})
+    return
+  }
+
+  var sess = this
+  return new Promise(function (resolve, reject) {
+    sess.req.sessionStore.set(sess.id, sess, function (err) {
+      if (err) reject(err)
+      resolve()
+    })
+  })
+})
 
 /**
  * Re-loads the session data _without_ altering
