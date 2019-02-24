@@ -1671,6 +1671,43 @@ describe('session()', function(){
         .expect(200, 'stored', done)
       })
 
+      it('should return Promise without callback', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.hit = true
+          req.session.save()
+            .then(function () {
+              store.get(req.session.id, function (err, sess) {
+                if (err) return res.end(err.message)
+                res.end(sess ? 'stored' : 'empty')
+              })
+            })
+            .catch(function (err) {
+              if (err) return res.end(err.message)
+            })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'stored', done)
+      })
+
+      it('should not return Promise with callback', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.hit = true
+          var ret = req.session.save(function (err) {
+            if (err) return res.end(err.message)
+            res.statusCode = (ret === undefined) ? 200 : 500
+            res.end()
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, done)
+      })
+
       it('should prevent end-of-request save', function (done) {
         var store = new session.MemoryStore()
         var server = createServer({ store: store }, function (req, res) {
