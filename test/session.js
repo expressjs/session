@@ -1545,7 +1545,7 @@ describe('session()', function(){
       })
     })
 
-    describe('.destroy()', function(){
+    describe('.destroy()', function () {
       it('should destroy the previous session', function(done){
         var server = createServer(null, function (req, res) {
           req.session.destroy(function (err) {
@@ -1558,6 +1558,48 @@ describe('session()', function(){
         .get('/')
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, 'undefined', done)
+      })
+
+      describe('with global Promise', function () {
+        beforeEach(function () {
+          global.Promise = Promise
+        })
+
+        afterEach(function () {
+          global.Promise = undefined
+        })
+
+        it('should return Promise without callback', function(done){
+          var server = createServer(null, function (req, res) {
+            req.session.destroy()
+              .then(function() {
+                res.end(String(req.session))
+              })
+              .catch(function (err) {
+                if (err) res.statusCode = 500
+              })
+          })
+
+          request(server)
+          .get('/')
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(200, 'undefined', done)
+        })
+
+        it('should not return Promise with callback', function(done){
+          var server = createServer(null, function (req, res) {
+            var ret = req.session.destroy(function (err) {
+              if (err) res.statusCode = 500
+              res.statusCode = (ret === undefined) ? 200 : 500
+              res.end(String(req.session))
+            })
+          })
+
+          request(server)
+          .get('/')
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(200, 'undefined', done)
+        })
       })
     })
 
