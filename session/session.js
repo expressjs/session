@@ -95,23 +95,38 @@ defineMethod(Session.prototype, 'save', function save (fn) {
  * `req.session` property will be a new `Session` object,
  * although representing the same session.
  *
- * @param {Function} fn
- * @return {Session} for chaining
+ * @param {Function} [fn]
+ * @return {Promise}
  * @api public
  */
 
-defineMethod(Session.prototype, 'reload', function reload(fn) {
+defineMethod(Session.prototype, 'reload', function reload (fn) {
   var req = this.req
   var store = this.req.sessionStore
+  if (fn) {
+    store.get(this.id, function (err, sess) {
+      if (err) return fn(err)
+      if (!sess) return fn(new Error('failed to load session'))
+      store.createSession(req, sess)
+      fn()
+    })
+    return
+  }
 
-  store.get(this.id, function(err, sess){
-    if (err) return fn(err);
-    if (!sess) return fn(new Error('failed to load session'));
-    store.createSession(req, sess);
-    fn();
-  });
-  return this;
-});
+  if (!fn && !global.Promise) {
+    throw new Error('must use callback without promises')
+  }
+
+  var parent = this
+  return new Promise(function (resolve, reject) {
+    store.get(parent.id, function (err, sess) {
+      if (err) reject(err)
+      if (!sess) reject(new Error('failed to load session'))
+      store.createSession(req, sess)
+      resolve()
+    })
+  })
+})
 
 /**
  * Destroy `this` session.
