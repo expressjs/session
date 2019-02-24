@@ -165,9 +165,23 @@ defineMethod(Session.prototype, 'destroy', function destroy(fn) {
  */
 
 defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
-  this.req.sessionStore.regenerate(this.req, fn);
-  return this;
-});
+  if (fn) {
+    this.req.sessionStore.regenerate(this.req, fn)
+    return
+  }
+
+  if (!fn && !global.Promise) {
+    throw new Error('must use callback without promises')
+  }
+
+  var sess = this
+  return new Promise(function (resolve, reject) {
+    sess.req.sessionStore.regenerate(sess.req, function(err) {
+      if (err) reject(err)
+      resolve()
+    })
+  })
+})
 
 /**
  * Helper function for creating a method on a prototype.

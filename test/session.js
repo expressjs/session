@@ -1588,7 +1588,7 @@ describe('session()', function(){
       })
     })
 
-    describe('.regenerate()', function(){
+    describe('.regenerate()', function () {
       it('should destroy/replace the previous session', function(done){
         var server = createServer(null, function (req, res) {
           var id = req.session.id
@@ -1610,6 +1610,56 @@ describe('session()', function(){
           .expect(shouldSetCookieToDifferentSessionId(sid(res)))
           .expect(200, 'false', done)
         });
+      })
+
+      it('should return Promise without callback', function (done) {
+        var server = createServer(null, function (req, res) {
+          var id = req.session.id
+          req.session.regenerate()
+            .then(function() {
+              res.end(String(req.session.id === id))
+            })
+            .catch(function (err) {
+              if (err) res.statusCode = 500
+            })
+        })
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(shouldSetCookieToDifferentSessionId(sid(res)))
+          .expect(200, 'false', done)
+        })
+      })
+
+      it('should not return Promise with callback', function(done){
+        var server = createServer(null, function (req, res) {
+          var id = req.session.id
+          var ret = req.session.regenerate(function (err) {
+            if (err) res.statusCode = 500
+            res.statusCode = (ret === undefined) ? 200 : 500
+            res.end(String(req.session.id === id))
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(shouldSetCookieToDifferentSessionId(sid(res)))
+          .expect(200, 'false', done)
+        })
       })
     })
 
