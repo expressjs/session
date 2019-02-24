@@ -11,6 +11,8 @@ unreleased
     - Replace internal `eval` usage with `Function` constructor
     - Use instance methods on `process` to check for listeners
     - perf: remove argument reassignment
+  * deps: on-headers@~1.0.2
+    - Fix `res.writeHead` patch missing return value
 
 1.15.6 / 2017-09-26
 ===================
