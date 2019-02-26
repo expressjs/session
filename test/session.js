@@ -1569,36 +1569,55 @@ describe('session()', function(){
           global.Promise = undefined
         })
 
-        it('should return Promise without callback', function(done){
+        it('should return Promise without callback', function (done) {
           var server = createServer(null, function (req, res) {
             req.session.destroy()
-              .then(function() {
-                res.end(String(req.session))
+              .then(function () {
+                res.end()
               })
               .catch(function (err) {
-                if (err) res.statusCode = 500
+                res.statusCode = 500
+                res.end(err.message)
               })
           })
 
           request(server)
           .get('/')
-          .expect(shouldNotHaveHeader('Set-Cookie'))
-          .expect(200, 'undefined', done)
+          .expect(200, done)
         })
 
-        it('should not return Promise with callback', function(done){
+        it('should not return Promise with callback', function (done) {
           var server = createServer(null, function (req, res) {
             var ret = req.session.destroy(function (err) {
-              if (err) res.statusCode = 500
-              res.statusCode = (ret === undefined) ? 200 : 500
-              res.end(String(req.session))
+              res.statusCode = (!err && ret === undefined) ? 200 : 500
+              res.end()
             })
           })
 
           request(server)
           .get('/')
-          .expect(shouldNotHaveHeader('Set-Cookie'))
-          .expect(200, 'undefined', done)
+          .expect(200, done)
+        })
+      })
+
+      describe('without global Promise', function () {
+        beforeEach(function () {
+          global.Promise = undefined
+        })
+
+        afterEach(function () {
+          global.Promise = Promise
+        })
+
+        it('should require callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            req.session.destroy()
+            res.end()
+          })
+
+          request(server)
+          .get('/')
+          .expect(500, 'must use callback without promises', done)
         })
       })
     })
