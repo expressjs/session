@@ -12,6 +12,11 @@ var util = require('util')
 
 var Cookie = require('../session/cookie')
 
+var Promise = global.Promise || require('bluebird')
+
+// Add Promise to mocha's global list
+global.Promise = global.Promise
+
 var min = 60 * 1000;
 
 describe('session()', function(){
@@ -1540,7 +1545,7 @@ describe('session()', function(){
       })
     })
 
-    describe('.destroy()', function(){
+    describe('.destroy()', function () {
       it('should destroy the previous session', function(done){
         var server = createServer(null, function (req, res) {
           req.session.destroy(function (err) {
@@ -1554,9 +1559,70 @@ describe('session()', function(){
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, 'undefined', done)
       })
+
+      describe('with global Promise', function () {
+        beforeEach(function () {
+          global.Promise = Promise
+        })
+
+        afterEach(function () {
+          global.Promise = undefined
+        })
+
+        it('should return Promise without callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            req.session.destroy()
+              .then(function () {
+                res.end()
+              })
+              .catch(function (err) {
+                res.statusCode = 500
+                res.end(err.message)
+              })
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, done)
+        })
+
+        it('should not return Promise with callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            var ret = req.session.destroy(function (err) {
+              res.statusCode = (!err && ret === undefined) ? 200 : 500
+              res.end()
+            })
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, done)
+        })
+      })
+
+      describe('without global Promise', function () {
+        beforeEach(function () {
+          global.Promise = undefined
+        })
+
+        afterEach(function () {
+          global.Promise = Promise
+        })
+
+        it('should require callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            req.session.destroy()
+            res.end()
+          })
+
+          request(server)
+          .get('/')
+          .expect(500, 'must use callback without promises', done)
+        })
+      })
     })
 
-    describe('.regenerate()', function(){
+    describe('.regenerate()', function () {
       it('should destroy/replace the previous session', function(done){
         var server = createServer(null, function (req, res) {
           var id = req.session.id
@@ -1578,6 +1644,83 @@ describe('session()', function(){
           .expect(shouldSetCookieToDifferentSessionId(sid(res)))
           .expect(200, 'false', done)
         });
+      })
+
+      describe('with global Promise', function () {
+        beforeEach(function () {
+          global.Promise = Promise
+        })
+
+        afterEach(function () {
+          global.Promise = undefined
+        })
+
+        it('should return Promise without callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            var id = req.session.id
+            req.session.regenerate()
+              .then(function() {
+                res.end(String(req.session.id === id))
+              })
+              .catch(function () {
+                res.statusCode = 500
+              })
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, 'false', done)
+        })
+
+        it('should not return Promise with callback', function(done){
+          var server = createServer(null, function (req, res) {
+            var id = req.session.id
+            var ret = req.session.regenerate(function (err) {
+              res.statusCode = (!err && ret === undefined) ? 200 : 500
+              res.end(String(req.session.id === id))
+            })
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, 'false', done)
+        })
+      })
+
+      describe('without global Promise', function () {
+        beforeEach(function () {
+          global.Promise = undefined
+        })
+
+        afterEach(function () {
+          global.Promise = Promise
+        })
+
+        it('should error without callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            req.session.regenerate()
+            res.end()
+          })
+
+          request(server)
+          .get('/')
+          .expect(500, 'must use callback without promises', done)
+        })
+
+        it('should not return Promise with callback', function(done){
+          var server = createServer(null, function (req, res) {
+            var id = req.session.id
+            var ret = req.session.regenerate(function (err) {
+              res.statusCode = (!err && ret === undefined) ? 200 : 500
+              res.end(String(req.session.id === id))
+            })
+          })
+
+          request(server)
+          .get('/')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'false', done)
+        })
       })
     })
 
@@ -1604,6 +1747,90 @@ describe('session()', function(){
             if (err) return done(err)
             req.session.reload(function (err) {
               if (err) return done(err)
+              res.end('saw ' + req.session.url)
+            })
+          })
+        })
+        var val
+
+        request(server)
+        .get('/')
+        .expect(200, 'session created', function (err, res) {
+          if (err) return done(err)
+          val = cookie(res)
+          request(server)
+          .get('/foo')
+          .set('Cookie', val)
+          .expect(200, 'saw /bar', done)
+        })
+      })
+
+      it('should return Promise without callback', function (done) {
+        var server = createServer(null, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          req.session.url = req.url
+
+          if (req.url === '/bar') {
+            res.end('saw ' + req.session.url)
+            return
+          }
+
+          request(server)
+          .get('/bar')
+          .set('Cookie', val)
+          .expect(200, 'saw /bar', function (err, resp) {
+            if (err) return done(err)
+            req.session.reload()
+              .then(function () {
+                res.end('saw ' + req.session.url)
+              })
+              .catch(function (err) {
+                if (err) return done(err)
+              })
+          })
+        })
+        var val
+
+        request(server)
+        .get('/')
+        .expect(200, 'session created', function (err, res) {
+          if (err) return done(err)
+          val = cookie(res)
+          request(server)
+          .get('/foo')
+          .set('Cookie', val)
+          .expect(200, 'saw /bar', done)
+        })
+      })
+
+      it('should not return promise with callback', function (done) {
+        var server = createServer(null, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          req.session.url = req.url
+
+          if (req.url === '/bar') {
+            res.end('saw ' + req.session.url)
+            return
+          }
+
+          request(server)
+          .get('/bar')
+          .set('Cookie', val)
+          .expect(200, 'saw /bar', function (err, resp) {
+            if (err) return done(err)
+            var ret = req.session.reload(function (err) {
+              if (err) return done(err)
+              res.statusCode = (ret === undefined) ? 200 : 500
               res.end('saw ' + req.session.url)
             })
           })
@@ -1650,6 +1877,92 @@ describe('session()', function(){
           .expect(500, 'failed to load session', done)
         })
       })
+
+      describe('with global Promise', function () {
+        beforeEach(function () {
+          global.Promise = Promise
+        })
+
+        afterEach(function () {
+          global.Promise = undefined
+        })
+
+        it('should return Promise without callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            if (req.url === '/') {
+              req.session.active = true
+              res.end('session created')
+              return
+            }
+
+            req.session.reload()
+              .then(function () {
+                res.end()
+              })
+              .catch(function (err) {
+                res.statusCode = 500
+                res.end(err.message)
+              })
+          })
+
+          request(server)
+            .get('/')
+            .expect(200, 'session created', function (err, res) {
+              if (err) return done(err)
+              request(server)
+                .get('/foo')
+                .set('Cookie', cookie(res))
+                .expect(200, done)
+            })
+        })
+
+        it('should not return promise with callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            if (req.url === '/') {
+              req.session.active = true
+              res.end('session created')
+              return
+            }
+
+            req.session.reload(function (err) {
+              if (!err) return res.end()
+              res.statusCode = 500
+              res.end(err.message)
+            })
+          })
+
+          request(server)
+            .get('/')
+            .expect(200, 'session created', function (err, res) {
+              if (err) return done(err)
+              request(server)
+                .get('/foo')
+                .set('Cookie', cookie(res))
+                .expect(200, done)
+            })
+        })
+      })
+
+      describe('without global Promise', function () {
+        beforeEach(function () {
+          global.Promise = undefined
+        })
+
+        afterEach(function () {
+          global.Promise = Promise
+        })
+
+        it('should require callback', function (done) {
+          var server = createServer(null, function (req, res) {
+            req.session.reload()
+            res.end()
+          })
+
+          request(server)
+            .get('/')
+            .expect(500, 'must use callback without promises', done)
+        })
+      })
     })
 
     describe('.save()', function () {
@@ -1669,6 +1982,43 @@ describe('session()', function(){
         request(server)
         .get('/')
         .expect(200, 'stored', done)
+      })
+
+      it('should return Promise without callback', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.hit = true
+          req.session.save()
+            .then(function () {
+              store.get(req.session.id, function (err, sess) {
+                if (err) return res.end(err.message)
+                res.end(sess ? 'stored' : 'empty')
+              })
+            })
+            .catch(function (err) {
+              if (err) return res.end(err.message)
+            })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'stored', done)
+      })
+
+      it('should not return Promise with callback', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.hit = true
+          var ret = req.session.save(function (err) {
+            if (err) return res.end(err.message)
+            res.statusCode = (ret === undefined) ? 200 : 500
+            res.end()
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, done)
       })
 
       it('should prevent end-of-request save', function (done) {
@@ -1716,6 +2066,76 @@ describe('session()', function(){
           .set('Cookie', cookie(res))
           .expect(shouldSetSessionInStore(store))
           .expect(200, 'saved', done)
+        })
+      })
+
+      describe('with global Promise', function () {
+        beforeEach(function () {
+          global.Promise = Promise
+        })
+
+        afterEach(function () {
+          global.Promise = undefined
+        })
+
+        it('should return Promise without callback', function (done) {
+          var store = new session.MemoryStore()
+          var server = createServer({ store: store }, function (req, res) {
+            req.session.hit = true
+            req.session.save()
+              .then(function () {
+                store.get(req.session.id, function (err, sess) {
+                  if (err) return res.end(err.message)
+                  res.end(sess ? 'stored' : 'empty')
+                })
+              })
+              .catch(function (err) {
+                res.statusCode = 500
+                res.end(err.message)
+              })
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, 'stored', done)
+        })
+
+        it('should not return Promise with callback', function (done) {
+          var store = new session.MemoryStore()
+          var server = createServer({ store: store }, function (req, res) {
+            req.session.hit = true
+            var ret = req.session.save(function (err) {
+              res.statusCode = (!err && ret === undefined) ? 200 : 500
+              res.end()
+            })
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, done)
+        })
+      })
+
+      describe('without global Promise', function () {
+        beforeEach(function () {
+          global.Promise = undefined
+        })
+
+        afterEach(function () {
+          global.Promise = Promise
+        })
+
+        it('should work without callback', function (done) {
+          var store = new session.MemoryStore()
+          var server = createServer({ store: store }, function (req, res) {
+            req.session.hit = true
+            req.session.save()
+            res.end()
+          })
+
+          request(server)
+          .get('/')
+          .expect(200, done)
         })
       })
     })
@@ -2160,7 +2580,12 @@ function createRequestListener(opts, fn) {
         return
       }
 
-      respond(req, res)
+      try {
+        respond(req, res)
+      } catch (e) {
+        res.statusCode = 500
+        res.end(e.message)
+      }
     })
   }
 }

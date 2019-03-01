@@ -63,15 +63,30 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
 /**
  * Save the session data with optional callback `fn(err)`.
  *
- * @param {Function} fn
- * @return {Session} for chaining
+ * @param {Function} [fn]
+ * @return {Promise}
  * @api public
  */
 
-defineMethod(Session.prototype, 'save', function save(fn) {
-  this.req.sessionStore.set(this.id, this, fn || function(){});
-  return this;
-});
+defineMethod(Session.prototype, 'save', function save (fn) {
+  if (fn) {
+    this.req.sessionStore.set(this.id, this, fn)
+    return
+  }
+
+  if (!fn && !global.Promise) {
+    this.req.sessionStore.set(this.id, this, function(){})
+    return
+  }
+
+  var sess = this
+  return new Promise(function (resolve, reject) {
+    sess.req.sessionStore.set(sess.id, sess, function (err) {
+      if (err) reject(err)
+      resolve()
+    })
+  })
+})
 
 /**
  * Re-loads the session data _without_ altering
@@ -80,23 +95,38 @@ defineMethod(Session.prototype, 'save', function save(fn) {
  * `req.session` property will be a new `Session` object,
  * although representing the same session.
  *
- * @param {Function} fn
- * @return {Session} for chaining
+ * @param {Function} [fn]
+ * @return {Promise}
  * @api public
  */
 
-defineMethod(Session.prototype, 'reload', function reload(fn) {
+defineMethod(Session.prototype, 'reload', function reload (fn) {
   var req = this.req
   var store = this.req.sessionStore
+  if (fn) {
+    store.get(this.id, function (err, sess) {
+      if (err) return fn(err)
+      if (!sess) return fn(new Error('failed to load session'))
+      store.createSession(req, sess)
+      fn()
+    })
+    return
+  }
 
-  store.get(this.id, function(err, sess){
-    if (err) return fn(err);
-    if (!sess) return fn(new Error('failed to load session'));
-    store.createSession(req, sess);
-    fn();
-  });
-  return this;
-});
+  if (!fn && !global.Promise) {
+    throw new Error('must use callback without promises')
+  }
+
+  var parent = this
+  return new Promise(function (resolve, reject) {
+    store.get(parent.id, function (err, sess) {
+      if (err) reject(err)
+      if (!sess) reject(new Error('failed to load session'))
+      store.createSession(req, sess)
+      resolve()
+    })
+  })
+})
 
 /**
  * Destroy `this` session.
@@ -107,10 +137,24 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
  */
 
 defineMethod(Session.prototype, 'destroy', function destroy(fn) {
-  delete this.req.session;
-  this.req.sessionStore.destroy(this.id, fn);
-  return this;
-});
+  delete this.req.session
+  if (fn) {
+    this.req.sessionStore.destroy(this.id, fn)
+    return
+  }
+
+  if (!fn && !global.Promise) {
+    throw new Error('must use callback without promises')
+  }
+
+  var parent = this
+  return new Promise(function (resolve, reject) {
+    parent.req.sessionStore.destroy(parent.id, function(err) {
+      if (err) reject(err)
+      resolve()
+    })
+  })
+})
 
 /**
  * Regenerate this request's session.
@@ -121,9 +165,23 @@ defineMethod(Session.prototype, 'destroy', function destroy(fn) {
  */
 
 defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
-  this.req.sessionStore.regenerate(this.req, fn);
-  return this;
-});
+  if (fn) {
+    this.req.sessionStore.regenerate(this.req, fn)
+    return
+  }
+
+  if (!fn && !global.Promise) {
+    throw new Error('must use callback without promises')
+  }
+
+  var sess = this
+  return new Promise(function (resolve, reject) {
+    sess.req.sessionStore.regenerate(sess.req, function(err) {
+      if (err) reject(err)
+      resolve()
+    })
+  })
+})
 
 /**
  * Helper function for creating a method on a prototype.
