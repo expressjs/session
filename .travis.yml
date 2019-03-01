@@ -20,6 +20,32 @@ cache:
     - node_modules
 before_install:
   - |
+    # Setup utility functions
+    function node_version_lt () {
+      [[ "$(v "$TRAVIS_NODE_VERSION")" -lt "$(v "${1}")" ]]
+    }
+    function npm_module_installed () {
+      npm -lsp ls | grep -Fq "$(pwd)/node_modules/${1}:${1}@"
+    }
+    function npm_remove_module_re () {
+      node -e '
+        fs = require("fs");
+        p = JSON.parse(fs.readFileSync("package.json", "utf8"));
+        r = RegExp(process.argv[1]);
+        for (k in p.devDependencies) {
+          if (r.test(k)) delete p.devDependencies[k];
+        }
+        fs.writeFileSync("package.json", JSON.stringify(p, null, 2) + "\n");
+      ' "$@"
+    }
+    function npm_use_module () {
+      node -e '
+        fs = require("fs");
+        p = JSON.parse(fs.readFileSync("package.json", "utf8"));
+        p.devDependencies[process.argv[1]] = process.argv[2];
+        fs.writeFileSync("package.json", JSON.stringify(p, null, 2) + "\n");
+      ' "$@"
+    }
     function v () {
       tr '.' '\n' <<< "${1}" \
         | awk '{ printf "%03d", $0 }' \
@@ -31,36 +57,22 @@ before_install:
     npm config set shrinkwrap false
   # Setup Node.js version-specific dependencies
   - |
-    # eslint for linting
-    if [[ "$(v "$TRAVIS_NODE_VERSION")" -lt "$(v '4.0')" ]]; then
-      # - remove on Node.js < 4
-      node -pe 'Object.keys(require("./package").devDependencies).join("\n")' | \
-        grep -E '^eslint(-|$)' | \
-        xargs npm rm --save-dev
+    # Configure eslint for linting
+    if node_version_lt '4.0'; then npm_remove_module_re '^eslint(-|$)'
     fi
   - |
-    # istanbul for coverage
-    if [[ "$(v "$TRAVIS_NODE_VERSION")" -lt "$(v '0.10')" ]]; then
-      # - remove on Node.js < 0.10
-      npm rm --save-dev istanbul
+    # Configure istanbul for coverage
+    if node_version_lt '0.10'; then npm_remove_module_re '^istanbul$'
     fi
   - |
-    # mocha for testing
-    if [[ "$(v "$TRAVIS_NODE_VERSION")" -lt "$(v '0.10')" ]]; then
-      # - use 2.x for Node.js < 0.10
-      npm install --save-dev mocha@2.5.3
-    elif [[ "$(v "$TRAVIS_NODE_VERSION")" -lt "$(v '6.0')" ]]; then
-      # - use 3.x for Node.js < 6
-      npm install --save-dev mocha@3.5.3
+    # Configure mocha for testing
+    if   node_version_lt '0.10'; then npm_use_module 'mocha' '2.5.3'
+    elif node_version_lt '4.0' ; then npm_use_module 'mocha' '3.5.3'
     fi
   - |
-    # supertest for http calls
-    if [[ "$(v "$TRAVIS_NODE_VERSION")" -lt "$(v '0.10')" ]]; then
-      # - use 1.1.0 for Node.js < 0.10
-      npm install --save-dev supertest@1.1.0
-    elif [[ "$(v "$TRAVIS_NODE_VERSION")" -lt "$(v '4.0')" ]]; then
-      # - use 2.0.0 for Node.js < 4
-      npm install --save-dev supertest@2.0.0
+    # Configure supertest for http calls
+    if   node_version_lt '0.10'; then npm_use_module 'supertest' '1.1.0'
+    elif node_version_lt '4.0' ; then npm_use_module 'supertest' '2.0.0'
     fi
   # Update Node.js modules
   - |
@@ -73,15 +85,12 @@ before_install:
 script:
   - |
     # Run test script, depending on istanbul install
-    if npm -ps ls istanbul | grep -q istanbul; then
-      npm run-script test-travis
-    else
-      npm test
+    if npm_module_installed 'istanbul'; then npm run-script test-travis
+    else npm test
     fi
   - |
     # Run linting, depending on eslint install
-    if npm -ps ls eslint | grep -q eslint; then
-      npm run-script lint
+    if npm_module_installed 'eslint'; then npm run-script lint
     fi
 after_script:
   - |
