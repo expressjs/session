@@ -378,10 +378,6 @@ function session(options) {
           return
         }
 
-        if (!callback && !global.Promise) {
-          throw new Error('must use callback without Promise')
-        }
-
         return _reload.call(this)
           .then(function() {
             return wrapmethods(req.session)

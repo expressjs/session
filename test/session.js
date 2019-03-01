@@ -1960,7 +1960,7 @@ describe('session()', function(){
 
           request(server)
             .get('/')
-            .expect(500, 'must use callback without Promise', done)
+            .expect(500, 'must use callback without promises', done)
         })
       })
     })
