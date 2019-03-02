@@ -8,7 +8,8 @@ var http = require('http')
 var https = require('https')
 var request = require('supertest')
 var session = require('../')
-var util = require('util')
+var SyncStore = require('./support/sync-store')
+var utils = require('./support/utils')
 
 var Cookie = require('../session/cookie')
 
@@ -1396,7 +1397,7 @@ describe('session()', function(){
   describe('res.end patch', function () {
     it('should correctly handle res.end/res.write patched prior', function (done) {
       function setup (req, res) {
-        writePatch(res)
+        utils.writePatch(res)
       }
 
       function respond (req, res) {
@@ -1412,7 +1413,7 @@ describe('session()', function(){
 
     it('should correctly handle res.end/res.write patched after', function (done) {
       function respond (req, res) {
-        writePatch(res)
+        utils.writePatch(res)
         req.session.hit = true
         res.write('hello, ')
         res.end('world')
@@ -2185,7 +2186,7 @@ function end(req, res) {
 
 function expires (res) {
   var header = cookie(res)
-  return header && parseSetCookie(header).expires
+  return header && utils.parseSetCookie(header).expires
 }
 
 function mountAt (path) {
@@ -2195,25 +2196,6 @@ function mountAt (path) {
       req.url = req.url.slice(path.length)
     }
   }
-}
-
-function parseSetCookie (header) {
-  var match
-  var pairs = []
-  var pattern = /\s*([^=;]+)(?:=([^;]*);?|;|$)/g
-
-  while ((match = pattern.exec(header))) {
-    pairs.push({ name: match[1], value: match[2] })
-  }
-
-  var cookie = pairs.shift()
-
-  for (var i = 0; i < pairs.length; i++) {
-    match = pairs[i]
-    cookie[match.name.toLowerCase()] = (match.value || true)
-  }
-
-  return cookie
 }
 
 function shouldNotHaveHeader(header) {
@@ -2239,7 +2221,7 @@ function shouldNotSetSessionInStore(store) {
 function shouldSetCookie (name) {
   return function (res) {
     var header = cookie(res)
-    var data = header && parseSetCookie(header)
+    var data = header && utils.parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
     assert.strictEqual(data.name, name, 'should set cookie ' + name)
   }
@@ -2254,7 +2236,7 @@ function shouldSetCookieToDifferentSessionId (id) {
 function shouldSetCookieToExpireIn (name, delta) {
   return function (res) {
     var header = cookie(res)
-    var data = header && parseSetCookie(header)
+    var data = header && utils.parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
     assert.strictEqual(data.name, name, 'should set cookie ' + name)
     assert.ok(('expires' in data), 'should set cookie with attribute Expires')
@@ -2266,7 +2248,7 @@ function shouldSetCookieToExpireIn (name, delta) {
 function shouldSetCookieToValue (name, val) {
   return function (res) {
     var header = cookie(res)
-    var data = header && parseSetCookie(header)
+    var data = header && utils.parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
     assert.strictEqual(data.name, name, 'should set cookie ' + name)
     assert.strictEqual(data.value, val, 'should set cookie ' + name + ' to ' + val)
@@ -2276,7 +2258,7 @@ function shouldSetCookieToValue (name, val) {
 function shouldSetCookieWithAttribute (name, attrib) {
   return function (res) {
     var header = cookie(res)
-    var data = header && parseSetCookie(header)
+    var data = header && utils.parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
     assert.strictEqual(data.name, name, 'should set cookie ' + name)
     assert.ok((attrib.toLowerCase() in data), 'should set cookie with attribute ' + attrib)
@@ -2286,7 +2268,7 @@ function shouldSetCookieWithAttribute (name, attrib) {
 function shouldSetCookieWithAttributeAndValue (name, attrib, value) {
   return function (res) {
     var header = cookie(res)
-    var data = header && parseSetCookie(header)
+    var data = header && utils.parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
     assert.strictEqual(data.name, name, 'should set cookie ' + name)
     assert.ok((attrib.toLowerCase() in data), 'should set cookie with attribute ' + attrib)
@@ -2297,7 +2279,7 @@ function shouldSetCookieWithAttributeAndValue (name, attrib, value) {
 function shouldSetCookieWithoutAttribute (name, attrib) {
   return function (res) {
     var header = cookie(res)
-    var data = header && parseSetCookie(header)
+    var data = header && utils.parseSetCookie(header)
     assert.ok(header, 'should have a cookie header')
     assert.strictEqual(data.name, name, 'should set cookie ' + name)
     assert.ok(!(attrib.toLowerCase() in data), 'should set cookie without attribute ' + attrib)
@@ -2320,48 +2302,8 @@ function shouldSetSessionInStore(store) {
 
 function sid (res) {
   var header = cookie(res)
-  var data = header && parseSetCookie(header)
+  var data = header && utils.parseSetCookie(header)
   var value = data && unescape(data.value)
   var sid = value && value.substring(2, value.indexOf('.'))
   return sid || undefined
 }
-
-function writePatch (res) {
-  var _end = res.end
-  var _write = res.write
-  var ended = false
-
-  res.end = function end() {
-    ended = true
-    return _end.apply(this, arguments)
-  }
-
-  res.write = function write() {
-    if (ended) {
-      throw new Error('write after end')
-    }
-
-    return _write.apply(this, arguments)
-  }
-}
-
-function SyncStore () {
-  session.Store.call(this)
-  this.sessions = Object.create(null)
-}
-
-util.inherits(SyncStore, session.Store)
-
-SyncStore.prototype.destroy = function destroy(sid, callback) {
-  delete this.sessions[sid];
-  callback();
-};
-
-SyncStore.prototype.get = function get(sid, callback) {
-  callback(null, JSON.parse(this.sessions[sid]));
-};
-
-SyncStore.prototype.set = function set(sid, sess, callback) {
-  this.sessions[sid] = JSON.stringify(sess);
-  callback();
-};
