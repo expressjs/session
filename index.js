@@ -150,7 +150,7 @@ function session(options) {
   // notify user that this store is not
   // meant for a production environment
   /* istanbul ignore next: not tested */
-  if ('production' == env && store instanceof MemoryStore) {
+  if (env === 'production' && store instanceof MemoryStore) {
     console.warn(warning);
   }
 
@@ -443,7 +443,7 @@ function session(options) {
         return false;
       }
 
-      return cookieId != req.sessionID
+      return cookieId !== req.sessionID
         ? saveUninitializedSession || isModified(req.session)
         : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
     }
