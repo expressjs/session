@@ -74,6 +74,8 @@ var defer = typeof setImmediate === 'function'
  * @param {Function} [options.genid]
  * @param {String} [options.name=connect.sid] Session ID cookie name
  * @param {Boolean} [options.proxy]
+ * @param {Boolean} [options.regenerate] Regenerate the session id on every request
+ * @param {String}  [options.regenerateCookieName='sidnonce'] Name of the nonce cookie for session id regeneration
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
@@ -100,7 +102,13 @@ function session(options) {
   var store = opts.store || new MemoryStore()
 
   // get the trust proxy setting
-  var trustProxy = opts.proxy
+  var trustProxy = opts.proxy;
+
+  // get the regenerate session option
+  var regenerateSessionId = opts.regenerate;
+
+  // get the regenerate cookie name option
+  var regenerateCookieName = opts.regenerateCookieName || 'connect.sidnonce';
 
   // get the resave session option
   var resaveSession = opts.resave;
@@ -215,6 +223,7 @@ function session(options) {
 
     // get the session ID from the cookie
     var cookieId = req.sessionID = getcookie(req, name, secrets);
+    var sessionNonce = getcookie(req, regenerateCookieName, secrets);
 
     // set-cookie
     onHeaders(res, function(){
@@ -241,6 +250,10 @@ function session(options) {
 
       // set cookie
       setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
+
+      if (regenerateSessionId) {
+        setcookie(res, regenerateCookieName, sessionNonce, secrets[0], req.session.cookie.data);
+      }
     });
 
     // proxy end() to commit the session
@@ -325,6 +338,11 @@ function session(options) {
         // touch session
         req.session.touch()
         touched = true
+      }
+
+      if (regenerateSessionId) {
+        sessionNonce = generateId(req);
+        req.session.nonce = sessionNonce;
       }
 
       if (shouldSave(req)) {
@@ -445,7 +463,7 @@ function session(options) {
 
       return cookieId != req.sessionID
         ? saveUninitializedSession || isModified(req.session)
-        : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
+        : regenerateSessionId || rollingSessions || req.session.cookie.expires != null && isModified(req.session);
     }
 
     // generate a session if the browser doesn't send a sessionID
@@ -458,7 +476,7 @@ function session(options) {
 
     // generate the session object
     debug('fetching %s', req.sessionID);
-    store.get(req.sessionID, function(err, sess){
+    store.get(req.sessionID, function(err, sess) {
       // error handling
       if (err) {
         debug('error %j', err);
@@ -474,6 +492,9 @@ function session(options) {
         debug('no session found');
         generate();
       // populate req.session
+      } else if (regenerateSessionId && sess.nonce !== sessionNonce) {
+        debug('nonce mismatch, session invalid');
+        next(new Error('Nonce mismatch, session invalid'));
       } else {
         debug('session found');
         store.createSession(req, sess);
