@@ -506,6 +506,11 @@ and other multi-core embedded devices).
 [cluster-store-url]: https://www.npmjs.com/package/cluster-store
 [cluster-store-image]: https://badgen.net/github/stars/coolaj86/cluster-store?label=%E2%98%85
 
+[![★][connect-arango-image] connect-arango][connect-arango-url] An ArangoDB-based session store.
+
+[connect-arango-url]: https://www.npmjs.com/package/connect-arango
+[connect-arango-image]: https://badgen.net/github/stars/AlexanderArvidsson/connect-arango?label=%E2%98%85
+
 [![★][connect-azuretables-image] connect-azuretables][connect-azuretables-url] An [Azure Table Storage](https://azure.microsoft.com/en-gb/services/storage/tables/)-based session store.
 
 [connect-azuretables-url]: https://www.npmjs.com/package/connect-azuretables
