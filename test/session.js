@@ -1558,7 +1558,8 @@ describe('session()', function(){
 
     describe('.regenerate()', function(){
       it('should destroy/replace the previous session', function(done){
-        var server = createServer(null, function (req, res) {
+        var store = new session.MemoryStore()
+        var server = createServer({store: store}, function (req, res) {
           var id = req.session.id
           req.session.regenerate(function (err) {
             if (err) res.statusCode = 500
@@ -1574,9 +1575,39 @@ describe('session()', function(){
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
+          .expect(shouldDestroySessionInStore(store))
           .expect(shouldSetCookie('connect.sid'))
           .expect(shouldSetCookieToDifferentSessionId(sid(res)))
           .expect(200, 'false', done)
+        });
+      })
+
+      it('should replace but not destroy the previous session when preserve flag is set', function(done){
+        var store = new session.MemoryStore()
+        var server = createServer({store: store}, function (req, res) {
+          var id = req.session.id
+          req.session.regenerate({destroy: false}, function (err) {
+            if (err) res.statusCode = 500
+            res.end(String(req.session.id === id))
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          var id = sid(res)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(shouldNotDestroySessionInStore(store))
+          .expect(200, 'false', function (err, res) {
+            if (err) return done(err)
+            assert.notEqual(sid(res), id)
+            done();
+          });
         });
       })
     })
@@ -2214,6 +2245,34 @@ function parseSetCookie (header) {
   }
 
   return cookie
+}
+
+function shouldDestroySessionInStore(store) {
+  var _destroy = store.destroy
+  var count = 0
+
+  store.destroy = function destroy () {
+    count++
+    return _destroy.apply(this, arguments)
+  }
+
+  return function () {
+    assert.ok(count === 1, 'should destroy session in store')
+  }
+}
+
+function shouldNotDestroySessionInStore(store) {
+  var _destroy = store.destroy
+  var count = 0
+
+  store.destroy = function destroy () {
+    count++
+    return _destroy.apply(this, arguments)
+  }
+
+  return function () {
+    assert.ok(count === 0, 'should not destroy session in store')
+  }
 }
 
 function shouldNotHaveHeader(header) {

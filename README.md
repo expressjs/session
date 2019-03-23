@@ -304,15 +304,31 @@ app.get('/', function(req, res, next) {
 })
 ```
 
-#### Session.regenerate(callback)
+#### Session.regenerate([options], callback)
 
-To regenerate the session simply invoke the method. Once complete,
+Regenerates the session for the current request. Once complete,
 a new SID and `Session` instance will be initialized at `req.session`
 and the `callback` will be invoked.
 
+#### Options
+
+If the options argument is omitted, the options will take their default values.
+The following options are supported:
+
+##### destroy
+
+Specifies whether the existing session should be destroyed or not. Defaults
+to `true`, and the existing session will be destroyed. If this is not desirable,
+set to `false` to preserve the existing session.
+
 ```js
 req.session.regenerate(function(err) {
-  // will have a new session here
+  // existing session is destroyed and will have a new session here
+})
+```
+```js
+req.session.regenerate({ destroy: false }, function(err) {
+  // existing session is preserved but will have a new session here
 })
 ```
 
