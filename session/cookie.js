@@ -33,7 +33,9 @@ var Cookie = module.exports = function Cookie(options) {
     }
 
     for (var key in options) {
-      this[key] = options[key]
+      if (key !== 'data') {
+        this[key] = options[key]
+      }
     }
   }
 

@@ -44,6 +44,15 @@ describe('new Cookie()', function () {
       assert.throws(function () { new Cookie(function () {}) }, /argument options/)
     })
 
+    it('should ignore "data" option', function () {
+      var cookie = new Cookie({ data: { foo: 'bar' }, path: '/foo' })
+
+      assert.strictEqual(typeof cookie, 'object')
+      assert.strictEqual(typeof cookie.data, 'object')
+      assert.strictEqual(cookie.data.path, '/foo')
+      assert.notStrictEqual(cookie.data.foo, 'bar')
+    })
+
     describe('expires', function () {
       it('should set expires', function () {
         var expires = new Date(Date.now() + 60000)
