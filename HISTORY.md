@@ -1,5 +1,5 @@
-unreleased
-==========
+1.16.1 / 2019-04-11
+===================
 
   * Fix error passing `data` option to `Cookie` constructor
   * Fix uncaught error from bad session data
