@@ -1,5 +1,5 @@
-unreleased
-==========
+1.16.0 / 2019-04-10
+===================
 
   * Catch invalid `cookie.maxAge` value earlier
   * Deprecate setting `cookie.maxAge` to a `Date` object
