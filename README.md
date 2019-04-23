@@ -546,6 +546,11 @@ and other multi-core embedded devices).
 [connect-dynamodb-url]: https://www.npmjs.com/package/connect-dynamodb
 [connect-dynamodb-image]: https://badgen.net/github/stars/ca98am79/connect-dynamodb?label=%E2%98%85
 
+[![★][connect-hazelcast-image] connect-hazelcast][connect-hazelcast-url] Hazelcast session store for Connect and Express.
+
+[connect-hazelcast-url]: https://www.npmjs.com/package/connect-hazelcast
+[connect-hazelcast-image]: https://badgen.net/github/stars/huseyinbabal/connect-hazelcast?label=%E2%98%85
+
 [![★][connect-loki-image] connect-loki][connect-loki-url] A Loki.js-based session store.
 
 [connect-loki-url]: https://www.npmjs.com/package/connect-loki
