@@ -543,7 +543,7 @@ and other multi-core embedded devices).
 
 [![★][connect-dynamodb-image] connect-dynamodb][connect-dynamodb-url] A DynamoDB-based session store.
 
-[connect-dynamodb-url]: https://github.com/ca98am79/connect-dynamodb
+[connect-dynamodb-url]: https://www.npmjs.com/package/connect-dynamodb
 [connect-dynamodb-image]: https://badgen.net/github/stars/ca98am79/connect-dynamodb?label=%E2%98%85
 
 [![★][connect-loki-image] connect-loki][connect-loki-url] A Loki.js-based session store.
@@ -551,15 +551,21 @@ and other multi-core embedded devices).
 [connect-loki-url]: https://www.npmjs.com/package/connect-loki
 [connect-loki-image]: https://badgen.net/github/stars/Requarks/connect-loki?label=%E2%98%85
 
+[![★][connect-memcached-image] connect-memcached][connect-memcached-url] A memcached-based session store.
+
+[connect-memcached-url]: https://www.npmjs.com/package/connect-memcached
+[connect-memcached-image]: https://badgen.net/github/stars/balor/connect-memcached?label=%E2%98%85
+
+[![★][connect-memjs-image] connect-memjs][connect-memjs-url] A memcached-based session store using
+[memjs](https://www.npmjs.com/package/memjs) as the memcached client.
+
+[connect-memjs-url]: https://www.npmjs.com/package/connect-memjs
+[connect-memjs-image]: https://badgen.net/github/stars/liamdon/connect-memjs?label=%E2%98%85
+
 [![★][connect-ml-image] connect-ml][connect-ml-url] A MarkLogic Server-based session store.
 
 [connect-ml-url]: https://www.npmjs.com/package/connect-ml
 [connect-ml-image]: https://badgen.net/github/stars/bluetorch/connect-ml?label=%E2%98%85
-
-[![★][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
-
-[connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
-[connect-mssql-image]: https://badgen.net/github/stars/patriksimek/connect-mssql?label=%E2%98%85
 
 [![★][connect-monetdb-image] connect-monetdb][connect-monetdb-url] A MonetDB-based session store.
 
@@ -576,6 +582,11 @@ and other multi-core embedded devices).
 [connect-mongodb-session-url]: https://www.npmjs.com/package/connect-mongodb-session
 [connect-mongodb-session-image]: https://badgen.net/github/stars/mongodb-js/connect-mongodb-session?label=%E2%98%85
 
+[![★][connect-mssql-image] connect-mssql][connect-mssql-url] A SQL Server-based session store.
+
+[connect-mssql-url]: https://www.npmjs.com/package/connect-mssql
+[connect-mssql-image]: https://badgen.net/github/stars/patriksimek/connect-mssql?label=%E2%98%85
+
 [![★][connect-pg-simple-image] connect-pg-simple][connect-pg-simple-url] A PostgreSQL-based session store.
 
 [connect-pg-simple-url]: https://www.npmjs.com/package/connect-pg-simple
@@ -585,17 +596,6 @@ and other multi-core embedded devices).
 
 [connect-redis-url]: https://www.npmjs.com/package/connect-redis
 [connect-redis-image]: https://badgen.net/github/stars/tj/connect-redis?label=%E2%98%85
-
-[![★][connect-memcached-image] connect-memcached][connect-memcached-url] A memcached-based session store.
-
-[connect-memcached-url]: https://www.npmjs.com/package/connect-memcached
-[connect-memcached-image]: https://badgen.net/github/stars/balor/connect-memcached?label=%E2%98%85
-
-[![★][connect-memjs-image] connect-memjs][connect-memjs-url] A memcached-based session store using
-[memjs](https://www.npmjs.com/package/memjs) as the memcached client.
-
-[connect-memjs-url]: https://www.npmjs.com/package/connect-memjs
-[connect-memjs-image]: https://badgen.net/github/stars/liamdon/connect-memjs?label=%E2%98%85
 
 [![★][connect-session-firebase-image] connect-session-firebase][connect-session-firebase-url] A session store based on the [Firebase Realtime Database](https://firebase.google.com/docs/database/)
 
@@ -614,15 +614,30 @@ and other multi-core embedded devices).
 [connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
 [connect-session-sequelize-image]: https://badgen.net/github/stars/mweibel/connect-session-sequelize?label=%E2%98%85
 
+[![★][connect-sqlite3-image] connect-sqlite3][connect-sqlite3-url] A [SQLite3](https://github.com/mapbox/node-sqlite3) session store modeled after the TJ's `connect-redis` store.
+
+[connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
+[connect-sqlite3-image]: https://badgen.net/github/stars/rawberg/connect-sqlite3?label=%E2%98%85
+
 [![★][couchdb-expression-image] couchdb-expression][couchdb-expression-url] A [CouchDB](https://couchdb.apache.org/)-based session store.
 
 [couchdb-expression-url]: https://www.npmjs.com/package/couchdb-expression
 [couchdb-expression-image]: https://badgen.net/github/stars/tkshnwesper/couchdb-expression?label=%E2%98%85
 
+[![★][documentdb-session-image] documentdb-session][documentdb-session-url] A session store for Microsoft Azure's [DocumentDB](https://azure.microsoft.com/en-us/services/documentdb/) NoSQL database service.
+
+[documentdb-session-url]: https://www.npmjs.com/package/documentdb-session
+[documentdb-session-image]: https://badgen.net/github/stars/dwhieb/documentdb-session?label=%E2%98%85
+
 [![★][dynamodb-store-image] dynamodb-store][dynamodb-store-url] A DynamoDB-based session store.
 
 [dynamodb-store-url]: https://www.npmjs.com/package/dynamodb-store
 [dynamodb-store-image]: https://badgen.net/github/stars/rafaelrpinto/dynamodb-store?label=%E2%98%85
+
+[![★][express-etcd-image] express-etcd][express-etcd-url] An [etcd](https://github.com/stianeikeland/node-etcd) based session store.
+
+[express-etcd-url]: https://www.npmjs.com/package/express-etcd
+[express-etcd-image]: https://badgen.net/github/stars/gildean/express-etcd?label=%E2%98%85
 
 [![★][express-mysql-session-image] express-mysql-session][express-mysql-session-url] A session store using native
 [MySQL](https://www.mysql.com/) via the [node-mysql](https://github.com/felixge/node-mysql) module.
@@ -630,31 +645,16 @@ and other multi-core embedded devices).
 [express-mysql-session-url]: https://www.npmjs.com/package/express-mysql-session
 [express-mysql-session-image]: https://badgen.net/github/stars/chill117/express-mysql-session?label=%E2%98%85
 
+[![★][express-nedb-session-image] express-nedb-session][express-nedb-session-url] A NeDB-based session store.
+
+[express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
+[express-nedb-session-image]: https://badgen.net/github/stars/louischatriot/express-nedb-session?label=%E2%98%85
+
 [![★][express-oracle-session-image] express-oracle-session][express-oracle-session-url] A session store using native
 [oracle](https://www.oracle.com/) via the [node-oracledb](https://www.npmjs.com/package/oracledb) module.
 
 [express-oracle-session-url]: https://www.npmjs.com/package/express-oracle-session
 [express-oracle-session-image]: https://badgen.net/github/stars/slumber86/express-oracle-session?label=%E2%98%85
-
-[![★][express-sessions-image] express-sessions][express-sessions-url]: A session store supporting both MongoDB and Redis.
-
-[express-sessions-url]: https://www.npmjs.com/package/express-sessions
-[express-sessions-image]: https://badgen.net/github/stars/konteck/express-sessions?label=%E2%98%85
-
-[![★][connect-sqlite3-image] connect-sqlite3][connect-sqlite3-url] A [SQLite3](https://github.com/mapbox/node-sqlite3) session store modeled after the TJ's `connect-redis` store.
-
-[connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
-[connect-sqlite3-image]: https://badgen.net/github/stars/rawberg/connect-sqlite3?label=%E2%98%85
-
-[![★][documentdb-session-image] documentdb-session][documentdb-session-url] A session store for Microsoft Azure's [DocumentDB](https://azure.microsoft.com/en-us/services/documentdb/) NoSQL database service.
-
-[documentdb-session-url]: https://www.npmjs.com/package/documentdb-session
-[documentdb-session-image]: https://badgen.net/github/stars/dwhieb/documentdb-session?label=%E2%98%85
-
-[![★][express-nedb-session-image] express-nedb-session][express-nedb-session-url] A NeDB-based session store.
-
-[express-nedb-session-url]: https://www.npmjs.com/package/express-nedb-session
-[express-nedb-session-image]: https://badgen.net/github/stars/louischatriot/express-nedb-session?label=%E2%98%85
 
 [![★][express-session-cache-manager-image] express-session-cache-manager][express-session-cache-manager-url]
 A store that implements [cache-manager](https://www.npmjs.com/package/cache-manager), which supports
@@ -663,24 +663,24 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-session-cache-manager-url]: https://www.npmjs.com/package/express-session-cache-manager
 [express-session-cache-manager-image]: https://badgen.net/github/stars/theogravity/express-session-cache-manager?label=%E2%98%85
 
-[![★][express-session-level-image] express-session-level][express-session-level-url] A [LevelDB](https://github.com/Level/levelup) based session store.
-
-[express-session-level-url]: https://www.npmjs.com/package/express-session-level
-[express-session-level-image]: https://badgen.net/github/stars/tgohn/express-session-level?label=%E2%98%85
-
-[![★][express-etcd-image] express-etcd][express-etcd-url] An [etcd](https://github.com/stianeikeland/node-etcd) based session store.
-
-[express-etcd-url]: https://www.npmjs.com/package/express-etcd
-[express-etcd-image]: https://badgen.net/github/stars/gildean/express-etcd?label=%E2%98%85
-
 [![★][express-session-etcd3-image] express-session-etcd3][express-session-etcd3-url] An [etcd3](https://github.com/mixer/etcd3) based session store.
 
 [express-session-etcd3-url]: https://www.npmjs.com/package/express-session-etcd3
 [express-session-etcd3-image]: https://badgen.net/github/stars/willgm/express-session-etcd3?label=%E2%98%85
 
+[![★][express-session-level-image] express-session-level][express-session-level-url] A [LevelDB](https://github.com/Level/levelup) based session store.
+
+[express-session-level-url]: https://www.npmjs.com/package/express-session-level
+[express-session-level-image]: https://badgen.net/github/stars/tgohn/express-session-level?label=%E2%98%85
+
+[![★][express-sessions-image] express-sessions][express-sessions-url] A session store supporting both MongoDB and Redis.
+
+[express-sessions-url]: https://www.npmjs.com/package/express-sessions
+[express-sessions-image]: https://badgen.net/github/stars/konteck/express-sessions?label=%E2%98%85
+
 [![★][firestore-store-image] firestore-store][firestore-store-url] A [Firestore](https://github.com/hendrysadrak/firestore-store)-based session store.
 
-[firestore-store-url]: https://github.com/hendrysadrak/firestore-store
+[firestore-store-url]: https://www.npmjs.com/package/firestore-store
 [firestore-store-image]: https://badgen.net/github/stars/hendrysadrak/firestore-store?label=%E2%98%85
 
 [![★][fortune-session-image] fortune-session][fortune-session-url] A [Fortune.js](https://github.com/fortunejs/fortune)
