@@ -484,6 +484,21 @@ This is primarily used when the store will automatically delete idle sessions
 and this method is used to signal to the store the given session is active,
 potentially resetting the idle timer.
 
+## Typescript usage
+A TypeScript definition file is included in this package so you should be ready to go right away.
+
+You can define the type for your own session data using [declaration merging](https://www.typescriptlang.org/docs/handbook/declaration-merging.html). Just put the following code in a `.d.ts` file and your custom properties will be recognized by the compiler:
+```ts
+interface SessionData {
+	// You can define your own properties here like this:
+	userId: string;
+	viewCount: number;
+	// ...and the list goes on...
+}
+```
+
+It should also be noted that although the injected `session` and `sessionID` fields on the express [`Request`](https://expressjs.com/en/api.html#req) interface aren't defined as optional, they won't exist until you actually [use](#example) the middleware.
+
 ## Compatible Session Stores
 
 The following modules implement a session store that is compatible with this

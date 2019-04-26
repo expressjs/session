@@ -3,9 +3,11 @@
   "version": "1.16.1",
   "description": "Simple session middleware for Express",
   "author": "TJ Holowaychuk <tj@vision-media.ca> (http://tjholowaychuk.com)",
+  "typings": "index.d.ts",
   "contributors": [
     "Douglas Christopher Wilson <doug@somethingdoug.com>",
-    "Joe Wagner <njwjs722@gmail.com>"
+    "Joe Wagner <njwjs722@gmail.com>",
+    "HoldYourWaffle <supershitcodemonkey@gmail.com>"
   ],
   "repository": "expressjs/session",
   "license": "MIT",
@@ -20,6 +22,8 @@
     "uid-safe": "~2.1.5"
   },
   "devDependencies": {
+    "@types/express": "~4",
+    "@types/node": "*",
     "after": "0.8.2",
     "cookie-parser": "1.4.4",
     "eslint": "3.19.0",
@@ -33,7 +37,8 @@
     "session/",
     "HISTORY.md",
     "LICENSE",
-    "index.js"
+    "index.js",
+    "index.d.ts"
   ],
   "engines": {
     "node": ">= 0.8.0"
