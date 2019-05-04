@@ -624,6 +624,11 @@ and other multi-core embedded devices).
 [connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
 [connect-sqlite3-image]: https://badgen.net/github/stars/rawberg/connect-sqlite3?label=%E2%98%85
 
+[![★][connect-typeorm-image] connect-typeorm][connect-typeorm-url] A [TypeORM](https://github.com/typeorm/typeorm)-based session store.
+
+[connect-typeorm-url]: https://www.npmjs.com/package/connect-typeorm
+[connect-typeorm-image]: https://badgen.net/github/stars/makepost/connect-typeorm?label=%E2%98%85
+
 [![★][couchdb-expression-image] couchdb-expression][couchdb-expression-url] A [CouchDB](https://couchdb.apache.org/)-based session store.
 
 [couchdb-expression-url]: https://www.npmjs.com/package/couchdb-expression
