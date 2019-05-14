@@ -15,7 +15,7 @@
 
 var Buffer = require('safe-buffer').Buffer
 var cookie = require('cookie');
-var crc = require('crc').crc32;
+var crypto = require('crypto')
 var debug = require('debug')('express-session');
 var deprecate = require('depd')('express-session');
 var onHeaders = require('on-headers')
@@ -150,7 +150,7 @@ function session(options) {
   // notify user that this store is not
   // meant for a production environment
   /* istanbul ignore next: not tested */
-  if ('production' == env && store instanceof MemoryStore) {
+  if (env === 'production' && store instanceof MemoryStore) {
     console.warn(warning);
   }
 
@@ -363,6 +363,19 @@ function session(options) {
       wrapmethods(req.session);
     }
 
+    // inflate the session
+    function inflate (req, sess) {
+      store.createSession(req, sess)
+      originalId = req.sessionID
+      originalHash = hash(sess)
+
+      if (!resaveSession) {
+        savedHash = originalHash
+      }
+
+      wrapmethods(req.session)
+    }
+
     // wrap session methods
     function wrapmethods(sess) {
       var _reload = sess.reload
@@ -443,7 +456,7 @@ function session(options) {
         return false;
       }
 
-      return cookieId != req.sessionID
+      return cookieId !== req.sessionID
         ? saveUninitializedSession || isModified(req.session)
         : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
     }
@@ -460,37 +473,28 @@ function session(options) {
     debug('fetching %s', req.sessionID);
     store.get(req.sessionID, function(err, sess){
       // error handling
-      if (err) {
+      if (err && err.code !== 'ENOENT') {
         debug('error %j', err);
-
-        if (err.code !== 'ENOENT') {
-          next(err);
-          return;
-        }
-
-        generate();
-      // no session
-      } else if (!sess) {
-        debug('no session found');
-        generate();
-      // session expired
-      } else if (sess.cookie.expires && new Date(sess.cookie.expires) < new Date()) {
-        debug('session expired');
-      // populate req.session
-      } else {
-        debug('session found');
-        store.createSession(req, sess);
-        originalId = req.sessionID;
-        originalHash = hash(sess);
-
-        if (!resaveSession) {
-          savedHash = originalHash
-        }
-
-        wrapmethods(req.session);
+        next(err)
+        return
       }
 
-      next();
+      try {
+        if (err || !sess) {
+          debug('no session found')
+          generate()
+        } else if (sess.cookie.expires && new Date(sess.cookie.expires) < new Date()) {
+          debug('session expired');
+      	} else {
+          debug('session found')
+          inflate(req, sess)
+        }
+      } catch (e) {
+        next(e)
+        return
+      }
+
+      next()
     });
   };
 };
@@ -581,14 +585,21 @@ function getcookie(req, name, secrets) {
  */
 
 function hash(sess) {
-  return crc(JSON.stringify(sess, function (key, val) {
+  // serialize
+  var str = JSON.stringify(sess, function (key, val) {
     // ignore sess.cookie property
     if (this === sess && key === 'cookie') {
       return
     }
 
     return val
-  }))
+  })
+
+  // hash
+  return crypto
+    .createHash('sha1')
+    .update(str, 'utf8')
+    .digest('hex')
 }
 
 /**

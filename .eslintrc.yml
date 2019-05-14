@@ -1,0 +1,8 @@
+root: true
+rules:
+  eol-last: error
+  eqeqeq: ["error", "always", { "null": "ignore" }]
+  indent: ["error", 2, { "SwitchCase": 1 }]
+  no-mixed-spaces-and-tabs: error
+  no-trailing-spaces: error
+  one-var: ["error", { "initialized": "never" }]

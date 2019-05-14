@@ -171,14 +171,16 @@ function getSession(sessionId) {
   // parse
   sess = JSON.parse(sess)
 
-  var expires = typeof sess.cookie.expires === 'string'
-    ? new Date(sess.cookie.expires)
-    : sess.cookie.expires
+  if (sess.cookie) {
+    var expires = typeof sess.cookie.expires === 'string'
+      ? new Date(sess.cookie.expires)
+      : sess.cookie.expires
 
-  // destroy expired session
-  if (expires && expires <= Date.now()) {
-    delete this.sessions[sessionId]
-    return
+    // destroy expired session
+    if (expires && expires <= Date.now()) {
+      delete this.sessions[sessionId]
+      return
+    }
   }
 
   return sess

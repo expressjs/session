@@ -1,11 +1,29 @@
 unreleased
 ==========
 
+  * deps: parseurl@~1.3.3
+
+1.16.1 / 2019-04-11
+===================
+
+  * Fix error passing `data` option to `Cookie` constructor
+  * Fix uncaught error from bad session data
+
+1.16.0 / 2019-04-10
+===================
+
+  * Catch invalid `cookie.maxAge` value earlier
+  * Deprecate setting `cookie.maxAge` to a `Date` object
+  * Fix issue where `resave: false` may not save altered sessions
+  * Remove `utils-merge` dependency
   * Use `safe-buffer` for improved Buffer API
   * Use `Set-Cookie` as cookie header name for compatibility
-  * deps: crc@3.5.0
-  * deps: depd@~1.1.2
+  * deps: depd@~2.0.0
+    - Replace internal `eval` usage with `Function` constructor
+    - Use instance methods on `process` to check for listeners
     - perf: remove argument reassignment
+  * deps: on-headers@~1.0.2
+    - Fix `res.writeHead` patch missing return value
 
 1.15.6 / 2017-09-26
 ===================
