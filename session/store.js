@@ -91,11 +91,11 @@ Store.prototype.createSession = function(req, sess){
 
   if (typeof expires === 'string') {
     // convert expires to a Date object,
-    // keeping originalMaxAge intact
     sess.cookie.expires = new Date(expires)
-    sess.cookie.originalMaxAge = originalMaxAge
   }
 
+  // keeping originalMaxAge intact
+  sess.cookie.originalMaxAge = originalMaxAge
   req.session = new Session(req, sess);
   return req.session;
 };
