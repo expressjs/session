@@ -546,6 +546,11 @@ and other multi-core embedded devices).
 [connect-dynamodb-url]: https://www.npmjs.com/package/connect-dynamodb
 [connect-dynamodb-image]: https://badgen.net/github/stars/ca98am79/connect-dynamodb?label=%E2%98%85
 
+[![★][@google-cloud/connect-firestore-image] @google-cloud/connect-firestore][@google-cloud/connect-firestore-url] A [Google Cloud Firestore](https://cloud.google.com/firestore/docs/overview)-based session store.
+
+[@google-cloud/connect-firestore-url]: https://www.npmjs.com/package/@google-cloud/connect-firestore
+[@google-cloud/connect-firestore-image]: https://badgen.net/github/stars/googleapis/nodejs-firestore-session?label=%E2%98%85
+
 [![★][connect-hazelcast-image] connect-hazelcast][connect-hazelcast-url] Hazelcast session store for Connect and Express.
 
 [connect-hazelcast-url]: https://www.npmjs.com/package/connect-hazelcast
