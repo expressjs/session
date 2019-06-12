@@ -1850,6 +1850,37 @@ describe('session()', function(){
         })
       })
 
+      describe('.originalMaxAge', function () {
+        before(function () {
+          this.server = createServer({ cookie: { maxAge: 2000 } }, function (req, res) {
+            req.session.hits = (req.session.hits || 0) + 1
+            res.end(JSON.stringify(req.session.cookie.originalMaxAge))
+          })
+        })
+
+        it('should equal original maxAge', function (done) {
+          request(this.server)
+            .get('/')
+            .expect(200, '2000', done)
+        })
+
+        it('should equal original maxAge for all requests', function (done) {
+          var server = this.server
+
+          request(server)
+            .get('/')
+            .expect(200, '2000', function (err, res) {
+              if (err) return done(err)
+              setTimeout(function () {
+                request(server)
+                  .get('/')
+                  .set('Cookie', cookie(res))
+                  .expect(200, '2000', done)
+              }, 100)
+            })
+        })
+      })
+
       describe('.secure', function(){
         var app
 
