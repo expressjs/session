@@ -1,5 +1,5 @@
-unreleased
-==========
+1.16.2 / 2019-06-12
+===================
 
   * Fix restoring `cookie.originalMaxAge` when store returns `Date`
   * deps: parseurl@~1.3.3
