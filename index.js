@@ -524,6 +524,8 @@ function getcookie(req, name, secrets) {
   if (header) {
     var cookies = cookie.parse(header, {
       decode: (localRaw) => {
+        localRaw = decodeURIComponent(localRaw);
+
         if (localRaw.substr(0, 2) === 's:') {
           const localVal = unsigncookie(localRaw.slice(2), secrets);
 
