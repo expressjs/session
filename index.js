@@ -522,22 +522,25 @@ function getcookie(req, name, secrets) {
 
   // read from cookie header
   if (header) {
-    var cookies = cookie.parse(header);
+    var cookies = cookie.parse(header, {
+      decode: (localRaw) => {
+        if (localRaw.substr(0, 2) === 's:') {
+          const localVal = unsigncookie(localRaw.slice(2), secrets);
 
-    raw = cookies[name];
+          if (localVal === false) {
+            debug('cookie signature invalid');
+            return null;
+          }
 
-    if (raw) {
-      if (raw.substr(0, 2) === 's:') {
-        val = unsigncookie(raw.slice(2), secrets);
-
-        if (val === false) {
-          debug('cookie signature invalid');
-          val = undefined;
+          return localVal;
+        } else {
+          debug('cookie unsigned')
+          return localRaw;
         }
-      } else {
-        debug('cookie unsigned')
-      }
-    }
+      },
+    });
+
+    val = cookies[name];
   }
 
   // back-compat read from cookieParser() signedCookies data
