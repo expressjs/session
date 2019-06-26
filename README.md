@@ -688,6 +688,11 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-session-level-url]: https://www.npmjs.com/package/express-session-level
 [express-session-level-image]: https://badgen.net/github/stars/tgohn/express-session-level?label=%E2%98%85
 
+[![★][express-session-rsdb-image] express-session-rsdb][express-session-rsdb-url] Session store based on Rocket-Store: A very simple, super fast and yet powerfull, flat file database.
+
+[express-session-rsdb-url]: https://www.npmjs.com/package/express-session-rsdb
+[express-session-rsdb-image]: https://badgen.net/github/stars/paragi/express-session-rsdb?label=%E2%98%85
+
 [![★][express-sessions-image] express-sessions][express-sessions-url] A session store supporting both MongoDB and Redis.
 
 [express-sessions-url]: https://www.npmjs.com/package/express-sessions
