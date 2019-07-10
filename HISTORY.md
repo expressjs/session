@@ -3,6 +3,7 @@ unreleased
 
   * deps: cookie@0.4.0
     - Add `SameSite=None` support
+  * deps: safe-buffer@5.2.0
 
 1.16.2 / 2019-06-12
 ===================
