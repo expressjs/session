@@ -101,10 +101,11 @@ Specifies the `boolean` or `string` to be the value for the `SameSite` `Set-Cook
   - `true` will set the `SameSite` attribute to `Strict` for strict same site enforcement.
   - `false` will not set the `SameSite` attribute.
   - `'lax'` will set the `SameSite` attribute to `Lax` for lax same site enforcement.
+  - `'none'` will set the `SameSite` attribute to `None` for an explicit cross-site cookie.
   - `'strict'` will set the `SameSite` attribute to `Strict` for strict same site enforcement.
 
-More information about the different enforcement levels can be found in the specification
-https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1.1
+More information about the different enforcement levels can be found in
+[the specification][rfc-6265bis-03-4.1.2.7].
 
 **Note** This is an attribute that has not yet been fully standardized, and may change in
 the future. This also means many clients may ignore this attribute until they understand it.
@@ -818,6 +819,7 @@ app.get('/bar', function (req, res, next) {
 
 [MIT](LICENSE)
 
+[rfc-6265bis-03-4.1.2.7]: https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
 [coveralls-image]: https://badgen.net/coveralls/c/github/expressjs/session/master
 [coveralls-url]: https://coveralls.io/r/expressjs/session?branch=master
 [node-url]: https://nodejs.org/en/download
