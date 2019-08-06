@@ -228,15 +228,24 @@ likely need `resave: true`.
 
 ##### rolling
 
-Force a session identifier cookie to be set on every response. The expiration
+Force the session identifier cookie to be set on every response. The expiration
 is reset to the original [`maxAge`](#cookiemaxage), resetting the expiration
 countdown.
 
 The default value is `false`.
 
+With this enabled, the session identifier cookie will expire in
+[`maxAge`](#cookiemaxage) since the last response was sent instead of in
+[`maxAge`](#cookiemaxage) since the session was last modified by the server.
+
+This is typically used in conjuction with short, non-session-length
+[`maxAge`](#cookiemaxage) values to provide a quick timeout of the session data
+with reduced potentional of it occurring during on going server interactions.
+
 **Note** When this option is set to `true` but the `saveUninitialized` option is
 set to `false`, the cookie will not be set on a response with an uninitialized
-session.
+session. This option only modifies the behavior when an existing session was
+loaded for the request.
 
 ##### saveUninitialized
 
