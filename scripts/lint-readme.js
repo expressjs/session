@@ -31,7 +31,7 @@ README_CONTENTS.split(NEWLINE_REGEXP).forEach(function (line, lineidx) {
         if (!(header = STORE_HEADER_REGEXP.exec(line))) {
           expect(lineidx, 'session store header', line)
         } else if (prev && prev[2].replace(/^[^/]+\//, '').localeCompare(header[2].replace(/^[^/]+\//, '')) > 0) {
-          expect(lineidx, (header[2] + ' to be alphabetically after ' + prev[2]), line)
+          expect(lineidx, (header[2] + ' to be alphabetically before ' + prev[2]), line)
           state = 2
         } else {
           state = 2
