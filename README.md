@@ -720,6 +720,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [level-session-store-url]: https://www.npmjs.com/package/level-session-store
 [level-session-store-image]: https://badgen.net/github/stars/toddself/level-session-store?label=%E2%98%85
 
+[![★][lowdb-session-store-image] lowdb-session-store][lowdb-session-store-url] A [lowdb](https://www.npmjs.com/package/lowdb)-based session store.
+
+[lowdb-session-store-url]: https://www.npmjs.com/package/lowdb-session-store
+[lowdb-session-store-image]: https://badgen.net/github/stars/fhellwig/lowdb-session-store?label=%E2%98%85
+
 [![★][medea-session-store-image] medea-session-store][medea-session-store-url] A Medea-based session store.
 
 [medea-session-store-url]: https://www.npmjs.com/package/medea-session-store
