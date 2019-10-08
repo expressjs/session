@@ -89,8 +89,8 @@ before_install:
 
 script:
   - |
-    # Run test script, depending on istanbul install
-    if npm_module_installed 'istanbul'; then npm run-script test-travis
+    # Run test script, depending on nyc install
+    if npm_module_installed 'nyc'; then npm run-script test-travis
     else npm test
     fi
   - |
