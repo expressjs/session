@@ -438,7 +438,7 @@ For an example implementation view the [connect-redis](http://github.com/visionm
 
 **Optional**
 
-This optional method is used to get all sessions in the store as an array. The
+This optional method is used to get all sessions in the store as an array or as an object with type `{[sessionId]: sessionObject}`. The
 `callback` should be called as `callback(error, sessions)`.
 
 ### store.destroy(sid, callback)
