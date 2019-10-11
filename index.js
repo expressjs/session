@@ -393,7 +393,7 @@ function session(options) {
         debug('saving %s', this.id);
         savedHash = hash(this);
         _save.apply(this, arguments);
-        return this.req.sessionStore.setPromise
+        return this.req.sessionStore.setPromise;
       }
 
       Object.defineProperty(sess, 'reload', {
