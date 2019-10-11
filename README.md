@@ -368,6 +368,18 @@ req.session.save(function(err) {
 })
 ```
 
+#### Session.save().then(callback)
+
+You can use Promise type as return
+
+Example
+```js
+await req.session.save()
+.then(()=>{
+  // session saved
+})
+```
+
 #### Session.touch()
 
 Updates the `.maxAge` property. Typically this is
