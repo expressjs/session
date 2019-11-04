@@ -15,6 +15,16 @@ This is a [Node.js](https://nodejs.org/en/) module available through the
 $ npm install express-session
 ```
 
+## Debugging
+
+```sh
+$ export DEBUG=express-session
+```
+
+Setting this property prior to the run (use `set` in Windows)
+enables `debug` mode, and prints minimal but vital debug
+information pertinent to the life cycle of the session.
+
 ## API
 
 ```js
