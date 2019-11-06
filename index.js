@@ -166,6 +166,9 @@ function session(options) {
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
+  var storeImplementsRequestAtGet = store.get.length >= 3;
+  var storeImplementsRequestAtDestroy = store.destroy.length >= 3;
+  var storeImplementsRequestAtTouch = storeImplementsTouch && store.destroy.length >= 4;
 
   // register event listeners for the store to track readiness
   var storeReady = true
@@ -303,14 +306,20 @@ function session(options) {
       if (shouldDestroy(req)) {
         // destroy session
         debug('destroying');
-        store.destroy(req.sessionID, function ondestroy(err) {
+        var ondestroy = function(err) {
           if (err) {
             defer(next, err);
           }
 
           debug('destroyed');
           writeend();
-        });
+        }
+
+        if (storeImplementsRequestAtDestroy) {
+          store.destroy(req.sessionID, req, ondestroy);
+        } else {
+          store.destroy(req.sessionID, ondestroy);
+        }
 
         return writetop();
       }
@@ -340,14 +349,20 @@ function session(options) {
       } else if (storeImplementsTouch && shouldTouch(req)) {
         // store implements touch method
         debug('touching');
-        store.touch(req.sessionID, req.session, function ontouch(err) {
+        var ontouch = function(err) {
           if (err) {
             defer(next, err);
           }
 
           debug('touched');
           writeend();
-        });
+        }
+
+        if (storeImplementsRequestAtTouch) {
+          store.touch(req.sessionID, req.session, req, ontouch);
+        } else {
+          store.touch(req.sessionID, req.session, ontouch);
+        }
 
         return writetop();
       }
@@ -471,7 +486,7 @@ function session(options) {
 
     // generate the session object
     debug('fetching %s', req.sessionID);
-    store.get(req.sessionID, function(err, sess){
+    var getHandler = function(err, sess){
       // error handling
       if (err && err.code !== 'ENOENT') {
         debug('error %j', err);
@@ -493,7 +508,12 @@ function session(options) {
       }
 
       next()
-    });
+    }
+    if (storeImplementsRequestAtGet) {
+      store.get(req.sessionID, req, getHandler);
+    } else {
+      store.get(req.sessionID, getHandler);
+    }
   };
 };
 

@@ -441,7 +441,7 @@ For an example implementation view the [connect-redis](http://github.com/visionm
 This optional method is used to get all sessions in the store as an array. The
 `callback` should be called as `callback(error, sessions)`.
 
-### store.destroy(sid, callback)
+### store.destroy(sid, [req], callback)
 
 **Required**
 
@@ -463,7 +463,7 @@ This optional method is used to delete all sessions from the store. The
 This optional method is used to get the count of all sessions in the store.
 The `callback` should be called as `callback(error, len)`.
 
-### store.get(sid, callback)
+### store.get(sid, [req], callback)
 
 **Required**
 
@@ -474,7 +474,7 @@ The `session` argument should be a session if found, otherwise `null` or
 `undefined` if the session was not found (and there was no error). A special
 case is made when `error.code === 'ENOENT'` to act like `callback(null, null)`.
 
-### store.set(sid, session, callback)
+### store.set(sid, session, [req], callback)
 
 **Required**
 
@@ -482,7 +482,7 @@ This required method is used to upsert a session into the store given a
 session ID (`sid`) and session (`session`) object. The callback should be
 called as `callback(error)` once the session has been set in the store.
 
-### store.touch(sid, session, callback)
+### store.touch(sid, session, [req], callback)
 
 **Recommended**
 
