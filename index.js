@@ -168,7 +168,7 @@ function session(options) {
   var storeImplementsTouch = typeof store.touch === 'function';
   var storeImplementsRequestAtGet = store.get.length >= 3;
   var storeImplementsRequestAtDestroy = store.destroy.length >= 3;
-  var storeImplementsRequestAtTouch = storeImplementsTouch && store.destroy.length >= 4;
+  var storeImplementsRequestAtTouch = storeImplementsTouch && store.touch.length >= 4;
 
   // register event listeners for the store to track readiness
   var storeReady = true

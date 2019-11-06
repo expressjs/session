@@ -10,6 +10,7 @@ var request = require('supertest')
 var session = require('../')
 var SmartStore = require('./support/smart-store')
 var SyncStore = require('./support/sync-store')
+var ReqStore = require('./support/req-store')
 var utils = require('./support/utils')
 
 var Cookie = require('../session/cookie')
@@ -2101,6 +2102,63 @@ describe('session()', function(){
         .set('Cookie', cookie(res))
         .expect(200, 'destroyed\nhits: 2', done)
       })
+    })
+  })
+
+  describe('request supporting store', function(){
+    it('should respond correctly on save', function(done){
+      var store = new ReqStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.count = req.session.count || 0
+        req.session.count++
+        res.end('hits: ' + req.session.count)
+      })
+
+      request(server)
+        .get('/')
+        .expect(200, 'hits: 1', done)
+    })
+
+
+    it('should force save on unmodified session', function (done) {
+      var store = new ReqStore()
+      var server = createServer({ store: store, resave: true }, function (req, res) {
+        req.session.user = 'bob'
+        res.end()
+      })
+
+      request(server)
+        .get('/')
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          request(server)
+            .get('/')
+            .set('Cookie', cookie(res))
+            .expect(200, done)
+        })
+    })
+
+    it('should respond correctly on destroy', function(done){
+      var store = new ReqStore()
+      var server = createServer({ store: store, unset: 'destroy' }, function (req, res) {
+        req.session.count = req.session.count || 0
+        var count = ++req.session.count
+        if (req.session.count > 1) {
+          req.session = null
+          res.write('destroyed\n')
+        }
+        res.end('hits: ' + count)
+      })
+
+      request(server)
+        .get('/')
+        .expect(200, 'hits: 1', function (err, res) {
+          if (err) return done(err)
+          request(server)
+            .get('/')
+            .set('Cookie', cookie(res))
+            .expect(200, 'destroyed\nhits: 2', done)
+        })
     })
   })
 
