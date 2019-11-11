@@ -91,7 +91,9 @@ describe('new Cookie()', function () {
         var maxAge = 60000
         var cookie = new Cookie({ maxAge: maxAge })
 
-        assert.strictEqual(cookie.maxAge, maxAge)
+        assert.strictEqual(typeof cookie.maxAge, 'number')
+        assert.ok(cookie.maxAge - 1000 <= maxAge)
+        assert.ok(cookie.maxAge + 1000 >= maxAge)
       })
 
       it('should accept Date object', function () {
