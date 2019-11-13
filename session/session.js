@@ -69,7 +69,7 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
  */
 
 defineMethod(Session.prototype, 'save', function save(fn) {
-  if (this.req.sessionStore.set.length >= 4) {
+  if (this.req.sessionOptions.passReqToStore) {
     this.req.sessionStore.set(this.id, this, this.req, fn || function(){});
   } else {
     this.req.sessionStore.set(this.id, this, fn || function(){});
@@ -93,12 +93,17 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
   var req = this.req
   var store = this.req.sessionStore
 
-  store.get(this.id, function(err, sess){
+  var getCallback = function(err, sess){
     if (err) return fn(err);
     if (!sess) return fn(new Error('failed to load session'));
     store.createSession(req, sess);
     fn();
-  });
+  };
+  if (this.req.sessionOptions.passReqToStore) {
+    store.get(this.id, req, getCallback);
+  } else {
+    store.get(this.id, getCallback);
+  }
   return this;
 });
 
@@ -112,7 +117,11 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
 
 defineMethod(Session.prototype, 'destroy', function destroy(fn) {
   delete this.req.session;
-  this.req.sessionStore.destroy(this.id, fn);
+  if (this.req.sessionOptions.passReqToStore) {
+    this.req.sessionStore.destroy(this.id, this.req, fn);
+  } else {
+    this.req.sessionStore.destroy(this.id, fn);
+  }
   return this;
 });
 

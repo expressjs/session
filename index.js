@@ -79,6 +79,7 @@ var defer = typeof setImmediate === 'function'
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
+ * @param {Boolean} [options.passReqToStore] Pass the request to store methods
  * @param {String} [options.unset]
  * @return {Function} middleware
  * @public
@@ -98,6 +99,8 @@ function session(options) {
 
   // get the session store
   var store = opts.store || new MemoryStore()
+
+  var passReqToStore = opts.passReqToStore;
 
   // get the trust proxy setting
   var trustProxy = opts.proxy
@@ -166,9 +169,6 @@ function session(options) {
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
-  var storeImplementsRequestAtGet = store.get.length >= 3;
-  var storeImplementsRequestAtDestroy = store.destroy.length >= 3;
-  var storeImplementsRequestAtTouch = storeImplementsTouch && store.touch.length >= 4;
 
   // register event listeners for the store to track readiness
   var storeReady = true
@@ -204,6 +204,27 @@ function session(options) {
       return;
     }
 
+    /**
+     * Load a `Session` instance via the given `sid`
+     * and invoke the callback `fn(err, sess)`.
+     *
+     * @param {String} sid
+     * @param {Function} fn
+     * @api public
+     */
+    store.load = function(sid, fn){
+      var getCallback = function(err, sess){
+        if (err) return fn(err);
+        if (!sess) return fn();
+        fn(null, store.createSession(req, sess))
+      };
+      if (passReqToStore) {
+        store.get(sid, req, getCallback);
+      } else {
+        store.get(sid, getCallback);
+      }
+    };
+
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
     var secrets = secret || [req.secret];
@@ -215,6 +236,8 @@ function session(options) {
 
     // expose store
     req.sessionStore = store;
+    // expose session options
+    req.sessionOptions = opts;
 
     // get the session ID from the cookie
     var cookieId = req.sessionID = getcookie(req, name, secrets);
@@ -315,7 +338,7 @@ function session(options) {
           writeend();
         }
 
-        if (storeImplementsRequestAtDestroy) {
+        if (passReqToStore) {
           store.destroy(req.sessionID, req, ondestroy);
         } else {
           store.destroy(req.sessionID, ondestroy);
@@ -358,7 +381,7 @@ function session(options) {
           writeend();
         }
 
-        if (storeImplementsRequestAtTouch) {
+        if (passReqToStore) {
           store.touch(req.sessionID, req.session, req, ontouch);
         } else {
           store.touch(req.sessionID, req.session, ontouch);
@@ -509,7 +532,7 @@ function session(options) {
 
       next()
     }
-    if (storeImplementsRequestAtGet) {
+    if (passReqToStore) {
       store.get(req.sessionID, req, getHandler);
     } else {
       store.get(req.sessionID, getHandler);

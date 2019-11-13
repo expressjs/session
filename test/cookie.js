@@ -62,11 +62,12 @@ describe('new Cookie()', function () {
       })
 
       it('should set maxAge', function () {
-        var expires = new Date(Date.now() + 60000)
+        var now = Date.now()
+        var expires = new Date(now + 60000)
         var cookie = new Cookie({ expires: expires })
 
-        assert.ok(expires.getTime() - Date.now() - 1000 <= cookie.maxAge)
-        assert.ok(expires.getTime() - Date.now() + 1000 >= cookie.maxAge)
+        assert.ok(expires.getTime() - now - 1000 <= cookie.maxAge)
+        assert.ok(expires.getTime() - now + 1000 >= cookie.maxAge)
       })
     })
 

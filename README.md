@@ -278,6 +278,12 @@ all the elements will be considered when verifying the signature in requests.
 
 The session store instance, defaults to a new `MemoryStore` instance.
 
+##### passReqToStore
+
+Pass the request object to required and optional store methods.
+
+By default, the request object is not passed to store methods.
+
 ##### unset
 
 Control the result of unsetting `req.session` (through `delete`, setting to `null`,
@@ -347,6 +353,11 @@ req.session.reload(function(err) {
   // session updated
 })
 ```
+
+#### Session.load(sid, callback)
+
+Loads the the session data for the given `sid` from the store and re-populates the
+`req.session` object. Once complete, the `callback` will be invoked.
 
 #### Session.save(callback)
 
@@ -420,6 +431,14 @@ To get the ID of the loaded session, access the request property
 `req.sessionID`. This is simply a read-only value set when a session
 is loaded/created.
 
+### req.sessionOptions
+
+To get the options of the session, access the request property
+`req.sessionOptions`.
+
+**NOTE** For performance reasons, this is the original global options object.
+Changes to it would take effect for all requests in an undefined manner.
+
 ## Session Store Implementation
 
 Every session store _must_ be an `EventEmitter` and implement specific
@@ -449,6 +468,10 @@ This required method is used to destroy/delete a session from the store given
 a session ID (`sid`). The `callback` should be called as `callback(error)` once
 the session is destroyed.
 
+The request is passed into the `req` argument only if the session's options
+have `passReqToStore` set to `true`. A store wishing to operate in either mode
+should check whether the second argument is a function or an object.
+
 ### store.clear(callback)
 
 **Optional**
@@ -474,6 +497,10 @@ The `session` argument should be a session if found, otherwise `null` or
 `undefined` if the session was not found (and there was no error). A special
 case is made when `error.code === 'ENOENT'` to act like `callback(null, null)`.
 
+The request is passed into the `req` argument only if the session's options
+have `passReqToStore` set to `true`. A store wishing to operate in either mode
+should check whether the second argument is a function or an object.
+
 ### store.set(sid, session, [req], callback)
 
 **Required**
@@ -481,6 +508,10 @@ case is made when `error.code === 'ENOENT'` to act like `callback(null, null)`.
 This required method is used to upsert a session into the store given a
 session ID (`sid`) and session (`session`) object. The callback should be
 called as `callback(error)` once the session has been set in the store.
+
+The request is passed into the `req` argument only if the session's options
+have `passReqToStore` set to `true`. A store wishing to operate in either mode
+should check whether the third argument is a function or an object.
 
 ### store.touch(sid, session, [req], callback)
 
@@ -493,6 +524,10 @@ called as `callback(error)` once the session has been touched.
 This is primarily used when the store will automatically delete idle sessions
 and this method is used to signal to the store the given session is active,
 potentially resetting the idle timer.
+
+The request is passed into the `req` argument only if the session's options
+have `passReqToStore` set to `true`. A store wishing to operate in either mode
+should check whether the third argument is a function or an object.
 
 ## Compatible Session Stores
 

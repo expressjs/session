@@ -49,29 +49,15 @@ util.inherits(Store, EventEmitter)
 
 Store.prototype.regenerate = function(req, fn){
   var self = this;
-  this.destroy(req.sessionID, function(err){
+  var destroyCallback = function(err){
     self.generate(req);
     fn(err);
-  });
-};
-
-/**
- * Load a `Session` instance via the given `sid`
- * and invoke the callback `fn(err, sess)`.
- *
- * @param {String} sid
- * @param {Function} fn
- * @api public
- */
-
-Store.prototype.load = function(sid, fn){
-  var self = this;
-  this.get(sid, function(err, sess){
-    if (err) return fn(err);
-    if (!sess) return fn();
-    var req = { sessionID: sid, sessionStore: self };
-    fn(null, self.createSession(req, sess))
-  });
+  };
+  if (req.sessionOptions.passReqToStore) {
+    this.destroy(req.sessionID, req, destroyCallback);
+  } else {
+    this.destroy(req.sessionID, destroyCallback);
+  }
 };
 
 /**

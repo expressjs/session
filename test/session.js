@@ -1582,6 +1582,21 @@ describe('session()', function(){
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, 'undefined', done)
       })
+
+      it('should destroy the previous session when a request is passed', function(done){
+        var store = new ReqStore()
+        var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
+          req.session.destroy(function (err) {
+            if (err) res.statusCode = 500
+            res.end(String(req.session))
+          })
+        })
+
+        request(server)
+          .get('/')
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(200, 'undefined', done)
+      })
     })
 
     describe('.regenerate()', function(){
@@ -1606,6 +1621,30 @@ describe('session()', function(){
           .expect(shouldSetCookieToDifferentSessionId(sid(res)))
           .expect(200, 'false', done)
         });
+      })
+
+      it('should destroy/replace the previous session when request is passed', function(done){
+        var store = new ReqStore()
+        var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
+          var id = req.session.id
+          req.session.regenerate(function (err) {
+            if (err) res.statusCode = 500
+            res.end(String(req.session.id === id))
+          })
+        })
+
+        request(server)
+          .get('/')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, function (err, res) {
+            if (err) return done(err)
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(shouldSetCookie('connect.sid'))
+              .expect(shouldSetCookieToDifferentSessionId(sid(res)))
+              .expect(200, 'false', done)
+          });
       })
     })
 
@@ -1648,6 +1687,47 @@ describe('session()', function(){
           .set('Cookie', val)
           .expect(200, 'saw /bar', done)
         })
+      })
+
+      it('should reload session from store when request is passed', function (done) {
+        var store = new ReqStore()
+        var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          req.session.url = req.url
+
+          if (req.url === '/bar') {
+            res.end('saw ' + req.session.url)
+            return
+          }
+
+          request(server)
+            .get('/bar')
+            .set('Cookie', val)
+            .expect(200, 'saw /bar', function (err, resp) {
+              if (err) return done(err)
+              req.session.reload(function (err) {
+                if (err) return done(err)
+                res.end('saw ' + req.session.url)
+              })
+            })
+        })
+        var val
+
+        request(server)
+          .get('/')
+          .expect(200, 'session created', function (err, res) {
+            if (err) return done(err)
+            val = cookie(res)
+            request(server)
+              .get('/foo')
+              .set('Cookie', val)
+              .expect(200, 'saw /bar', done)
+          })
       })
 
       it('should error is session missing', function (done) {
@@ -2108,7 +2188,7 @@ describe('session()', function(){
   describe('request supporting store', function(){
     it('should respond correctly on save', function(done){
       var store = new ReqStore()
-      var server = createServer({ store: store }, function (req, res) {
+      var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
         req.session.count = req.session.count || 0
         req.session.count++
         res.end('hits: ' + req.session.count)
@@ -2120,9 +2200,9 @@ describe('session()', function(){
     })
 
 
-    it('should force save on unmodified session', function (done) {
+    it('should touch on unmodified session', function (done) {
       var store = new ReqStore()
-      var server = createServer({ store: store, resave: true }, function (req, res) {
+      var server = createServer({ store: store, passReqToStore: true, resave: false }, function (req, res) {
         req.session.user = 'bob'
         res.end()
       })
@@ -2140,7 +2220,7 @@ describe('session()', function(){
 
     it('should respond correctly on destroy', function(done){
       var store = new ReqStore()
-      var server = createServer({ store: store, unset: 'destroy' }, function (req, res) {
+      var server = createServer({ store: store, passReqToStore: true, unset: 'destroy' }, function (req, res) {
         req.session.count = req.session.count || 0
         var count = ++req.session.count
         if (req.session.count > 1) {
@@ -2158,6 +2238,29 @@ describe('session()', function(){
             .get('/')
             .set('Cookie', cookie(res))
             .expect(200, 'destroyed\nhits: 2', done)
+        })
+    })
+
+    it('should persist', function(done){
+      var store = new ReqStore()
+      var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
+        req.session.count = req.session.count || 0
+        req.session.count++
+        res.end('hits: ' + req.session.count)
+      })
+
+      request(server)
+        .get('/')
+        .expect(200, 'hits: 1', function (err, res) {
+          if (err) return done(err)
+          store.load(sid(res), function (err, sess) {
+            if (err) return done(err)
+            assert.ok(sess)
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(200, 'hits: 2', done)
+          })
         })
     })
   })
