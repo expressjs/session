@@ -1677,6 +1677,49 @@ describe('session()', function(){
           .expect(500, 'failed to load session', done)
         })
       })
+
+      it('should not override an overriden `reload` in case of errors',  function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store, resave: false }, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          store.clear(function (err) {
+            if (err) return done(err)
+
+            // reload way too many times on top of each other,
+            // attempting to overflow the call stack
+            var iters = 20
+            reload()
+            function reload () {
+              if (!--iters) {
+                res.end('ok')
+                return
+              }
+
+              try {
+                req.session.reload(reload)
+              } catch (e) {
+                res.statusCode = 500
+                res.end(e.message)
+              }
+            }
+          })
+        })
+
+        request(server)
+          .get('/')
+          .expect(200, 'session created', function (err, res) {
+            if (err) return done(err)
+            request(server)
+              .get('/foo')
+              .set('Cookie', cookie(res))
+              .expect(200, 'ok', done)
+          })
+      })
     })
 
     describe('.save()', function () {
