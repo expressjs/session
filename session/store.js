@@ -53,7 +53,7 @@ Store.prototype.regenerate = function(req, fn){
     self.generate(req);
     fn(err);
   };
-  if (req.sessionOptions.passReqToStore) {
+  if (self.passReq) {
     this.destroy(req.sessionID, req, destroyCallback);
   } else {
     this.destroy(req.sessionID, destroyCallback);

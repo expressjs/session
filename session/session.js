@@ -69,7 +69,7 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
  */
 
 defineMethod(Session.prototype, 'save', function save(fn) {
-  if (this.req.sessionOptions.passReqToStore) {
+  if (this.req.sessionStore.passReq) {
     this.req.sessionStore.set(this.id, this, this.req, fn || function(){});
   } else {
     this.req.sessionStore.set(this.id, this, fn || function(){});
@@ -99,7 +99,7 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
     store.createSession(req, sess);
     fn();
   };
-  if (this.req.sessionOptions.passReqToStore) {
+  if (store.passReq) {
     store.get(this.id, req, getCallback);
   } else {
     store.get(this.id, getCallback);
@@ -117,7 +117,7 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
 
 defineMethod(Session.prototype, 'destroy', function destroy(fn) {
   delete this.req.session;
-  if (this.req.sessionOptions.passReqToStore) {
+  if (this.req.sessionStore.passReq) {
     this.req.sessionStore.destroy(this.id, this.req, fn);
   } else {
     this.req.sessionStore.destroy(this.id, fn);

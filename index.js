@@ -79,7 +79,6 @@ var defer = typeof setImmediate === 'function'
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
- * @param {Boolean} [options.passReqToStore] Pass the request to store methods
  * @param {String} [options.unset]
  * @return {Function} middleware
  * @public
@@ -99,9 +98,6 @@ function session(options) {
 
   // get the session store
   var store = opts.store || new MemoryStore()
-
-  var passReqToStore = opts.passReqToStore;
-
   // get the trust proxy setting
   var trustProxy = opts.proxy
 
@@ -218,7 +214,7 @@ function session(options) {
         if (!sess) return fn();
         fn(null, store.createSession(req, sess))
       };
-      if (passReqToStore) {
+      if (store.passReq) {
         store.get(sid, req, getCallback);
       } else {
         store.get(sid, getCallback);
@@ -236,8 +232,6 @@ function session(options) {
 
     // expose store
     req.sessionStore = store;
-    // expose session options
-    req.sessionOptions = opts;
 
     // get the session ID from the cookie
     var cookieId = req.sessionID = getcookie(req, name, secrets);
@@ -338,7 +332,7 @@ function session(options) {
           writeend();
         }
 
-        if (passReqToStore) {
+        if (store.passReq) {
           store.destroy(req.sessionID, req, ondestroy);
         } else {
           store.destroy(req.sessionID, ondestroy);
@@ -381,7 +375,7 @@ function session(options) {
           writeend();
         }
 
-        if (passReqToStore) {
+        if (store.passReq) {
           store.touch(req.sessionID, req.session, req, ontouch);
         } else {
           store.touch(req.sessionID, req.session, ontouch);
@@ -532,7 +526,7 @@ function session(options) {
 
       next()
     }
-    if (passReqToStore) {
+    if (store.passReq) {
       store.get(req.sessionID, req, getHandler);
     } else {
       store.get(req.sessionID, getHandler);

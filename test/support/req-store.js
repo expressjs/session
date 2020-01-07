@@ -12,6 +12,8 @@ function ReqStore () {
 
 util.inherits(ReqStore, session.Store)
 
+ReqStore.prototype.passReq = true
+
 ReqStore.prototype.destroy = function destroy (sid, req, callback) {
   delete this.sessions[req.hostname + ' ' + sid]
   callback()

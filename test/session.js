@@ -1585,7 +1585,7 @@ describe('session()', function(){
 
       it('should destroy the previous session when a request is passed', function(done){
         var store = new ReqStore()
-        var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
+        var server = createServer({ store: store }, function (req, res) {
           req.session.destroy(function (err) {
             if (err) res.statusCode = 500
             res.end(String(req.session))
@@ -1625,7 +1625,7 @@ describe('session()', function(){
 
       it('should destroy/replace the previous session when request is passed', function(done){
         var store = new ReqStore()
-        var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
+        var server = createServer({ store: store }, function (req, res) {
           var id = req.session.id
           req.session.regenerate(function (err) {
             if (err) res.statusCode = 500
@@ -1691,7 +1691,7 @@ describe('session()', function(){
 
       it('should reload session from store when request is passed', function (done) {
         var store = new ReqStore()
-        var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
+        var server = createServer({ store: store }, function (req, res) {
           if (req.url === '/') {
             req.session.active = true
             res.end('session created')
@@ -2188,7 +2188,7 @@ describe('session()', function(){
   describe('request supporting store', function(){
     it('should respond correctly on save', function(done){
       var store = new ReqStore()
-      var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
+      var server = createServer({ store: store }, function (req, res) {
         req.session.count = req.session.count || 0
         req.session.count++
         res.end('hits: ' + req.session.count)
@@ -2202,7 +2202,7 @@ describe('session()', function(){
 
     it('should touch on unmodified session', function (done) {
       var store = new ReqStore()
-      var server = createServer({ store: store, passReqToStore: true, resave: false }, function (req, res) {
+      var server = createServer({ store: store, resave: false }, function (req, res) {
         req.session.user = 'bob'
         res.end()
       })
@@ -2220,7 +2220,7 @@ describe('session()', function(){
 
     it('should respond correctly on destroy', function(done){
       var store = new ReqStore()
-      var server = createServer({ store: store, passReqToStore: true, unset: 'destroy' }, function (req, res) {
+      var server = createServer({ store: store, unset: 'destroy' }, function (req, res) {
         req.session.count = req.session.count || 0
         var count = ++req.session.count
         if (req.session.count > 1) {
@@ -2243,7 +2243,7 @@ describe('session()', function(){
 
     it('should persist', function(done){
       var store = new ReqStore()
-      var server = createServer({ store: store, passReqToStore: true }, function (req, res) {
+      var server = createServer({ store: store }, function (req, res) {
         req.session.count = req.session.count || 0
         req.session.count++
         res.end('hits: ' + req.session.count)
