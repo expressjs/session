@@ -22,8 +22,9 @@ $ export DEBUG=express-session
 ```
 
 Setting this property prior to the run (use `set` in Windows)
-enables `debug` mode, and prints minimal but vital debug
-information pertinent to the life cycle of the session.
+enables [`debug`](https://www.npmjs.com/package/debug) mode,
+and prints minimal but vital debug information pertinent
+to the life cycle of the session.
 
 ## API
 
