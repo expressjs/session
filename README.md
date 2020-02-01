@@ -18,10 +18,10 @@ $ npm install express-session
 ## Debugging
 
 ```sh
-$ export DEBUG=express-session
+$ set DEBUG=express-session
 ```
 
-Setting this property prior to the run (use `set` in Windows)
+Setting this property prior to the run (use `export` in UNIX)
 enables [`debug`](https://www.npmjs.com/package/debug) mode,
 and prints minimal but vital debug information pertinent
 to the life cycle of the session.
