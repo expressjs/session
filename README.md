@@ -789,6 +789,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [tch-nedb-session-url]: https://www.npmjs.com/package/tch-nedb-session
 [tch-nedb-session-image]: https://badgen.net/github/stars/tomaschyly/NeDBSession?label=%E2%98%85
 
+[![★][express-session-sqlite-image] express-session-sqlite][express-session-sqlite-url] A session store using SQLite written in Typescript.
+
+[express-session-sqlite-url]: https://www.npmjs.com/package/express-session-sqlite
+[express-session-sqlite-image]: https://badgen.net/github/stars/theogravity/express-session-sqlite?label=%E2%98%85
+
 ## Example
 
 A simple example using `express-session` to store page views for a user.
