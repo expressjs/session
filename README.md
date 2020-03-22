@@ -333,12 +333,14 @@ req.session.regenerate().then(function() {
 })
 
 // or async/await
-try {
-  await req.session.regenerate()
-  // will have a new session here
-} catch(err) {
-  // a problem...
-}
+(async function() {
+  try {
+    await req.session.regenerate()
+    // will have a new session here
+  } catch(err) {
+    // a problem...
+  }
+})()
 ```
 
 #### Session.destroy(callback) => Promise
@@ -359,12 +361,14 @@ req.session.destroy().then(function() {
 })
 
 // or async/await
-try {
-  await req.session.destroy()
-  // cannot access session here
-} catch(err) {
-  // a problem...
-}
+(async function() {
+  try {
+    await req.session.destroy()
+    // cannot access session here
+  } catch(err) {
+    // a problem...
+  }
+})()
 ```
 
 #### Session.reload(callback) => Promise
@@ -385,12 +389,14 @@ req.session.reload().then(function() {
 })
 
 // or async/await
-try {
-  await req.session.reload()
-  // session updated
-} catch(err) {
-  // a problem...
-}
+(async function() {
+  try {
+    await req.session.reload()
+    // session updated
+  } catch(err) {
+    // a problem...
+  }
+})()
 ```
 
 #### Session.save(callback) => Promise
@@ -420,12 +426,14 @@ req.session.save().then(function() {
 })
 
 // or async/await
-try {
-  await req.session.save()
-  // session saved
-} catch(err) {
-  // a problem...
-}
+(async function() {
+  try {
+    await req.session.save()
+    // session saved
+  } catch(err) {
+    // a problem...
+  }
+})()
 ```
 
 #### Session.touch()

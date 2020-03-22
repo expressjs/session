@@ -1,4 +1,6 @@
 root: true
+parserOptions:
+  ecmaVersion: 2017
 rules:
   eol-last: error
   eqeqeq: ["error", "always", { "null": "ignore" }]
