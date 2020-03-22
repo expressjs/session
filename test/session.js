@@ -13,6 +13,7 @@ var SyncStore = require('./support/sync-store')
 var utils = require('./support/utils')
 
 var Cookie = require('../session/cookie')
+var Promise = typeof Promise === 'undefined' ? require('bluebird') : Promise;
 
 var min = 60 * 1000;
 
