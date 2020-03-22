@@ -1686,7 +1686,7 @@ describe('session()', function(){
             res.end('session created')
             return
           }
-      
+
           store.clear(function (err) {
             if (err) return done(err)
             req.session.reload().then(function() {
@@ -1698,7 +1698,7 @@ describe('session()', function(){
             })
           })
         })
-      
+
         request(server)
         .get('/')
         .expect(200, 'session created', function (err, res) {
@@ -1738,7 +1738,7 @@ describe('session()', function(){
             // TODO: Make MemoryStore methods return promises
             // so we don't have to wrap store.get around a promise
             // here?
-            return new Promise((resolve, reject) => {
+            return new Promise(function(resolve, reject) {
               store.get(req.session.id, function (err, sess) {
                 if (err) return reject(err)
                 resolve(sess ? 'stored' : 'empty')

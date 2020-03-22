@@ -76,7 +76,6 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
 
 defineMethod(Session.prototype, 'save', function save(fn) {
   var self = this;
-  fn = fn || function(){};
   return new Promise(function(resolve, reject){
     self.req.sessionStore.set(self.id, self, function(err) {
       if (err) return rejectPromise(err, fn, reject);
@@ -169,7 +168,7 @@ function defineMethod(obj, name, fn) {
 /**
  * Wrapper for returning a callback with
  * an error and rejecting a promise
- * 
+ *
  * @param {Error/String} error
  * @param {Function} callback
  * @param {Function} reject
@@ -183,7 +182,7 @@ function rejectPromise(err, callback, reject) {
 /**
  * Wrapper for returning a callback with
  * a response and resolving a promise
- * 
+ *
  * @param {Any} response
  * @param {Function} callback
  * @param {Function} resolve
