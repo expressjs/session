@@ -382,11 +382,19 @@ function session(options) {
       var _save = sess.save;
 
       function reload(callback) {
-        callback = callback || function(){}
         debug('reloading %s', this.id)
-        return _reload.call(this, function () {
+        if (typeof callback === 'function') {
+          return _reload.call(this, function() {
+            wrapmethods(req.session)
+            callback.apply(this, arguments)
+          });
+        }
+
+        return _reload.call(this).then(function() {
           wrapmethods(req.session)
-          callback.apply(this, arguments)
+        }).catch(function(err) {
+          wrapmethods(req.session)
+          throw err
         })
       }
 

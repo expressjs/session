@@ -75,13 +75,12 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
  */
 
 defineMethod(Session.prototype, 'save', function save(fn) {
-  var self = this;
-  return new Promise(function(resolve, reject){
-    self.req.sessionStore.set(self.id, self, function(err) {
-      if (err) return rejectPromise(err, fn, reject);
-      resolvePromise(null, fn, resolve);
-    });
-  });
+  return stdCallbackOrPromiseWrapper.call(
+    this,
+    this.req.sessionStore,
+    'set',
+    [ this.id, this ],
+    fn);
 });
 
 /**
@@ -101,12 +100,22 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
   var req = this.req;
   var store = this.req.sessionStore;
 
+  if (typeof fn === 'function') {
+    store.get(self.id, function(err, sess){
+      if (err) return fn(err);
+      if (!sess) return fn(new Error('failed to load session'));
+      store.createSession(req, sess);
+      fn();
+    });
+    return this;
+  }
+
   return new Promise(function(resolve, reject){
     store.get(self.id, function(err, sess){
-      if (err) return rejectPromise(err, fn, reject);
-      if (!sess) return rejectPromise(new Error('failed to load session'), fn, reject);
+      if (err) return reject(err);
+      if (!sess) return reject(new Error('failed to load session'));
       store.createSession(req, sess);
-      resolvePromise(null, fn, resolve);
+      resolve();
     });
   });
 });
@@ -120,14 +129,13 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
  */
 
 defineMethod(Session.prototype, 'destroy', function destroy(fn) {
-  var self = this;
-  return new Promise(function(resolve, reject){
-    delete self.req.session;
-    self.req.sessionStore.destroy(self.id, function(err) {
-      if (err) return rejectPromise(err, fn, reject);
-      resolvePromise(null, fn, resolve);
-    });
-  });
+  delete this.req.session;
+  return stdCallbackOrPromiseWrapper.call(
+    this,
+    this.req.sessionStore,
+    'destroy',
+    [ this.id ],
+    fn);
 });
 
 /**
@@ -139,13 +147,12 @@ defineMethod(Session.prototype, 'destroy', function destroy(fn) {
  */
 
 defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
-  var self = this;
-  return new Promise(function(resolve, reject){
-    self.req.sessionStore.regenerate(self.req, function(err) {
-      if (err) return rejectPromise(err, fn, reject);
-      resolvePromise(null, fn, resolve);
-    });
-  });
+  return stdCallbackOrPromiseWrapper.call(
+    this,
+    this.req.sessionStore,
+    'regenerate',
+    [ this.req ],
+    fn);
 });
 
 /**
@@ -165,30 +172,16 @@ function defineMethod(obj, name, fn) {
   });
 };
 
-/**
- * Wrapper for returning a callback with
- * an error and rejecting a promise
- *
- * @param {Error/String} error
- * @param {Function} callback
- * @param {Function} reject
- */
-function rejectPromise(err, callback, reject) {
-  callback = callback || function(){};
-  callback(err);
-  reject(err);
-}
+function stdCallbackOrPromiseWrapper(thisArg, method, args, callback) {
+  if (typeof callback === 'function') {
+    thisArg[method].apply(thisArg, args.concat([ callback ]))
+    return this
+  }
 
-/**
- * Wrapper for returning a callback with
- * a response and resolving a promise
- *
- * @param {Any} response
- * @param {Function} callback
- * @param {Function} resolve
- */
-function resolvePromise(response, callback, resolve) {
-  callback = callback || function(){};
-  callback(null, response);
-  resolve(response);
+  return new Promise(function(resolve, reject) {
+    thisArg[method].apply(thisArg, args.concat([function(err) {
+      if (err) return reject(err)
+      resolve()
+    }]))
+  })
 }
