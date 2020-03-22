@@ -382,8 +382,9 @@ function session(options) {
       var _save = sess.save;
 
       function reload(callback) {
+        callback = callback || function(){}
         debug('reloading %s', this.id)
-        _reload.call(this, function () {
+        return _reload.call(this, function () {
           wrapmethods(req.session)
           callback.apply(this, arguments)
         })
@@ -392,7 +393,7 @@ function session(options) {
       function save() {
         debug('saving %s', this.id);
         savedHash = hash(this);
-        _save.apply(this, arguments);
+        return _save.apply(this, arguments);
       }
 
       Object.defineProperty(sess, 'reload', {

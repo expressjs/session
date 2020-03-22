@@ -79,8 +79,8 @@ defineMethod(Session.prototype, 'save', function save(fn) {
   fn = fn || function(){};
   return new Promise(function(resolve, reject){
     self.req.sessionStore.set(self.id, self, function(err) {
-      if (err) return rejectError(err, fn, reject);
-      resolve();
+      if (err) return rejectPromise(err, fn, reject);
+      resolvePromise(null, fn, resolve);
     });
   });
 });
@@ -104,10 +104,10 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
 
   return new Promise(function(resolve, reject){
     store.get(self.id, function(err, sess){
-      if (err) return rejectError(err, fn, reject);
-      if (!sess) return rejectError(new Error('failed to load session'), fn, reject);
+      if (err) return rejectPromise(err, fn, reject);
+      if (!sess) return rejectPromise(new Error('failed to load session'), fn, reject);
       store.createSession(req, sess);
-      resolve();
+      resolvePromise(null, fn, resolve);
     });
   });
 });
@@ -125,8 +125,8 @@ defineMethod(Session.prototype, 'destroy', function destroy(fn) {
   return new Promise(function(resolve, reject){
     delete self.req.session;
     self.req.sessionStore.destroy(self.id, function(err) {
-      if (err) return rejectError(err, fn, reject);
-      resolve();
+      if (err) return rejectPromise(err, fn, reject);
+      resolvePromise(null, fn, resolve);
     });
   });
 });
@@ -143,8 +143,8 @@ defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
   var self = this;
   return new Promise(function(resolve, reject){
     self.req.sessionStore.regenerate(self.req, function(err) {
-      if (err) return rejectError(err, fn, reject);
-      resolve();
+      if (err) return rejectPromise(err, fn, reject);
+      resolvePromise(null, fn, resolve);
     });
   });
 });
@@ -168,13 +168,28 @@ function defineMethod(obj, name, fn) {
 
 /**
  * Wrapper for returning a callback with
- * and error and rejecting a promise
+ * an error and rejecting a promise
  * 
  * @param {Error/String} error
  * @param {Function} callback
  * @param {Function} reject
  */
-function rejectError(err, callback, reject) {
+function rejectPromise(err, callback, reject) {
+  callback = callback || function(){};
   callback(err);
   reject(err);
+}
+
+/**
+ * Wrapper for returning a callback with
+ * a response and resolving a promise
+ * 
+ * @param {Any} response
+ * @param {Function} callback
+ * @param {Function} resolve
+ */
+function resolvePromise(response, callback, resolve) {
+  callback = callback || function(){};
+  callback(null, response);
+  resolve(response);
 }
