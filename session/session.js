@@ -8,6 +8,12 @@
 'use strict';
 
 /**
+ * Module dependencies.
+ * @private
+ */
+var Promise = typeof Promise === 'undefined' ? require('bluebird') : Promise;
+
+/**
  * Expose Session.
  */
 
@@ -69,8 +75,12 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
  */
 
 defineMethod(Session.prototype, 'save', function save(fn) {
-  this.req.sessionStore.set(this.id, this, fn || function(){});
-  return this;
+  return stdCallbackOrPromiseWrapper.call(
+    this,
+    this.req.sessionStore,
+    'set',
+    [ this.id, this ],
+    fn);
 });
 
 /**
@@ -86,16 +96,28 @@ defineMethod(Session.prototype, 'save', function save(fn) {
  */
 
 defineMethod(Session.prototype, 'reload', function reload(fn) {
-  var req = this.req
-  var store = this.req.sessionStore
+  var self = this;
+  var req = this.req;
+  var store = this.req.sessionStore;
 
-  store.get(this.id, function(err, sess){
-    if (err) return fn(err);
-    if (!sess) return fn(new Error('failed to load session'));
-    store.createSession(req, sess);
-    fn();
+  if (typeof fn === 'function') {
+    store.get(self.id, function(err, sess){
+      if (err) return fn(err);
+      if (!sess) return fn(new Error('failed to load session'));
+      store.createSession(req, sess);
+      fn();
+    });
+    return this;
+  }
+
+  return new Promise(function(resolve, reject){
+    store.get(self.id, function(err, sess){
+      if (err) return reject(err);
+      if (!sess) return reject(new Error('failed to load session'));
+      store.createSession(req, sess);
+      resolve();
+    });
   });
-  return this;
 });
 
 /**
@@ -108,8 +130,12 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
 
 defineMethod(Session.prototype, 'destroy', function destroy(fn) {
   delete this.req.session;
-  this.req.sessionStore.destroy(this.id, fn);
-  return this;
+  return stdCallbackOrPromiseWrapper.call(
+    this,
+    this.req.sessionStore,
+    'destroy',
+    [ this.id ],
+    fn);
 });
 
 /**
@@ -121,8 +147,12 @@ defineMethod(Session.prototype, 'destroy', function destroy(fn) {
  */
 
 defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
-  this.req.sessionStore.regenerate(this.req, fn);
-  return this;
+  return stdCallbackOrPromiseWrapper.call(
+    this,
+    this.req.sessionStore,
+    'regenerate',
+    [ this.req ],
+    fn);
 });
 
 /**
@@ -141,3 +171,17 @@ function defineMethod(obj, name, fn) {
     writable: true
   });
 };
+
+function stdCallbackOrPromiseWrapper(thisArg, method, args, callback) {
+  if (typeof callback === 'function') {
+    thisArg[method].apply(thisArg, args.concat([ callback ]))
+    return this
+  }
+
+  return new Promise(function(resolve, reject) {
+    thisArg[method].apply(thisArg, args.concat([function(err) {
+      if (err) return reject(err)
+      resolve()
+    }]))
+  })
+}

@@ -314,7 +314,7 @@ app.get('/', function(req, res, next) {
 })
 ```
 
-#### Session.regenerate(callback)
+#### Session.regenerate(callback) => Promise
 
 To regenerate the session simply invoke the method. Once complete,
 a new SID and `Session` instance will be initialized at `req.session`
@@ -324,9 +324,26 @@ and the `callback` will be invoked.
 req.session.regenerate(function(err) {
   // will have a new session here
 })
+
+// or promises
+req.session.regenerate().then(function() {
+  // will have a new session here
+}).catch(function(err) {
+  // a problem...
+})
+
+// or async/await
+(async function() {
+  try {
+    await req.session.regenerate()
+    // will have a new session here
+  } catch(err) {
+    // a problem...
+  }
+})()
 ```
 
-#### Session.destroy(callback)
+#### Session.destroy(callback) => Promise
 
 Destroys the session and will unset the `req.session` property.
 Once complete, the `callback` will be invoked.
@@ -335,9 +352,26 @@ Once complete, the `callback` will be invoked.
 req.session.destroy(function(err) {
   // cannot access session here
 })
+
+// or promises
+req.session.destroy().then(function() {
+  // cannot access session here
+}).catch(function(err) {
+  // a problem...
+})
+
+// or async/await
+(async function() {
+  try {
+    await req.session.destroy()
+    // cannot access session here
+  } catch(err) {
+    // a problem...
+  }
+})()
 ```
 
-#### Session.reload(callback)
+#### Session.reload(callback) => Promise
 
 Reloads the session data from the store and re-populates the
 `req.session` object. Once complete, the `callback` will be invoked.
@@ -346,9 +380,26 @@ Reloads the session data from the store and re-populates the
 req.session.reload(function(err) {
   // session updated
 })
+
+// or promises
+req.session.reload().then(function() {
+  // session updated
+}).catch(function(err) {
+  // a problem...
+})
+
+// or async/await
+(async function() {
+  try {
+    await req.session.reload()
+    // session updated
+  } catch(err) {
+    // a problem...
+  }
+})()
 ```
 
-#### Session.save(callback)
+#### Session.save(callback) => Promise
 
 Save the session back to the store, replacing the contents on the store with the
 contents in memory (though a store may do something else--consult the store's
@@ -366,6 +417,23 @@ redirects, long-lived requests or in WebSockets.
 req.session.save(function(err) {
   // session saved
 })
+
+// or promises
+req.session.save().then(function() {
+  // session saved
+}).catch(function(err) {
+  // a problem...
+})
+
+// or async/await
+(async function() {
+  try {
+    await req.session.save()
+    // session saved
+  } catch(err) {
+    // a problem...
+  }
+})()
 ```
 
 #### Session.touch()
