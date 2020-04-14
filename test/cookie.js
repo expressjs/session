@@ -12,11 +12,6 @@ describe('new Cookie()', function () {
     assert.strictEqual(cookie.expires, null)
   })
 
-  it('should default maxAge to null', function () {
-    var cookie = new Cookie()
-    assert.strictEqual(cookie.maxAge, null)
-  })
-
   it('should default httpOnly to true', function () {
     var cookie = new Cookie()
     assert.strictEqual(cookie.httpOnly, true)
