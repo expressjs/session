@@ -482,7 +482,7 @@ describe('session()', function(){
           .get('/')
           .set('Cookie', cookie(res))
           .expect(shouldSetCookie('connect.sid'))
-          .expect(shouldSetCookieToDifferentSessionId(res))
+          .expect(shouldSetCookieToDifferentSessionId(sid(res)))
           .expect(200, 'session 2', done)
         })
       })
