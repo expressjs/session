@@ -829,6 +829,24 @@ app.get('/bar', function (req, res, next) {
 })
 ```
 
+## Debugging
+
+This module uses the [debug](https://www.npmjs.com/package/debug) module
+internally to log information about session operations.
+
+To see all the internal logs, set the `DEBUG` environment variable to
+`express-session` when launching your app (`npm start`, in this example):
+
+```sh
+$ DEBUG=express-session npm start
+```
+
+On Windows, use the corresponding command;
+
+```sh
+> set DEBUG=express-session & npm start
+```
+
 ## License
 
 [MIT](LICENSE)
