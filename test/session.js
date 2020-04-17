@@ -1902,7 +1902,13 @@ describe('session()', function(){
 
           request(server)
             .get('/')
-            .expect(200, '2000', done)
+            .expect(200)
+            .expect(function (res) {
+              // account for 1ms latency
+              assert.ok(res.text === '2000' || res.text === '1999',
+                'expected 2000, got ' + res.text)
+            })
+            .end(done)
         })
 
         it('should equal original maxAge for all requests', function (done) {
@@ -1912,13 +1918,25 @@ describe('session()', function(){
 
           request(server)
             .get('/')
-            .expect(200, '2000', function (err, res) {
+            .expect(200)
+            .expect(function (res) {
+              // account for 1ms latency
+              assert.ok(res.text === '2000' || res.text === '1999',
+                'expected 2000, got ' + res.text)
+            })
+            .end(function (err, res) {
               if (err) return done(err)
               setTimeout(function () {
                 request(server)
                   .get('/')
                   .set('Cookie', cookie(res))
-                  .expect(200, '2000', done)
+                  .expect(200)
+                  .expect(function (res) {
+                    // account for 1ms latency
+                    assert.ok(res.text === '2000' || res.text === '1999',
+                      'expected 2000, got ' + res.text)
+                  })
+                  .end(done)
               }, 100)
             })
         })
@@ -1931,13 +1949,25 @@ describe('session()', function(){
 
           request(server)
             .get('/')
-            .expect(200, '2000', function (err, res) {
+            .expect(200)
+            .expect(function (res) {
+              // account for 1ms latency
+              assert.ok(res.text === '2000' || res.text === '1999',
+                'expected 2000, got ' + res.text)
+            })
+            .end(function (err, res) {
               if (err) return done(err)
               setTimeout(function () {
                 request(server)
                   .get('/')
                   .set('Cookie', cookie(res))
-                  .expect(200, '2000', done)
+                  .expect(200)
+                  .expect(function (res) {
+                    // account for 1ms latency
+                    assert.ok(res.text === '2000' || res.text === '1999',
+                      'expected 2000, got ' + res.text)
+                  })
+                  .end(done)
               }, 100)
             })
         })
