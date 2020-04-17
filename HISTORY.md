@@ -1,5 +1,5 @@
-unreleased
-==========
+1.17.1 / 2020-04-16
+===================
 
   * Fix internal method wrapping error on failed reloads
 
