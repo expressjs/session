@@ -891,6 +891,37 @@ describe('session()', function(){
     });
   });
 
+  describe('getDomainFromRequest option', function(){
+    it('should reject non-function values', function(){
+      assert.throws(session.bind(null, { getDomainFromRequest: 'bogus!' }), /getDomainFromRequest.*must/)
+    });
+
+    it('should work without getDomainFromRequest', function(done){
+      request(createServer())
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, done)
+    });
+
+    it('should allow custom domain', function(done){
+      function getDomainFromRequest(req) { return '.do.main' }
+
+      request(createServer({ getDomainFromRequest: getDomainFromRequest }))
+      .get('/')
+      .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'Domain', '.do.main'))
+      .expect(200, done)
+    });
+
+    it('should provide req argument', function(done){
+      function getDomainFromRequest(req) { return req.url }
+
+      request(createServer({ getDomainFromRequest: getDomainFromRequest }))
+      .get('/foo')
+      .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'Domain', '/foo'))
+      .expect(200, done)
+    });
+  });
+
   describe('key option', function(){
     it('should default to "connect.sid"', function(done){
       request(createServer())
