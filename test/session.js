@@ -1892,6 +1892,21 @@ describe('session()', function(){
           .expect(shouldSetCookieToValue('previous', 'cookieValue'))
           .expect(200, done)
         })
+
+        it('should preserve cookies set in writeHead', function (done) {
+          var server = createServer(null, function (req, res) {
+            var cookie = new Cookie()
+            res.writeHead(200, {
+              'Set-Cookie': cookie.serialize('previous', 'cookieValue')
+            })
+            res.end()
+          })
+
+          request(server)
+            .get('/')
+            .expect(shouldSetCookieToValue('previous', 'cookieValue'))
+            .expect(200, done)
+        })
       })
 
       describe('.originalMaxAge', function () {
