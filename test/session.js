@@ -1912,36 +1912,6 @@ describe('session()', function(){
         })
 
         it('should equal original maxAge for all requests', function (done) {
-          var server = createServer({ cookie: { maxAge: 2000 } }, function (req, res) {
-            res.end(JSON.stringify(req.session.cookie.originalMaxAge))
-          })
-
-          request(server)
-            .get('/')
-            .expect(200)
-            .expect(function (res) {
-              // account for 1ms latency
-              assert.ok(res.text === '2000' || res.text === '1999',
-                'expected 2000, got ' + res.text)
-            })
-            .end(function (err, res) {
-              if (err) return done(err)
-              setTimeout(function () {
-                request(server)
-                  .get('/')
-                  .set('Cookie', cookie(res))
-                  .expect(200)
-                  .expect(function (res) {
-                    // account for 1ms latency
-                    assert.ok(res.text === '2000' || res.text === '1999',
-                      'expected 2000, got ' + res.text)
-                  })
-                  .end(done)
-              }, 100)
-            })
-        })
-
-        it('should equal original maxAge for all requests', function (done) {
           var store = new SmartStore()
           var server = createServer({ cookie: { maxAge: 2000 }, store: store }, function (req, res) {
             res.end(JSON.stringify(req.session.cookie.originalMaxAge))
