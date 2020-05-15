@@ -408,6 +408,16 @@ function session(options) {
       wrapmethods(req.session)
     }
 
+    function rewrapmethods (sess, callback) {
+      return function () {
+        if (req.session !== sess) {
+          wrapmethods(req.session)
+        }
+
+        callback.apply(this, arguments)
+      }
+    }
+
     // wrap session methods
     function wrapmethods(sess) {
       var _reload = sess.reload
@@ -415,10 +425,7 @@ function session(options) {
 
       function reload(callback) {
         debug('reloading %s', this.id)
-        _reload.call(this, function () {
-          wrapmethods(req.session)
-          callback.apply(this, arguments)
-        })
+        _reload.call(this, rewrapmethods(this, callback))
       }
 
       function save() {

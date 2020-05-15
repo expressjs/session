@@ -483,7 +483,7 @@ describe('session()', function(){
           .get('/')
           .set('Cookie', cookie(res))
           .expect(shouldSetCookie('connect.sid'))
-          .expect(shouldSetCookieToDifferentSessionId(res))
+          .expect(shouldSetCookieToDifferentSessionId(sid(res)))
           .expect(200, 'session 2', done)
         })
       })
@@ -1758,6 +1758,49 @@ describe('session()', function(){
           .expect(500, 'failed to load session', done)
         })
       })
+
+      it('should not override an overriden `reload` in case of errors',  function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store, resave: false }, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          store.clear(function (err) {
+            if (err) return done(err)
+
+            // reload way too many times on top of each other,
+            // attempting to overflow the call stack
+            var iters = 20
+            reload()
+            function reload () {
+              if (!--iters) {
+                res.end('ok')
+                return
+              }
+
+              try {
+                req.session.reload(reload)
+              } catch (e) {
+                res.statusCode = 500
+                res.end(e.message)
+              }
+            }
+          })
+        })
+
+        request(server)
+          .get('/')
+          .expect(200, 'session created', function (err, res) {
+            if (err) return done(err)
+            request(server)
+              .get('/foo')
+              .set('Cookie', cookie(res))
+              .expect(200, 'ok', done)
+          })
+      })
     })
 
     describe('.save()', function () {
@@ -1940,7 +1983,13 @@ describe('session()', function(){
 
           request(server)
             .get('/')
-            .expect(200, '2000', done)
+            .expect(200)
+            .expect(function (res) {
+              // account for 1ms latency
+              assert.ok(res.text === '2000' || res.text === '1999',
+                'expected 2000, got ' + res.text)
+            })
+            .end(done)
         })
 
         it('should equal original maxAge for all requests', function (done) {
@@ -1950,13 +1999,25 @@ describe('session()', function(){
 
           request(server)
             .get('/')
-            .expect(200, '2000', function (err, res) {
+            .expect(200)
+            .expect(function (res) {
+              // account for 1ms latency
+              assert.ok(res.text === '2000' || res.text === '1999',
+                'expected 2000, got ' + res.text)
+            })
+            .end(function (err, res) {
               if (err) return done(err)
               setTimeout(function () {
                 request(server)
                   .get('/')
                   .set('Cookie', cookie(res))
-                  .expect(200, '2000', done)
+                  .expect(200)
+                  .expect(function (res) {
+                    // account for 1ms latency
+                    assert.ok(res.text === '2000' || res.text === '1999',
+                      'expected 2000, got ' + res.text)
+                  })
+                  .end(done)
               }, 100)
             })
         })
@@ -1969,13 +2030,25 @@ describe('session()', function(){
 
           request(server)
             .get('/')
-            .expect(200, '2000', function (err, res) {
+            .expect(200)
+            .expect(function (res) {
+              // account for 1ms latency
+              assert.ok(res.text === '2000' || res.text === '1999',
+                'expected 2000, got ' + res.text)
+            })
+            .end(function (err, res) {
               if (err) return done(err)
               setTimeout(function () {
                 request(server)
                   .get('/')
                   .set('Cookie', cookie(res))
-                  .expect(200, '2000', done)
+                  .expect(200)
+                  .expect(function (res) {
+                    // account for 1ms latency
+                    assert.ok(res.text === '2000' || res.text === '1999',
+                      'expected 2000, got ' + res.text)
+                  })
+                  .end(done)
               }, 100)
             })
         })
