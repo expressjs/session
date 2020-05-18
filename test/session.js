@@ -189,6 +189,23 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
+  it('should handle res.end(callback) calls', function (done) {
+    var callbackHasBeenCalled = false;
+
+    var server = createServer(null, function (req, res) {
+      function callback() {
+        callbackHasBeenCalled = true;
+      }
+
+      res.end(callback);
+    });
+
+    request(server).get('/').expect(200, '', function () {
+      assert.ok(callbackHasBeenCalled);
+      done();
+    })
+  });
+
   it('should handle res.end(null) calls', function (done) {
     var server = createServer(null, function (req, res) {
       res.end(null)

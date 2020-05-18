@@ -272,7 +272,7 @@ function session(options) {
           return ret;
         }
 
-        if (chunk == null) {
+        if (chunk == null || typeof chunk === 'function') {
           ret = true;
           return ret;
         }
