@@ -247,7 +247,7 @@ function session(options) {
     var _end = res.end;
     var _write = res.write;
     var ended = false;
-    res.end = function end(chunk, encoding) {
+    res.end = function end() {
       if (ended) {
         return false;
       }
@@ -257,9 +257,25 @@ function session(options) {
       var ret;
       var sync = true;
 
+      var endArguments = arguments;
+      var chunk = endArguments[0];
+      var encoding = endArguments[1];
+
+      console.log('about to shuffle arguments', { chunk: chunk, encoding: encoding });
+
+      // Callback may be the 1st (and only), second, or third argument
+      if (typeof chunk === 'function') {
+        console.log('chunk was function');
+        chunk = null;
+        encoding = null;
+      } else if (typeof encoding === 'function') {
+        console.log('encoding was function');
+        encoding = null;
+      }
+
       function writeend() {
         if (sync) {
-          ret = _end.call(res, chunk, encoding);
+          ret = _end.apply(res, endArguments);
           sync = false;
           return;
         }
@@ -272,7 +288,7 @@ function session(options) {
           return ret;
         }
 
-        if (chunk == null || typeof chunk === 'function') {
+        if (chunk == null) {
           ret = true;
           return ret;
         }
@@ -301,6 +317,7 @@ function session(options) {
       }
 
       if (shouldDestroy(req)) {
+        console.log('shouldDestroy');
         // destroy session
         debug('destroying');
         store.destroy(req.sessionID, function ondestroy(err) {
@@ -317,17 +334,20 @@ function session(options) {
 
       // no session to save
       if (!req.session) {
+        console.log('has no session');
         debug('no session');
-        return _end.call(res, chunk, encoding);
+        return _end.apply(res, endArguments);
       }
 
       if (!touched) {
+        console.log('session was not touched')
         // touch session
         req.session.touch()
         touched = true
       }
 
       if (shouldSave(req)) {
+        console.log('should save')
         req.session.save(function onsave(err) {
           if (err) {
             defer(next, err);
@@ -352,7 +372,7 @@ function session(options) {
         return writetop();
       }
 
-      return _end.call(res, chunk, encoding);
+      return _end.apply(res, endArguments);
     };
 
     // generate the session
