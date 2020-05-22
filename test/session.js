@@ -342,12 +342,12 @@ describe('session()', function(){
       }
 
       request(server)
-      .get('/')
-      .expect(200, 'session saved', function (err) {
-        if (err) return done(err)
-        assert.ok(saved)
-        done()
-      })
+        .get('/')
+        .expect(200, 'session saved', function (err) {
+          if (err) return done(err)
+          assert.ok(saved)
+          done()
+        })
     })
 
     it('should have saved session even with empty response', function (done) {
@@ -370,12 +370,12 @@ describe('session()', function(){
       }
 
       request(server)
-      .get('/')
-      .expect(200, '', function (err) {
-        if (err) return done(err)
-        assert.ok(saved)
-        done()
-      })
+        .get('/')
+        .expect(200, '', function (err) {
+          if (err) return done(err)
+          assert.ok(saved)
+          done()
+        })
     })
 
     it.only('should have saved session even with multi-write', function (done) {
@@ -399,12 +399,15 @@ describe('session()', function(){
       }
 
       request(server)
-      .get('/')
-      .expect(200, 'hello, world', function (err) {
-        if (err) return done(err)
-        assert.ok(saved)
-        done()
-      })
+        .get('/')
+        .expect(200, 'hello, world', function (err) {
+          if (err) {
+            console.error('got err', { err });
+            return done(err)
+          }
+          assert.ok(saved)
+          done()
+        })
     })
 
     it('should have saved session even with non-chunked response', function (done) {
@@ -560,6 +563,7 @@ describe('session()', function(){
       .get('/')
       .expect(shouldSetCookie('sessid'))
       .expect(200, 'session created', function (err, res) {
+        console.log('inside done');
         if (err) return done(err)
         var val = cookie(res).replace(/...\./, '.')
 
