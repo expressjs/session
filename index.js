@@ -247,7 +247,7 @@ function session(options) {
     var _end = res.end;
     var _write = res.write;
     var ended = false;
-    res.end = function end(c, e) {
+    res.end = function end(chunk, encoding, callback) {
       if (ended) {
         return false;
       }
@@ -257,29 +257,29 @@ function session(options) {
       var ret;
       var sync = true;
 
-      var endArguments = Array.from(arguments);
+      var endArguments = [chunk, encoding, callback];
       // var endArguments = arguments;
       // var chunk = endArguments[0];
       // var encoding = endArguments[1];
-      var chunk = endArguments[0];
-      var encoding = endArguments[1];
 
       console.log('about to shuffle arguments', { chunk: chunk, encoding: encoding });
 
-      // // Callback may be the 1st (and only), second, or third argument
-      // if (typeof chunk === 'function') {
-      //   console.log('chunk was function');
-      //   chunk = null;
-      //   encoding = null;
-      // } else if (typeof encoding === 'function') {
-      //   console.log('encoding was function');
-      //   encoding = null;
-      // }
+      // Callback may be the 1st (and only), second, or third argument
+      if (typeof chunk === 'function') {
+        console.log('chunk was function');
+        callback = chunk;
+        chunk = null;
+        encoding = null;
+      } else if (typeof encoding === 'function') {
+        console.log('encoding was function');
+        callback = encoding;
+        encoding = null;
+      }
 
       function writeend() {
         console.log('writeend')
         if (sync) {
-          ret = _end.apply(res, endArguments);
+          ret = _end.call(res, chunk, encoding, callback);
           sync = false;
           return;
         }
@@ -340,7 +340,7 @@ function session(options) {
       if (!req.session) {
         console.log('has no session');
         debug('no session');
-        return _end.apply(res, endArguments);
+        return _end.call(res, chunk, encoding, callback);
       }
 
       if (!touched) {
@@ -376,7 +376,7 @@ function session(options) {
         return writetop();
       }
 
-      return _end.apply(res, endArguments);
+      return _end.call(res, chunk, encoding, callback);
     };
 
     // generate the session

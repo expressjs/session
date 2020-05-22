@@ -2,6 +2,7 @@
 
 module.exports.parseSetCookie = parseSetCookie
 module.exports.writePatch = writePatch
+module.exports.getNodeVersion = getNodeVersion
 
 function parseSetCookie (header) {
   var match
@@ -39,4 +40,15 @@ function writePatch (res) {
 
     return _write.apply(this, arguments)
   }
+}
+
+function getNodeVersion () {
+  var nodeVersionStrings = process.versions.node.split('.');
+  var nodeVersion = {
+    major: Number(nodeVersionStrings[0]),
+    minor: Number(nodeVersionStrings[1]),
+    patch: Number(nodeVersionStrings[2])
+  }
+
+  return nodeVersion;
 }
