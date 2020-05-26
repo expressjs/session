@@ -257,6 +257,8 @@ function session(options) {
       var ret;
       var sync = true;
 
+      var endArgs = arguments;
+
       // Callback may be the 1st (and only), second, or third argument
       if (typeof chunk === 'function') {
         callback = chunk;
@@ -269,7 +271,7 @@ function session(options) {
 
       function writeend() {
         if (sync) {
-          ret = _end.apply(res, [chunk, encoding, callback]);
+          ret = _end.apply(res, endArgs);
           sync = false;
           return;
         }
@@ -294,12 +296,15 @@ function session(options) {
           chunk = !Buffer.isBuffer(chunk)
             ? Buffer.from(chunk, encoding)
             : chunk;
+          endArgs[0] = chunk;
           encoding = undefined;
+          endArgs[1] = encoding;
 
           if (chunk.length !== 0) {
             debug('split response');
             ret = _write.call(res, chunk.slice(0, chunk.length - 1));
             chunk = chunk.slice(chunk.length - 1, chunk.length);
+            endArgs[0] = chunk;
             return ret;
           }
         }
@@ -328,7 +333,7 @@ function session(options) {
       // no session to save
       if (!req.session) {
         debug('no session');
-        return _end.apply(res, [chunk, encoding, callback]);
+        return _end.apply(res, endArgs);
       }
 
       if (!touched) {
@@ -362,7 +367,7 @@ function session(options) {
         return writetop();
       }
 
-      return _end.apply(res, [chunk, encoding, callback]);
+      return _end.apply(res, endArgs);
     };
 
     // generate the session
