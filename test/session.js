@@ -189,82 +189,84 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
-  it('should handle res.end(callback) calls', function (done) {
-    var callbackHasBeenCalled = false;
+  describe('res.end() proxy', function () {
+    it('should correctly handle callback as only argument', function (done) {
+      var callbackHasBeenCalled = false;
 
-    var server = createServer(null, function (req, res) {
-      function callback() {
-        callbackHasBeenCalled = true;
-      }
+      var server = createServer(null, function (req, res) {
+        function callback() {
+          callbackHasBeenCalled = true;
+        }
 
-      res.end(callback);
+        res.end(callback);
+      });
+
+      request(server).get('/').expect(200, '', function () {
+        var nodeVersion = utils.getNodeVersion();
+
+        if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
+          // Node versions prior to 0.11.6 do not support the callback argument,
+          // so it should not have been called.
+          assert.ok(!callbackHasBeenCalled)
+        } else {
+          assert.ok(callbackHasBeenCalled)
+        }
+
+        done()
+      })
     });
 
-    request(server).get('/').expect(200, '', function () {
-      var nodeVersion = utils.getNodeVersion();
+    it('should correctly handle callback as second argument', function (done) {
+      var callbackHasBeenCalled = false;
 
-      if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
-        // Node versions prior to 0.11.6 do not support the callback argument,
-        // so it should not have been called.
-        assert.ok(!callbackHasBeenCalled)
-      } else {
-        assert.ok(callbackHasBeenCalled)
-      }
+      var server = createServer(null, function (req, res) {
+        function callback() {
+          callbackHasBeenCalled = true;
+        }
 
-      done()
-    })
-  });
+        res.end('hello', callback);
+      });
 
-  it('should handle res.end(data, callback) calls', function (done) {
-    var callbackHasBeenCalled = false;
+      request(server).get('/').expect(200, 'hello', function () {
+        var nodeVersion = utils.getNodeVersion();
 
-    var server = createServer(null, function (req, res) {
-      function callback() {
-        callbackHasBeenCalled = true;
-      }
+        if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
+          // Node versions prior to 0.11.6 do not support the callback argument,
+          // so it should not have been called.
+          assert.ok(!callbackHasBeenCalled)
+        } else {
+          assert.ok(callbackHasBeenCalled)
+        }
 
-      res.end('hello', callback);
+        done()
+      })
     });
 
-    request(server).get('/').expect(200, 'hello', function () {
-      var nodeVersion = utils.getNodeVersion();
+    it('should correctly handle callback as third argument', function (done) {
+      var callbackHasBeenCalled = false;
 
-      if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
-        // Node versions prior to 0.11.6 do not support the callback argument,
-        // so it should not have been called.
-        assert.ok(!callbackHasBeenCalled)
-      } else {
-        assert.ok(callbackHasBeenCalled)
-      }
+      var server = createServer(null, function (req, res) {
+        function callback() {
+          callbackHasBeenCalled = true;
+        }
 
-      done()
-    })
-  });
+        res.end('hello', 'utf8', callback);
+      });
 
-  it('should handle res.end(data, encoding, callback) calls', function (done) {
-    var callbackHasBeenCalled = false;
+      request(server).get('/').expect(200, 'hello', function () {
+        var nodeVersion = utils.getNodeVersion();
 
-    var server = createServer(null, function (req, res) {
-      function callback() {
-        callbackHasBeenCalled = true;
-      }
+        if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
+          // Node versions prior to 0.11.6 do not support the callback argument,
+          // so it should not have been called.
+          assert.ok(!callbackHasBeenCalled)
+        } else {
+          assert.ok(callbackHasBeenCalled)
+        }
 
-      res.end('hello', 'utf8', callback);
+        done()
+      })
     });
-
-    request(server).get('/').expect(200, 'hello', function () {
-      var nodeVersion = utils.getNodeVersion();
-
-      if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
-        // Node versions prior to 0.11.6 do not support the callback argument,
-        // so it should not have been called.
-        assert.ok(!callbackHasBeenCalled)
-      } else {
-        assert.ok(callbackHasBeenCalled)
-      }
-
-      done()
-    })
   });
 
   it('should handle res.end(null) calls', function (done) {
