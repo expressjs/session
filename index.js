@@ -257,27 +257,17 @@ function session(options) {
       var ret;
       var sync = true;
 
-      var endArguments = [chunk, encoding, callback];
-      // var endArguments = arguments;
-      // var chunk = endArguments[0];
-      // var encoding = endArguments[1];
-
-      console.log('about to shuffle arguments', { chunk: chunk, encoding: encoding });
-
       // Callback may be the 1st (and only), second, or third argument
       if (typeof chunk === 'function') {
-        console.log('chunk was function');
         callback = chunk;
         chunk = null;
         encoding = null;
       } else if (typeof encoding === 'function') {
-        console.log('encoding was function');
         callback = encoding;
         encoding = null;
       }
 
       function writeend() {
-        console.log('writeend')
         if (sync) {
           ret = _end.call(res, chunk, encoding, callback);
           sync = false;
@@ -321,7 +311,6 @@ function session(options) {
       }
 
       if (shouldDestroy(req)) {
-        console.log('shouldDestroy');
         // destroy session
         debug('destroying');
         store.destroy(req.sessionID, function ondestroy(err) {
@@ -338,20 +327,17 @@ function session(options) {
 
       // no session to save
       if (!req.session) {
-        console.log('has no session');
         debug('no session');
         return _end.call(res, chunk, encoding, callback);
       }
 
       if (!touched) {
-        console.log('session was not touched')
         // touch session
         req.session.touch()
         touched = true
       }
 
       if (shouldSave(req)) {
-        console.log('should save')
         req.session.save(function onsave(err) {
           if (err) {
             defer(next, err);
