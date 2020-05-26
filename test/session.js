@@ -190,6 +190,12 @@ describe('session()', function(){
   })
 
   describe('res.end() proxy', function () {
+    var nodeVersion = utils.getNodeVersion();
+
+    // Node versions prior to 0.11.6 do not support the callback argument,
+    // so the callback should not have been called.
+    var nodeVersionSupportsResEndCallback = nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6));
+
     it('should correctly handle callback as only argument', function (done) {
       var callbackHasBeenCalled = false;
 
@@ -202,11 +208,7 @@ describe('session()', function(){
       });
 
       request(server).get('/').expect(200, '', function () {
-        var nodeVersion = utils.getNodeVersion();
-
-        if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
-          // Node versions prior to 0.11.6 do not support the callback argument,
-          // so it should not have been called.
+        if (nodeVersionSupportsResEndCallback) {
           assert.ok(!callbackHasBeenCalled)
         } else {
           assert.ok(callbackHasBeenCalled)
@@ -228,11 +230,7 @@ describe('session()', function(){
       });
 
       request(server).get('/').expect(200, 'hello', function () {
-        var nodeVersion = utils.getNodeVersion();
-
-        if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
-          // Node versions prior to 0.11.6 do not support the callback argument,
-          // so it should not have been called.
+        if (nodeVersionSupportsResEndCallback) {
           assert.ok(!callbackHasBeenCalled)
         } else {
           assert.ok(callbackHasBeenCalled)
@@ -256,9 +254,7 @@ describe('session()', function(){
       request(server).get('/').expect(200, 'hello', function () {
         var nodeVersion = utils.getNodeVersion();
 
-        if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
-          // Node versions prior to 0.11.6 do not support the callback argument,
-          // so it should not have been called.
+        if (nodeVersionSupportsResEndCallback) {
           assert.ok(!callbackHasBeenCalled)
         } else {
           assert.ok(callbackHasBeenCalled)
