@@ -189,7 +189,7 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
-  it.only('should handle res.end(callback) calls', function (done) {
+  it('should handle res.end(callback) calls', function (done) {
     var callbackHasBeenCalled = false;
 
     var server = createServer(null, function (req, res) {
@@ -395,10 +395,7 @@ describe('session()', function(){
       request(server)
         .get('/')
         .expect(200, 'hello, world', function (err) {
-          if (err) {
-            console.error('got err', { err });
-            return done(err)
-          }
+          if (err) return done(err)
           assert.ok(saved)
           done()
         })
