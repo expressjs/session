@@ -269,12 +269,12 @@ function session(options) {
 
       function writeend() {
         if (sync) {
-          ret = _end.call(res, chunk, encoding, callback);
+          ret = _end.apply(res, [chunk, encoding, callback]);
           sync = false;
           return;
         }
 
-        _end.call(res, callback);
+        _end.apply(res, [callback]);
       }
 
       function writetop() {
@@ -328,7 +328,7 @@ function session(options) {
       // no session to save
       if (!req.session) {
         debug('no session');
-        return _end.call(res, chunk, encoding, callback);
+        return _end.apply(res, [chunk, encoding, callback]);
       }
 
       if (!touched) {
@@ -362,7 +362,7 @@ function session(options) {
         return writetop();
       }
 
-      return _end.call(res, chunk, encoding, callback);
+      return _end.apply(res, [chunk, encoding, callback]);
     };
 
     // generate the session
