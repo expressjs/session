@@ -206,10 +206,8 @@ describe('session()', function(){
       if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
         // Node versions prior to 0.11.6 do not support the callback argument,
         // so it should not have been called.
-        console.log('callback should NOT be called')
         assert.ok(!callbackHasBeenCalled)
       } else {
-        console.log('callback SHOULD be called')
         assert.ok(callbackHasBeenCalled)
       }
 
@@ -554,7 +552,6 @@ describe('session()', function(){
       .get('/')
       .expect(shouldSetCookie('sessid'))
       .expect(200, 'session created', function (err, res) {
-        console.log('inside done');
         if (err) return done(err)
         var val = cookie(res).replace(/...\./, '.')
 
