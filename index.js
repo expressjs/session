@@ -274,7 +274,7 @@ function session(options) {
           return;
         }
 
-        _end.call(res);
+        _end.call(res, callback);
       }
 
       function writetop() {

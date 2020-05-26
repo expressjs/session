@@ -201,7 +201,59 @@ describe('session()', function(){
     });
 
     request(server).get('/').expect(200, '', function () {
-      const nodeVersion = utils.getNodeVersion();
+      var nodeVersion = utils.getNodeVersion();
+
+      if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
+        // Node versions prior to 0.11.6 do not support the callback argument,
+        // so it should not have been called.
+        assert.ok(!callbackHasBeenCalled)
+      } else {
+        assert.ok(callbackHasBeenCalled)
+      }
+
+      done()
+    })
+  });
+
+  it('should handle res.end(data, callback) calls', function (done) {
+    var callbackHasBeenCalled = false;
+
+    var server = createServer(null, function (req, res) {
+      function callback() {
+        callbackHasBeenCalled = true;
+      }
+
+      res.end('hello', callback);
+    });
+
+    request(server).get('/').expect(200, 'hello', function () {
+      var nodeVersion = utils.getNodeVersion();
+
+      if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
+        // Node versions prior to 0.11.6 do not support the callback argument,
+        // so it should not have been called.
+        assert.ok(!callbackHasBeenCalled)
+      } else {
+        assert.ok(callbackHasBeenCalled)
+      }
+
+      done()
+    })
+  });
+
+  it('should handle res.end(data, encoding, callback) calls', function (done) {
+    var callbackHasBeenCalled = false;
+
+    var server = createServer(null, function (req, res) {
+      function callback() {
+        callbackHasBeenCalled = true;
+      }
+
+      res.end('hello', 'utf8', callback);
+    });
+
+    request(server).get('/').expect(200, 'hello', function () {
+      var nodeVersion = utils.getNodeVersion();
 
       if (nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6))) {
         // Node versions prior to 0.11.6 do not support the callback argument,
