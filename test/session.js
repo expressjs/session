@@ -334,12 +334,12 @@ describe('session()', function(){
       }
 
       request(server)
-        .get('/')
-        .expect(200, 'session saved', function (err) {
-          if (err) return done(err)
-          assert.ok(saved)
-          done()
-        })
+      .get('/')
+      .expect(200, 'session saved', function (err) {
+        if (err) return done(err)
+        assert.ok(saved)
+        done()
+      })
     })
 
     it('should have saved session even with empty response', function (done) {
@@ -362,12 +362,12 @@ describe('session()', function(){
       }
 
       request(server)
-        .get('/')
-        .expect(200, '', function (err) {
-          if (err) return done(err)
-          assert.ok(saved)
-          done()
-        })
+      .get('/')
+      .expect(200, '', function (err) {
+        if (err) return done(err)
+        assert.ok(saved)
+        done()
+      })
     })
 
     it('should have saved session even with multi-write', function (done) {
@@ -391,12 +391,12 @@ describe('session()', function(){
       }
 
       request(server)
-        .get('/')
-        .expect(200, 'hello, world', function (err) {
-          if (err) return done(err)
-          assert.ok(saved)
-          done()
-        })
+      .get('/')
+      .expect(200, 'hello, world', function (err) {
+        if (err) return done(err)
+        assert.ok(saved)
+        done()
+      })
     })
 
     it('should have saved session even with non-chunked response', function (done) {
