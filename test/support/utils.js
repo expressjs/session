@@ -43,12 +43,11 @@ function writePatch (res) {
 }
 
 function getNodeVersion () {
-  var nodeVersionStrings = process.versions.node.split('.');
-  var nodeVersion = {
-    major: Number(nodeVersionStrings[0]),
-    minor: Number(nodeVersionStrings[1]),
-    patch: Number(nodeVersionStrings[2])
-  }
+  var nodeVersionNumbers = process.versions.node.split('.').map(Number);
 
-  return nodeVersion;
+  return {
+    major: nodeVersionNumbers[0],
+    minor: nodeVersionNumbers[1],
+    patch: nodeVersionNumbers[2]
+  }
 }
