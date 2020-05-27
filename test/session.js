@@ -189,81 +189,91 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
-  describe('res.end() proxy', function () {
+  describe.only('res.end() proxy', function () {
     var nodeVersion = utils.getNodeVersion();
 
-    // Node versions prior to 0.11.6 do not support the callback argument,
-    // so the callback should not have been called.
-    var nodeVersionSupportsResEndCallback = nodeVersion.major === 0 && (nodeVersion.minor < 11 || (nodeVersion.minor === 11 && nodeVersion.patch < 6));
+    // Node versions prior to 0.11.6 do not explicitly support the callback argument.
+    // These versions, if given a callback as the…
+    //   - first argument, throw a TypeError
+    //   - second argument, execute the callback (by accident)
+    //   - third argument, ignore the callback
+    var nodeVersionSupportsResEndCallback = nodeVersion.major > 0 || nodeVersion.minor > 11 || (nodeVersion.minor === 11 && nodeVersion.patch >= 6);
 
     it('should correctly handle callback as only argument', function (done) {
-      var callbackHasBeenCalled = false;
+      var callbackHasBeenCalled = false
 
       var server = createServer(null, function (req, res) {
         function callback() {
-          callbackHasBeenCalled = true;
+          callbackHasBeenCalled = true
         }
 
-        res.end(callback);
+        try {
+          res.end(callback)
+        } catch (err) {
+          // The res#end proxy passes on the arguments exactly as provided,
+          // so we expect a TypeError in versions that don't support the callback.
+          // This is a way of notifying the test client that an error occurred.
+          res.writeHead(500)
+          res.end(err.message)
+        }
       });
 
-      request(server).get('/').expect(200, '', function () {
-        if (nodeVersionSupportsResEndCallback) {
-          assert.ok(!callbackHasBeenCalled)
-        } else {
-          assert.ok(callbackHasBeenCalled)
-        }
+      var call = request(server).get('/');
 
-        done()
-      })
+      if (nodeVersionSupportsResEndCallback) {
+        call.expect(200, '', function () {
+          assert.ok(callbackHasBeenCalled)
+          done()
+        })
+      } else {
+        call.expect(500, 'first argument must be a string or Buffer', done)
+      }
     });
 
     it('should correctly handle callback as second argument', function (done) {
-      var callbackHasBeenCalled = false;
+      var callbackHasBeenCalled = false
 
       var server = createServer(null, function (req, res) {
         function callback() {
-          callbackHasBeenCalled = true;
+          callbackHasBeenCalled = true
         }
 
-        res.end('hello', callback);
+        res.end('hello', callback)
       });
 
       request(server).get('/').expect(200, 'hello', function () {
-        if (nodeVersionSupportsResEndCallback) {
-          assert.ok(!callbackHasBeenCalled)
-        } else {
-          assert.ok(callbackHasBeenCalled)
-        }
-
+        // Passing the callback as the second argument works on all versions of Node,
+        // seemingly by accident. The encoding parameter is passed to afterWrite,
+        // which supports that it might be a callback.
+        assert.ok(callbackHasBeenCalled)
         done()
       })
-    });
+    })
 
     it('should correctly handle callback as third argument', function (done) {
-      var callbackHasBeenCalled = false;
+      var callbackHasBeenCalled = false
 
       var server = createServer(null, function (req, res) {
         function callback() {
-          callbackHasBeenCalled = true;
+          callbackHasBeenCalled = true
         }
 
-        res.end('hello', 'utf8', callback);
+        res.end('hello', 'utf8', callback)
       });
 
       request(server).get('/').expect(200, 'hello', function () {
-        var nodeVersion = utils.getNodeVersion();
-
+        // The third argument is completely ignored on Node versions
+        // that do not support the callback.
         if (nodeVersionSupportsResEndCallback) {
-          assert.ok(!callbackHasBeenCalled)
-        } else {
           assert.ok(callbackHasBeenCalled)
+        } else {
+          assert.ok(!callbackHasBeenCalled)
         }
 
         done()
       })
-    });
-  });
+    })
+  })
 
   it('should handle res.end(null) calls', function (done) {
     var server = createServer(null, function (req, res) {
@@ -2367,8 +2377,9 @@ function createServer (options, respond) {
 }
 
 function createRequestListener(opts, fn) {
-  var _session = createSession(opts)
+  // var _session = createSession(opts)
   var respond = fn || end
+  var _session = respond;
 
   return function onRequest(req, res) {
     var server = this
