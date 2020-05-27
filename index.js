@@ -259,14 +259,26 @@ function session(options) {
 
       var endArgs = arguments;
 
-      // Callback may be the 1st (and only), second, or third argument
-      if (typeof chunk === 'function') {
-        callback = chunk;
-        chunk = null;
-        encoding = null;
-      } else if (typeof encoding === 'function') {
-        callback = encoding;
-        encoding = null;
+      var callbackArgumentIndex = typeof chunk === 'function'
+        ? 0
+        : typeof encoding === 'function'
+        ? 1
+        : 2;
+
+      // Callback may be the first, second, or third argument.
+      // If provided, it must be the last argument.
+      switch (callbackArgumentIndex) {
+        case 0: {
+          callback = chunk;
+          chunk = null;
+          encoding = null;
+          break;
+        }
+        case 1: {
+          callback = encoding;
+          encoding = null;
+          break;
+        }
       }
 
       function writeend() {
@@ -276,7 +288,9 @@ function session(options) {
           return;
         }
 
-        _end.apply(res, [callback]);
+        var argumentsWithoutChunkOrEncoding = [null, null, null];
+        argumentsWithoutChunkOrEncoding[callbackArgumentIndex] = callback;
+        _end.apply(res, argumentsWithoutChunkOrEncoding);
       }
 
       function writetop() {

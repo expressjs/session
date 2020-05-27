@@ -189,7 +189,7 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
-  describe.only('res.end() proxy', function () {
+  describe('res.end() proxy', function () {
     var nodeVersion = utils.getNodeVersion();
 
     // Node versions prior to 0.11.6 do not explicitly support the callback argument.
@@ -235,6 +235,7 @@ describe('session()', function(){
 
       var server = createServer(null, function (req, res) {
         function callback() {
+          console.log('what');
           callbackHasBeenCalled = true
         }
 
@@ -243,8 +244,7 @@ describe('session()', function(){
 
       request(server).get('/').expect(200, 'hello', function () {
         // Passing the callback as the second argument works on all versions of Node,
-        // seemingly by accident. The encoding parameter is passed to afterWrite,
-        // which supports that it might be a callback.
+        // seemingly by accident.
         assert.ok(callbackHasBeenCalled)
         done()
       })
@@ -2377,9 +2377,8 @@ function createServer (options, respond) {
 }
 
 function createRequestListener(opts, fn) {
-  // var _session = createSession(opts)
+  var _session = createSession(opts)
   var respond = fn || end
-  var _session = respond;
 
   return function onRequest(req, res) {
     var server = this
