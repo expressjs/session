@@ -189,7 +189,7 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
-  describe('res.end() proxy', function () {
+  describe.only('res.end() proxy', function () {
     var nodeVersion = utils.getNodeVersion();
 
     // Node versions prior to 0.11.6 do not explicitly support the callback argument.

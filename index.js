@@ -267,18 +267,13 @@ function session(options) {
 
       // Callback may be the first, second, or third argument.
       // If provided, it must be the last argument.
-      switch (callbackArgumentIndex) {
-        case 0: {
-          callback = chunk;
-          chunk = null;
-          encoding = null;
-          break;
-        }
-        case 1: {
-          callback = encoding;
-          encoding = null;
-          break;
-        }
+      if (callbackArgumentIndex === 0) {
+        callback = chunk;
+        chunk = null;
+        encoding = null;
+      } else if (callbackArgumentIndex === 1) {
+        callback = encoding;
+        encoding = null;
       }
 
       function writeend() {
