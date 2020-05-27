@@ -189,7 +189,7 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
-  describe.only('res.end() proxy', function () {
+  describe('res.end() proxy', function () {
     var nodeVersion = utils.getNodeVersion();
 
     // Node versions prior to 0.11.6 do not explicitly support the callback argument.
@@ -207,30 +207,24 @@ describe('session()', function(){
           callbackHasBeenCalled = true
         }
 
-        try {
-          res.end(callback)
-        } catch (err) {
-          // The res#end proxy passes on the arguments exactly as provided,
-          // so we expect a TypeError in versions that don't support the callback.
-          // This is a way of notifying the test client that an error occurred.
-          res.writeHead(500)
-          res.end(err.message)
-        }
-      });
-
-      var call = request(server).get('/');
-
-      if (nodeVersionSupportsResEndCallback) {
-        call.expect(200, '', function () {
-          assert.ok(callbackHasBeenCalled)
+        server.once('error', function onerror (err) {
+          assert.ok(err)
+          assert.strictEqual(err.message, 'first argument must be a string or Buffer')
           done()
         })
-      } else {
-        call.expect(500, 'first argument must be a string or Buffer', done)
-      }
+
+        res.end(callback)
+      });
+
+      request(server)
+      .get('/')
+      .expect(200, '', function () {
+        assert.ok(callbackHasBeenCalled)
+        done()
+      })
     });
 
-    it('should correctly handle callback as second argument', function (done) {
+    it.only('should correctly handle callback as second argument', function (done) {
       var callbackHasBeenCalled = false
 
       var server = createServer(null, function (req, res) {
@@ -239,11 +233,17 @@ describe('session()', function(){
           callbackHasBeenCalled = true
         }
 
+        console.log('ending');
         res.end('hello', callback)
       });
 
-      request(server).get('/').expect(200, 'hello', function () {
-        // Passing the callback as the second argument works on all versions of Node,
+      request(server).get('/').expect(200, 'hello', function (err, response) {
+        if (err) {
+          console.log('err', err);
+        }
+        console.log('response', response.text);
+
+        // Passing the callback as the second argument works on all Node versions,
         // seemingly by accident.
         assert.ok(callbackHasBeenCalled)
         done()
@@ -267,7 +267,7 @@ describe('session()', function(){
         if (nodeVersionSupportsResEndCallback) {
           assert.ok(callbackHasBeenCalled)
         } else {
-          assert.ok(!callbackHasBeenCalled)
+          assert.strictEqual(callbackHasBeenCalled, false)
         }
 
         done()
@@ -2384,6 +2384,7 @@ function createRequestListener(opts, fn) {
     var server = this
 
     _session(req, res, function (err) {
+      console.log('err inside _session next', err)
       if (err && !res._header) {
         res.statusCode = err.status || 500
         res.end(err.message)
@@ -2395,6 +2396,7 @@ function createRequestListener(opts, fn) {
         return
       }
 
+      console.log('calling respond')
       respond(req, res)
     })
   }

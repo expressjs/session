@@ -265,6 +265,7 @@ function session(options) {
         ? 1
         : 2;
 
+      debug('callbackArgumentIndex', callbackArgumentIndex)
       // Callback may be the first, second, or third argument.
       // If provided, it must be the last argument.
       if (callbackArgumentIndex === 0) {
@@ -277,6 +278,7 @@ function session(options) {
       }
 
       function writeend() {
+        debug('writeend', { sync: sync })
         if (sync) {
           ret = _end.apply(res, endArgs);
           sync = false;
@@ -285,6 +287,7 @@ function session(options) {
 
         var argumentsWithoutChunkOrEncoding = [null, null, null];
         argumentsWithoutChunkOrEncoding[callbackArgumentIndex] = callback;
+        debug('applying _end with', { argumentsWithoutChunkOrEncoding: argumentsWithoutChunkOrEncoding })
         _end.apply(res, argumentsWithoutChunkOrEncoding);
       }
 
@@ -333,7 +336,11 @@ function session(options) {
           }
 
           debug('destroyed');
-          writeend();
+          try {
+            writeend();
+          } catch (err) {
+            next(err);
+          }
         });
 
         return writetop();
@@ -357,7 +364,11 @@ function session(options) {
             defer(next, err);
           }
 
-          writeend();
+          try {
+            writeend();
+          } catch (err) {
+            next(err);
+          }
         });
 
         return writetop();
@@ -370,7 +381,11 @@ function session(options) {
           }
 
           debug('touched');
-          writeend();
+          try {
+            writeend();
+          } catch (err) {
+            next(err);
+          }
         });
 
         return writetop();
