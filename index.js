@@ -257,17 +257,18 @@ function session(options) {
       var ret;
       var sync = true;
 
+      // Keep a reference to the original arguments so we can preserve their
+      // order when passing them on to the original _end()
       var endArgs = arguments;
 
+      // The callback argument is optional. If provided, it may be the
+      // first, second, or third argument, and must be the last argument.
       var callbackArgumentIndex = typeof chunk === 'function'
         ? 0
         : typeof encoding === 'function'
         ? 1
         : 2;
 
-      debug('callbackArgumentIndex', callbackArgumentIndex)
-      // Callback may be the first, second, or third argument.
-      // If provided, it must be the last argument.
       if (callbackArgumentIndex === 0) {
         callback = chunk;
         chunk = null;
@@ -278,16 +279,19 @@ function session(options) {
       }
 
       function writeend() {
-        debug('writeend', { sync: sync })
         if (sync) {
           ret = _end.apply(res, endArgs);
           sync = false;
           return;
         }
 
+        // This differs very slightly from (undocumented) Node behaviour in versions
+        // prior to 0.11.6 (which introduced callback support), because we explicitly
+        // call write() followed by end().
+        // The behaviour seems unintentional, as the callback is invoked immediately
+        // after write(), as opposed to after end().
         var argumentsWithoutChunkOrEncoding = [null, null, null];
         argumentsWithoutChunkOrEncoding[callbackArgumentIndex] = callback;
-        debug('applying _end with', { argumentsWithoutChunkOrEncoding: argumentsWithoutChunkOrEncoding })
         _end.apply(res, argumentsWithoutChunkOrEncoding);
       }
 

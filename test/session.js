@@ -192,11 +192,7 @@ describe('session()', function(){
   describe('res.end() proxy', function () {
     var nodeVersion = utils.getNodeVersion();
 
-    // Node versions prior to 0.11.6 do not explicitly support the callback argument.
-    // These versions, if given a callback as the…
-    //   - first argument, throw a TypeError
-    //   - second argument, execute the callback (by accident)
-    //   - third argument, ignore the callback
+    // Support for the callback argument was added in Node 0.11.6.
     var nodeVersionSupportsResEndCallback = nodeVersion.major > 0 || nodeVersion.minor > 11 || (nodeVersion.minor === 11 && nodeVersion.patch >= 6);
 
     it('should correctly handle callback as only argument', function (done) {
@@ -229,23 +225,25 @@ describe('session()', function(){
 
       var server = createServer(null, function (req, res) {
         function callback() {
-          console.log('what');
           callbackHasBeenCalled = true
         }
 
-        console.log('ending');
         res.end('hello', callback)
       });
 
-      request(server).get('/').expect(200, 'hello', function (err, response) {
-        if (err) {
-          console.log('err', err);
+      request(server).get('/').expect(200, 'hello', function () {
+        if (nodeVersionSupportsResEndCallback) {
+          assert.ok(callbackHasBeenCalled)
+        } else {
+          // This is (very slightly) different from the default Node behaviour,
+          // where the callback is invoked if `chunk` is a non-empty string or Buffer.
+          // This behaviour is undocumented, and seemingly happens unintentionally
+          // when the chunk and encoding are passed to write(), and in turn to
+          // afterWrite(), which considers the encoding argument to possibly be
+          // a function, and invokes it.
+          assert.strictEqual(callbackHasBeenCalled, false)
         }
-        console.log('response', response.text);
 
-        // Passing the callback as the second argument works on all Node versions,
-        // seemingly by accident.
-        assert.ok(callbackHasBeenCalled)
         done()
       })
     })
@@ -2384,7 +2382,6 @@ function createRequestListener(opts, fn) {
     var server = this
 
     _session(req, res, function (err) {
-      console.log('err inside _session next', err)
       if (err && !res._header) {
         res.statusCode = err.status || 500
         res.end(err.message)
@@ -2396,7 +2393,6 @@ function createRequestListener(opts, fn) {
         return
       }
 
-      console.log('calling respond')
       respond(req, res)
     })
   }
