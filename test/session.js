@@ -220,7 +220,7 @@ describe('session()', function(){
       })
     });
 
-    it.only('should correctly handle callback as second argument', function (done) {
+    it('should correctly handle callback as second argument', function (done) {
       var callbackHasBeenCalled = false
 
       var server = createServer(null, function (req, res) {
