@@ -314,7 +314,9 @@ function session(options) {
             : chunk;
           endArgs[0] = chunk;
           encoding = undefined;
-          endArgs[1] = encoding;
+          if (callbackArgumentIndex !== 1) {
+            endArgs[1] = encoding;
+          }
 
           if (chunk.length !== 0) {
             debug('split response');
