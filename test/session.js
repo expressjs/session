@@ -203,7 +203,7 @@ describe('session()', function(){
           callbackHasBeenCalled = true
         }
 
-        server.once('error', function onerror (err) {
+        server.on('error', function onerror (err) {
           assert.ok(err)
           assert.strictEqual(err.message, 'first argument must be a string or Buffer')
           done()
@@ -215,8 +215,12 @@ describe('session()', function(){
       request(server)
       .get('/')
       .expect(200, '', function () {
-        assert.ok(callbackHasBeenCalled)
-        done()
+        if (nodeVersionSupportsResEndCallback) {
+          // If the Node version does not support the callback,
+          // the error listener will make the necessary assertions.
+          assert.ok(callbackHasBeenCalled)
+          done()
+        }
       })
     });
 
