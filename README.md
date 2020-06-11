@@ -270,9 +270,32 @@ it to be saved. *This has been fixed in PassportJS 0.3.0*
 **Required option**
 
 This is the secret used to sign the session ID cookie. This can be either a string
-for a single secret, or an array of multiple secrets. If an array of secrets is
+for a single secret, an array of multiple secrets, or a function. If an array of secrets is
 provided, only the first element will be used to sign the session ID cookie, while
-all the elements will be considered when verifying the signature in requests.
+all the elements will be considered when verifying the signature in requests. If a function
+is provided then it will be executed with `req` as the first parameter for each request.
+The function should return a string or array of strings to be used as the secret for 
+signing the cookie.
+
+```js
+var rotatingSecretKey;
+function rotateKey() {
+    rotatingSecretKey = Math.random();
+}
+// Initial rotation.
+rotateKey();
+
+setInterval(rotateKey, 60 * 60 * 1000) // Rotate the key at least once an hour.
+app.use(function(req, res, next) {
+  var subdomain = subdomain[0];
+});
+
+app.use(session({
+  secret: function () { 
+    return rotatingSecretKey;
+  }
+}))
+```
 
 ##### store
 

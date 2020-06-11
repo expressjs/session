@@ -1242,11 +1242,27 @@ describe('session()', function(){
   });
 
   describe('secret option', function () {
+    it('shouldn\'t reject string', function () {
+      assert.doesNotThrow(createServer.bind(null, { secret: 'keyboard cat' }));
+    });
+
     it('should reject empty arrays', function () {
-      assert.throws(createServer.bind(null, { secret: [] }), /secret option array/);
-    })
+      assert.throws(createServer.bind(null, { secret: [] }), /secret option array must contain one or more strings/);
+    });
+
+    it('should reject object secret', function () {
+      assert.throws(createServer.bind(null, { secret: {} }), /secret option array must contain one or more strings/);
+    });
 
     describe('when an array', function () {
+      it('should reject array with function', function () {
+        assert.throws(createServer.bind(null, { secret: ['keyboard cat', function() {} ] }), /secret option array must only contain strings/);
+      });
+
+      it('should reject array with object', function () {
+        assert.throws(createServer.bind(null, { secret: ['keyboard cat', {} ] }), /secret option array must only contain strings/);
+      });
+
       it('should sign cookies', function (done) {
         var server = createServer({ secret: ['keyboard cat', 'nyan cat'] }, function (req, res) {
           req.session.user = 'bob';
@@ -1257,7 +1273,7 @@ describe('session()', function(){
         .get('/')
         .expect(shouldSetCookie('connect.sid'))
         .expect(200, 'bob', done);
-      })
+      });
 
       it('should sign cookies with first element', function (done) {
         var store = new session.MemoryStore();
@@ -1306,8 +1322,192 @@ describe('session()', function(){
           .expect(200, 'bob', done);
         });
       });
-    })
-  })
+    });
+
+    describe('when a function', function () {
+      var rotatingSecretKey;
+
+      function rotateKey() {
+        rotatingSecretKey = Math.random() + '';
+      }
+
+      rotateKey();
+      var rotateIntervalId = setInterval(rotateKey, 5000);
+
+      after(function() {
+        clearInterval(rotateIntervalId);
+      });
+
+      it('should sign cookie with secret from function', function (done) {
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
+        }}, function (req, res) {
+          req.session.user = 'bob';
+          res.end(req.session.user);
+        });
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'bob', done);
+      });
+
+      it('should load session from cookie sid', function (done) {
+        var count = 0;
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
+        }}, function (req, res) {
+          req.session.num = req.session.num || ++count;
+          res.end('session ' + req.session.num)
+        });
+
+        request(server)
+            .get('/')
+            .expect(shouldSetCookie('connect.sid'))
+            .expect(200, 'session 1', function (err, res) {
+              if (err) return done(err);
+              request(server)
+                  .get('/')
+                  .set('Cookie', cookie(res))
+                  .expect(200, 'session 1', done)
+            })
+      });
+
+      it('should not load session from cookie sid when secret is different', function (done) {
+        var count = 0;
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
+        }}, function (req, res) {
+          req.session.num = req.session.num || ++count;
+          res.end('session ' + req.session.num)
+        });
+
+        request(server)
+            .get('/')
+            .set('Host', 'test1.doamin.com')
+            .expect(shouldSetCookie('connect.sid'))
+            .expect(200, 'session 1', function (err, res) {
+              if (err) return done(err);
+
+              rotateKey(); // Rotate the key so the old session is now invalid.
+
+              request(server)
+                  .get('/')
+                  .set('Cookie', cookie(res))
+                  .expect(200, 'session 2', done)
+            })
+      });
+
+      it('should sign cookie with secret from function', function (done) {
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
+        }}, function (req, res) {
+          req.session.user = 'bob';
+          res.end(req.session.user);
+        });
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'bob', done);
+      });
+
+      it('should sign cookies with different session ids', function (done) {
+        var server = createServer({ secret: function() {
+          return rotatingSecretKey;
+        } }, function (req, res) {
+          req.session.user = 'bob';
+          res.end(req.session.user);
+        });
+
+        request(server)
+        .get('/test1')
+        .expect(shouldSetCookie('connect.sid'))
+            .expect(200, 'bob', function (err, test1Res) {
+              if (err) {
+                return done(err);
+              }
+
+              rotateKey(); // Rotate the key so we generate a session id with a new signature.
+              request(server)
+                  .get('/test2')
+                  .set('Cookie', cookie(test1Res))
+                  .expect(shouldSetCookie('connect.sid'))
+                  .expect(200, 'bob', function (err, test2Res) {
+                    if (err) {
+                      return done(err);
+                    }
+                    var test1Sid = sid(test1Res);
+                    var test2Sid = sid(test2Res);
+                    assert.ok(test1Sid !== test2Sid, 'session ids should not be equal for different secrets');
+                    done();
+                  });
+            });
+      });
+
+      it('shouldn\'t sign when function doesn\'t return string', function (done) {
+        var server = createServer({ secret: function() {
+          return {};
+        }}, function (req, res) {
+          req.session.user = 'bob';
+          res.end(req.session.user);
+        });
+
+        request(server)
+            .get('/')
+            .expect(shouldNotHaveHeader('cookie'))
+            .expect(500, /secret must be a string/, done);
+      });
+
+      it('should sign cookies with first element', function (done) {
+        var store = new session.MemoryStore();
+
+        var server1 = createServer({ secret: function() { return [ rotatingSecretKey, 'keyboard cat' ] }, store: store }, function (req, res) {
+          req.session.user = 'bob';
+          res.end(req.session.user);
+        });
+
+        var server2 = createServer({ secret: 'keyboard cat', store: store }, function (req, res) {
+          res.end(String(req.session.user));
+        });
+
+        request(server1)
+            .get('/')
+            .expect(shouldSetCookie('connect.sid'))
+            .expect(200, 'bob', function (err, res) {
+              if (err) return done(err);
+              request(server2)
+                  .get('/')
+                  .set('Cookie', cookie(res))
+                  .expect(200, 'undefined', done);
+            });
+      });
+
+      it('should read cookies using all elements', function (done) {
+        var store = new session.MemoryStore();
+
+        var server1 = createServer({ secret: 'nyan cat', store: store }, function (req, res) {
+          req.session.user = 'bob';
+          res.end(req.session.user);
+        });
+
+        var server2 = createServer({ secret: function() { return [ rotatingSecretKey, 'nyan cat' ] }, store: store }, function (req, res) {
+          res.end(String(req.session.user));
+        });
+
+        request(server1)
+            .get('/')
+            .expect(shouldSetCookie('connect.sid'))
+            .expect(200, 'bob', function (err, res) {
+              if (err) return done(err);
+              request(server2)
+                  .get('/')
+                  .set('Cookie', cookie(res))
+                  .expect(200, 'bob', done);
+            });
+      });
+    });
+  });
 
   describe('unset option', function () {
     it('should reject unknown values', function(){
