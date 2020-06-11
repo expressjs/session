@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * deps: cookie@0.4.1
   * deps: safe-buffer@5.2.1
 
 1.17.1 / 2020-04-16
