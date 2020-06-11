@@ -391,11 +391,14 @@ function session(options) {
         _reload.call(this, rewrapmethods(this, callback))
       }
 
-      function save() {
+      function save(cb) {
         debug('saving %s', this.id);
         savedHash = hash(this);
-        _save.apply(this, arguments);
-        debug('session saved');
+        _save.call(this, function(err) {
+          if(!err)
+            debug('session saved');
+          cb(err);
+        });
       }
 
       Object.defineProperty(sess, 'reload', {
