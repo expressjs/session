@@ -759,6 +759,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [nedb-session-store-url]: https://www.npmjs.com/package/nedb-session-store
 [nedb-session-store-image]: https://badgen.net/github/stars/JamesMGreene/nedb-session-store?label=%E2%98%85
 
+[![★][@quixo3/prisma-session-store-image] @quixo3/prisma-session-store][@quixo3/prisma-session-store-url] A session store for the [Prisma Framework](https://www.prisma.io).
+
+[@quixo3/prisma-session-store-url]: https://www.npmjs.com/package/@quixo3/prisma-session-store
+[@quixo3/prisma-session-store-image]: https://badgen.net/github/stars/kleydon/prisma-session-store?label=%E2%98%85
+
 [![★][restsession-image] restsession][restsession-url] Store sessions utilizing a RESTful API
 
 [restsession-url]: https://www.npmjs.com/package/restsession
