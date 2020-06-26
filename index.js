@@ -73,6 +73,7 @@ var defer = typeof setImmediate === 'function'
  * @param {Object} [options.cookie] Options for cookie
  * @param {Function} [options.genid]
  * @param {String} [options.name=connect.sid] Session ID cookie name
+ * @param {Boolean} [options.useHeader] Use HTTP header in place of cookie
  * @param {Boolean} [options.proxy]
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
@@ -95,6 +96,8 @@ function session(options) {
 
   // get the session cookie name
   var name = opts.name || opts.key || 'connect.sid'
+
+  var useHeader = opts.useHeader || false
 
   // get the session store
   var store = opts.store || new MemoryStore()
@@ -216,6 +219,28 @@ function session(options) {
     // get the session ID from the cookie
     var cookieId = req.sessionID = getcookie(req, name, secrets);
 
+    if (useHeader && req.headers[name]) {
+      var extraHeader = cookie.parse(req.headers[name]);
+      var val;
+      var raw = extraHeader[name];
+
+      if (raw) {
+        if (raw.substr(0, 2) === 's:') {
+          val = unsigncookie(raw.slice(2), secrets);
+
+          if (val === false) {
+            debug('header signature invalid');
+            val = undefined;
+          }
+        } else {
+          debug('header unsigned')
+        }
+      }
+      if (val) {
+        cookieId = req.sessionID = val
+      }
+    }
+
     // set-cookie
     onHeaders(res, function(){
       if (!req.session) {
@@ -240,7 +265,7 @@ function session(options) {
       }
 
       // set cookie
-      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
+      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data, useHeader);
     });
 
     // proxy end() to commit the session
@@ -648,7 +673,7 @@ function issecure(req, trustProxy) {
  * @private
  */
 
-function setcookie(res, name, val, secret, options) {
+function setcookie(res, name, val, secret, options, useHeader) {
   var signed = 's:' + signature.sign(val, secret);
   var data = cookie.serialize(name, signed, options);
 
@@ -658,6 +683,9 @@ function setcookie(res, name, val, secret, options) {
   var header = Array.isArray(prev) ? prev.concat(data) : [prev, data];
 
   res.setHeader('Set-Cookie', header)
+  if (useHeader) {
+    res.setHeader(name, data)
+  }
 }
 
 /**
