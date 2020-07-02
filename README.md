@@ -14,6 +14,10 @@ This is a [Node.js](https://nodejs.org/en/) module available through the
 ```sh
 $ npm install express-session
 ```
+Alternatively, If you use yarn:
+```sh
+$ yarn add express-session
+```
 
 ## API
 
