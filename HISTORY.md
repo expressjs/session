@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Fix `res.end` patch to always commit headers
   * deps: cookie@0.4.1
   * deps: safe-buffer@5.2.1
 

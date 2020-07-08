@@ -272,6 +272,10 @@ function session(options) {
           return ret;
         }
 
+        if (!res._header) {
+          res._implicitHeader()
+        }
+
         if (chunk == null) {
           ret = true;
           return ret;

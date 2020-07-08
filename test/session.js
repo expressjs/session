@@ -1449,6 +1449,42 @@ describe('session()', function(){
       .get('/')
       .expect(200, 'hello, world', done)
     })
+
+    it('should error when res.end is called twice', function (done) {
+      var error1 = null
+      var error2 = null
+      var server = http.createServer(function (req, res) {
+        res.end()
+
+        try {
+          res.setHeader('Content-Length', '3')
+          res.end('foo')
+        } catch (e) {
+          error1 = e
+        }
+      })
+
+      function respond (req, res) {
+        res.end()
+
+        try {
+          res.setHeader('Content-Length', '3')
+          res.end('foo')
+        } catch (e) {
+          error2 = e
+        }
+      }
+
+      request(server)
+        .get('/')
+        .end(function (err, res) {
+          if (err) return done(err)
+          request(createServer(null, respond))
+            .get('/')
+            .expect(function () { assert.strictEqual((error1 && error1.message), (error2 && error2.message)) })
+            .expect(res.statusCode, res.text, done)
+        })
+    })
   })
 
   describe('req.session', function(){
