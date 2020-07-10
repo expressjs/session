@@ -396,7 +396,7 @@ function session(options) {
         savedHash = hash(this);
         _save.call(this, function (err) {
           if (err) {
-           return callback(err)
+            return callback(err)
           }
 
           debug('session saved')
