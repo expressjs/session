@@ -240,7 +240,7 @@ With this enabled, the session identifier cookie will expire in
 
 This is typically used in conjuction with short, non-session-length
 [`maxAge`](#cookiemaxage) values to provide a quick timeout of the session data
-with reduced potentional of it occurring during on going server interactions.
+with reduced potential of it occurring during on going server interactions.
 
 **Note** When this option is set to `true` but the `saveUninitialized` option is
 set to `false`, the cookie will not be set on a response with an uninitialized
