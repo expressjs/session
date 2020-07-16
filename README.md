@@ -57,6 +57,29 @@ Specifies the value for the `Domain` `Set-Cookie` attribute. By default, no doma
 is set, and most clients will consider the cookie to apply to only the current
 domain.
 
+**Note** when domain is set to a domain other than the server domain name to which the requst is sent 
+then the browser won't set the cookie, Because it will see it as a invalid domain.
+
+**Example** if the server is hosted in abc.com 
+
+```js
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { 
+      secure: true 
+      domain: xyz.com
+  }
+}))
+```
+then the cookie won't be set by the browser since the server domain(abc.com) is different from cookie.domain(xyz.com).
+by default cookie is stored at the browser in the server's domain name.
+
+> A cookie for a domain that does not include the server that set it should be rejected by the user agent.
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+
 ##### cookie.expires
 
 Specifies the `Date` object to be the value for the `Expires` `Set-Cookie` attribute.
