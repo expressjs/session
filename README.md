@@ -617,6 +617,11 @@ and other multi-core embedded devices).
 [connect-mongodb-session-url]: https://www.npmjs.com/package/connect-mongodb-session
 [connect-mongodb-session-image]: https://badgen.net/github/stars/mongodb-js/connect-mongodb-session?label=%E2%98%85
 
+[![★][connect-mssql-v2-image] connect-mssql-v2][connect-mssql-v2-url] A Microsoft SQL Server-based session store based on [connect-mssql](https://www.npmjs.com/package/connect-mssql).
+
+[connect-mssql-v2-url]: https://www.npmjs.com/package/connect-mssql-v2
+[connect-mssql-v2-image]: https://badgen.net/github/stars/jluboff/connect-mssql-v2?label=%E2%98%85
+
 [![★][connect-pg-simple-image] connect-pg-simple][connect-pg-simple-url] A PostgreSQL-based session store.
 
 [connect-pg-simple-url]: https://www.npmjs.com/package/connect-pg-simple
