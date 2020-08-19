@@ -6,7 +6,7 @@
  * MIT Licensed
  */
 
-'use strict';
+'use strict'
 
 /**
  * Module dependencies.
@@ -24,7 +24,7 @@ var util = require('util')
 /* istanbul ignore next */
 var defer = typeof setImmediate === 'function'
   ? setImmediate
-  : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
+  : function (fn) { process.nextTick(fn.bind.apply(fn, arguments)) }
 
 /**
  * Module exports.
@@ -37,7 +37,7 @@ module.exports = MemoryStore
  * @public
  */
 
-function MemoryStore() {
+function MemoryStore () {
   Store.call(this)
   this.sessions = Object.create(null)
 }
@@ -55,7 +55,7 @@ util.inherits(MemoryStore, Store)
  * @public
  */
 
-MemoryStore.prototype.all = function all(callback) {
+MemoryStore.prototype.all = function all (callback) {
   var sessionIds = Object.keys(this.sessions)
   var sessions = Object.create(null)
 
@@ -64,7 +64,7 @@ MemoryStore.prototype.all = function all(callback) {
     var session = getSession.call(this, sessionId)
 
     if (session) {
-      sessions[sessionId] = session;
+      sessions[sessionId] = session
     }
   }
 
@@ -78,7 +78,7 @@ MemoryStore.prototype.all = function all(callback) {
  * @public
  */
 
-MemoryStore.prototype.clear = function clear(callback) {
+MemoryStore.prototype.clear = function clear (callback) {
   this.sessions = Object.create(null)
   callback && defer(callback)
 }
@@ -90,7 +90,7 @@ MemoryStore.prototype.clear = function clear(callback) {
  * @public
  */
 
-MemoryStore.prototype.destroy = function destroy(sessionId, callback) {
+MemoryStore.prototype.destroy = function destroy (sessionId, callback) {
   delete this.sessions[sessionId]
   callback && defer(callback)
 }
@@ -103,7 +103,7 @@ MemoryStore.prototype.destroy = function destroy(sessionId, callback) {
  * @public
  */
 
-MemoryStore.prototype.get = function get(sessionId, callback) {
+MemoryStore.prototype.get = function get (sessionId, callback) {
   defer(callback, null, getSession.call(this, sessionId))
 }
 
@@ -116,7 +116,7 @@ MemoryStore.prototype.get = function get(sessionId, callback) {
  * @public
  */
 
-MemoryStore.prototype.set = function set(sessionId, session, callback) {
+MemoryStore.prototype.set = function set (sessionId, session, callback) {
   this.sessions[sessionId] = JSON.stringify(session)
   callback && defer(callback)
 }
@@ -128,7 +128,7 @@ MemoryStore.prototype.set = function set(sessionId, session, callback) {
  * @public
  */
 
-MemoryStore.prototype.length = function length(callback) {
+MemoryStore.prototype.length = function length (callback) {
   this.all(function (err, sessions) {
     if (err) return callback(err)
     callback(null, Object.keys(sessions).length)
@@ -144,7 +144,7 @@ MemoryStore.prototype.length = function length(callback) {
  * @public
  */
 
-MemoryStore.prototype.touch = function touch(sessionId, session, callback) {
+MemoryStore.prototype.touch = function touch (sessionId, session, callback) {
   var currentSession = getSession.call(this, sessionId)
 
   if (currentSession) {
@@ -161,7 +161,7 @@ MemoryStore.prototype.touch = function touch(sessionId, session, callback) {
  * @private
  */
 
-function getSession(sessionId) {
+function getSession (sessionId) {
   var sess = this.sessions[sessionId]
 
   if (!sess) {

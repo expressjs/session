@@ -1,4 +1,5 @@
 root: true
+extends: standard
 rules:
   eol-last: error
   eqeqeq: ["error", "always", { "null": "ignore" }]
