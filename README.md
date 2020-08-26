@@ -110,6 +110,10 @@ More information about the different enforcement levels can be found in
 **Note** This is an attribute that has not yet been fully standardized, and may change in
 the future. This also means many clients may ignore this attribute until they understand it.
 
+**Note** There is a [draft spec](https://tools.ietf.org/html/draft-west-cookie-incrementalism-01)
+that requires that the `Secure` attribute be set to `true` when the `SameSite` attribute has been
+set to `'none'`. Some web browsers or other clients may be adopting this specification.
+
 ##### cookie.secure
 
 Specifies the `boolean` value for the `Secure` `Set-Cookie` attribute. When truthy,
