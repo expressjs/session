@@ -110,6 +110,11 @@ More information about the different enforcement levels can be found in
 **Note** This is an attribute that has not yet been fully standardized, and may change in
 the future. This also means many clients may ignore this attribute until they understand it.
 
+**Note** As of August 2020, Chrome versions 80 and above require that the `Secure` attribute 
+be set to `true` when the `SameSite` attribute has been set to `None` in order for cross-site
+cookies to be sent and successfully set on the client side. See [here](https://www.chromium.org/updates/same-site)
+for updates by the Chromium team.
+
 ##### cookie.secure
 
 Specifies the `boolean` value for the `Secure` `Set-Cookie` attribute. When truthy,
