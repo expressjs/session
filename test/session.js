@@ -290,34 +290,21 @@ describe('session()', function(){
 
   describe('when response ended', function () {
     it('should have saved session', function (done) {
-      var saved = false
       var store = new session.MemoryStore()
       var server = createServer({ store: store }, function (req, res) {
         req.session.hit = true
         res.end('session saved')
       })
 
-      var _set = store.set
-      store.set = function set(sid, sess, callback) {
-        setTimeout(function () {
-          _set.call(store, sid, sess, function (err) {
-            saved = true
-            callback(err)
-          })
-        }, 200)
-      }
-
       request(server)
-      .get('/')
-      .expect(200, 'session saved', function (err) {
-        if (err) return done(err)
-        assert.ok(saved)
-        done()
-      })
+        .get('/')
+        .expect(200)
+        .expect(shouldSetSessionInStore(store, 200))
+        .expect('session saved')
+        .end(done)
     })
 
     it('should have saved session even with empty response', function (done) {
-      var saved = false
       var store = new session.MemoryStore()
       var server = createServer({ store: store }, function (req, res) {
         req.session.hit = true
@@ -325,27 +312,14 @@ describe('session()', function(){
         res.end()
       })
 
-      var _set = store.set
-      store.set = function set(sid, sess, callback) {
-        setTimeout(function () {
-          _set.call(store, sid, sess, function (err) {
-            saved = true
-            callback(err)
-          })
-        }, 200)
-      }
-
       request(server)
-      .get('/')
-      .expect(200, '', function (err) {
-        if (err) return done(err)
-        assert.ok(saved)
-        done()
-      })
+        .get('/')
+        .expect(200)
+        .expect(shouldSetSessionInStore(store, 200))
+        .end(done)
     })
 
     it('should have saved session even with multi-write', function (done) {
-      var saved = false
       var store = new session.MemoryStore()
       var server = createServer({ store: store }, function (req, res) {
         req.session.hit = true
@@ -354,27 +328,15 @@ describe('session()', function(){
         res.end('world')
       })
 
-      var _set = store.set
-      store.set = function set(sid, sess, callback) {
-        setTimeout(function () {
-          _set.call(store, sid, sess, function (err) {
-            saved = true
-            callback(err)
-          })
-        }, 200)
-      }
-
       request(server)
-      .get('/')
-      .expect(200, 'hello, world', function (err) {
-        if (err) return done(err)
-        assert.ok(saved)
-        done()
-      })
+        .get('/')
+        .expect(200)
+        .expect(shouldSetSessionInStore(store, 200))
+        .expect('hello, world')
+        .end(done)
     })
 
     it('should have saved session even with non-chunked response', function (done) {
-      var saved = false
       var store = new session.MemoryStore()
       var server = createServer({ store: store }, function (req, res) {
         req.session.hit = true
@@ -382,23 +344,12 @@ describe('session()', function(){
         res.end('session saved')
       })
 
-      var _set = store.set
-      store.set = function set(sid, sess, callback) {
-        setTimeout(function () {
-          _set.call(store, sid, sess, function (err) {
-            saved = true
-            callback(err)
-          })
-        }, 200)
-      }
-
       request(server)
-      .get('/')
-      .expect(200, 'session saved', function (err) {
-        if (err) return done(err)
-        assert.ok(saved)
-        done()
-      })
+        .get('/')
+        .expect(200)
+        .expect(shouldSetSessionInStore(store, 200))
+        .expect('session saved')
+        .end(done)
     })
 
     it('should have saved session with updated cookie expiration', function (done) {
@@ -2485,13 +2436,25 @@ function shouldSetCookieWithoutAttribute (name, attrib) {
   }
 }
 
-function shouldSetSessionInStore(store) {
+function shouldSetSessionInStore (store, delay) {
   var _set = store.set
   var count = 0
 
   store.set = function set () {
     count++
-    return _set.apply(this, arguments)
+
+    if (!delay) {
+      return _set.apply(this, arguments)
+    }
+
+    var args = new Array(arguments.length + 1)
+
+    args[0] = this
+    for (var i = 1; i < args.length; i++) {
+      args[i] = arguments[i - 1]
+    }
+
+    setTimeout(_set.bind.apply(_set, args), delay)
   }
 
   return function () {
