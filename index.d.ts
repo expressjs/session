@@ -14,7 +14,7 @@ declare global {
        *
        * @see SessionData
        */
-      session: session.Session;
+      session: session.Session | session.InitializedSession;
 
       /**
        * This request's session ID.
@@ -30,10 +30,13 @@ export = session;
 declare function session(options?: session.SessionOptions): express.RequestHandler;
 
 declare namespace session {
+  type InitializedSession = Session & SessionData;
+
   interface SessionOptions {
     /**
      * This is the secret used to sign the session cookie. This can be either a string for a single secret, or an array of multiple secrets.
-     * If an array of secrets is provided, **only the first element will be used to sign** the session ID cookie, while **all the elements will be considered when verifying the signature** in requests.
+     * If an array of secrets is provided, **only the first element will be used to sign** the session ID cookie,
+     *   while **all the elements will be considered when verifying the signature** in requests.
      * The secret itself should be not easily parsed by a human and would best be a random set of characters
      *
      * Best practices may include:
@@ -43,7 +46,8 @@ declare namespace session {
      * Using a secret that cannot be guessed will reduce the ability to hijack a session to only guessing the session ID (as determined by the `genid` option).
      *
      * Changing the secret value will invalidate all existing sessions.
-     * In order to rotate the secret without invalidating sessions, provide an array of secrets, with the new secret as first element of the array, and including previous secrets as the later elements.
+     * In order to rotate the secret without invalidating sessions, provide an array of secrets,
+     *   with the new secret as first element of the array, and including previous secrets as the later elements.
      */
     secret: string | string[];
 
@@ -60,7 +64,8 @@ declare namespace session {
      * The name of the session ID cookie to set in the response (and read from in the request).
      * The default value is 'connect.sid'.
      *
-     * Note if you have multiple apps running on the same hostname (this is just the name, i.e. `localhost` or `127.0.0.1`; different schemes and ports do not name a different hostname), then you need to separate the session cookies from each other.
+     * Note if you have multiple apps running on the same hostname (this is just the name, i.e. `localhost` or `127.0.0.1`; different schemes and ports do not name a different hostname),
+     *   then you need to separate the session cookies from each other.
      * The simplest method is to simply set different names per app.
      */
     name?: string;
@@ -82,7 +87,8 @@ declare namespace session {
      * The default value is `false`.
      *
      * With this enabled, the session identifier cookie will expire in `maxAge` *since the last response was sent* instead of in `maxAge` *since the session was last modified by the server*.
-     * This is typically used in conjuction with short, non-session-length `maxAge` values to provide a quick timeout of the session data with reduced potential of it occurring during on going server interactions.
+     * This is typically used in conjuction with short, non-session-length `maxAge` values to provide a quick timeout of the session data
+     *   with reduced potential of it occurring during on going server interactions.
      *
      * Note that when this option is set to `true` but the `saveUninitialized` option is set to `false`, the cookie will not be set on a response with an uninitialized session.
      * This option only modifies the behavior when an existing session was loaded for the request.
@@ -93,13 +99,15 @@ declare namespace session {
 
     /**
      * Forces the session to be saved back to the session store, even if the session was never modified during the request.
-     * Depending on your store this may be necessary, but it can also create race conditions where a client makes two parallel requests to your server and changes made to the session in one request may get overwritten when the other request ends, even if it made no changes (this behavior also depends on what store you're using).
+     * Depending on your store this may be necessary, but it can also create race conditions where a client makes two parallel requests to your server
+     *   and changes made to the session in one request may get overwritten when the other request ends, even if it made no changes (this behavior also depends on what store you're using).
      *
      * The default value is `true`, but using the default has been deprecated, as the default will change in the future.
      * Please research into this setting and choose what is appropriate to your use-case. Typically, you'll want `false`.
      *
      * How do I know if this is necessary for my store? The best way to know is to check with your store if it implements the `touch` method.
-     * If it does, then you can safely set `resave: false`. If it does not implement the touch method and your store sets an expiration date on stored sessions, then you likely need `resave: true`.
+     * If it does, then you can safely set `resave: false`.
+     * If it does not implement the `touch` method and your store sets an expiration date on stored sessions, then you likely need `resave: true`.
      */
     resave?: boolean;
 
@@ -121,8 +129,9 @@ declare namespace session {
      * The default value is `true`, but using the default has been deprecated, as the default will change in the future.
      * Please research into this setting and choose what is appropriate to your use-case.
      *
-     * Note if you are using `express-session` in conjunction with PassportJS, Passport will add an empty Passport object to the session for use after a user is authenticated, which will be treated as a modification to the session, causing it to be saved.
-     * This has been fixed in PassportJS 0.3.0
+     * **If you are using `express-session` in conjunction with PassportJS:**
+     * Passport will add an empty Passport object to the session for use after a user is authenticated, which will be treated as a modification to the session, causing it to be saved.
+     * This has been fixed in PassportJS 0.3.0.
      */
     saveUninitialized?: boolean;
 
@@ -135,7 +144,9 @@ declare namespace session {
     unset?: 'destroy' | 'keep';
   }
 
-  interface Session extends SessionData {
+  class Session {
+    private constructor(request: Express.Request, data: SessionData);
+
     /**
      * Each session has a unique ID associated with it.
      * This property is an alias of `req.sessionID` and cannot be modified.
@@ -151,25 +162,33 @@ declare namespace session {
     cookie: Cookie;
 
     /** To regenerate the session simply invoke the method. Once complete, a new SID and `Session` instance will be initialized at `req.session` and the `callback` will be invoked. */
-    regenerate(callback: (err: any) => void): Session;
+    regenerate(callback: (err: any) => void): this;
 
     /** Destroys the session and will unset the `req.session` property. Once complete, the `callback` will be invoked. */
-    destroy(callback: (err: any) => void): Session;
+    destroy(callback: (err: any) => void): this;
 
     /** Reloads the session data from the store and re-populates the `req.session` object. Once complete, the `callback` will be invoked. */
-    reload(callback: (err: any) => void): Session;
+    reload(callback: (err: any) => void): this;
 
     /**
-     * Save the session back to the store, replacing the contents on the store with the contents in memory (though a store may do something else - consult the store's documentation for exact behavior).
+     * Resets the cookie's `maxAge` to `originalMaxAge`
+     * @see Cookie
+     */
+    resetMaxAge(): this;
+
+    /**
+     * Save the session back to the store, replacing the contents on the store with the contents in memory
+     *   (though a store may do something else - consult the store's documentation for exact behavior).
      *
-     * This method is automatically called at the end of the HTTP response if the session data has been altered (though this behavior can be altered with various options in the middleware constructor).
+     * This method is automatically called at the end of the HTTP response if the session data has been altered
+     *   (though this behavior can be altered with various options in the middleware constructor).
      * Because of this, typically this method does not need to be called.
      * There are some cases where it is useful to call this method, for example: redirects, long-lived requests or in WebSockets.
      */
-    save(callback?: (err: any) => void): Session;
+    save(callback?: (err: any) => void): this;
 
     /** Updates the `maxAge` property. Typically this is not necessary to call, as the session middleware does this for you. */
-    touch(): Session;
+    touch(): this;
   }
 
   /**
@@ -199,9 +218,6 @@ declare namespace session {
      */
     maxAge?: number;
 
-    /**
-     *
-     */
     signed?: boolean;
 
     /**
@@ -253,9 +269,6 @@ declare namespace session {
      */
     secure?: boolean | 'auto';
 
-    /**
-     *
-     */
     encode?: (val: string) => string;
 
     /**
@@ -289,13 +302,8 @@ declare namespace session {
   }
 
   abstract class Store extends EventEmitter {
-    /**  */
     regenerate(req: express.Request, callback: (err?: any) => any): void;
-
-    /**  */
     load(sid: string, callback: (err: any, session?: SessionData) => any): void;
-
-    /**  */
     createSession(req: express.Request, session: SessionData): void;
 
     /**
@@ -329,8 +337,6 @@ declare namespace session {
   /**
    * **Warning:** the default server-side session storage, `MemoryStore`, is purposely not designed for a production environment.
    * It will leak memory under most conditions, does not scale past a single process, and is only meant for debugging and developing.
-   *
-   * @deprecated
    */
   class MemoryStore extends Store {
     get(sid: string, callback: (err: any, session?: SessionData | null) => void): void;
