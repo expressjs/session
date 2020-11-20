@@ -519,6 +519,11 @@ module. Please make a PR to add additional modules :)
 [aerospike-session-store-url]: https://www.npmjs.com/package/aerospike-session-store
 [aerospike-session-store-image]: https://badgen.net/github/stars/aerospike/aerospike-session-store-expressjs?label=%E2%98%85
 
+[![★][better-sqlite3-session-store-image] better-sqlite3-session-store][better-sqlite3-session-store-url] A session store based on [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3).
+
+[better-sqlite3-session-store-url]: https://www.npmjs.com/package/better-sqlite3-session-store
+[better-sqlite3-session-store-image]: https://badgen.net/github/stars/timdaub/better-sqlite3-session-store?label=%E2%98%85
+
 [![★][cassandra-store-image] cassandra-store][cassandra-store-url] An Apache Cassandra-based session store.
 
 [cassandra-store-url]: https://www.npmjs.com/package/cassandra-store
