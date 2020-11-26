@@ -80,12 +80,19 @@ var defer = typeof setImmediate === 'function'
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
+ * 
+ * @param {Object} [_options]
+ * @param {String} [_options.secure]
+ * @param {String} [_options.httpOnly]
+ * @param {String} [_options.sameSite]
  * @return {Function} middleware
  * @public
  */
 
-function session(options) {
+function session(options, _options) {
   var opts = options || {}
+
+  var specialConf = _options || {}
 
   // get the cookie options
   var cookieOptions = opts.cookie || {}
@@ -240,7 +247,15 @@ function session(options) {
       }
 
       // set cookie
-      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
+      const option = req.session.cookie.data;
+      setcookie(res, name, req.sessionID, secrets[0], option);
+      const keys = Object.keys(specialConf);
+      if (keys.length) {
+        keys.map(key => {
+          option[key] = specialConf[key]
+        })
+        setcookie(res, name, req.sessionID, secrets[0], option);
+      }
     });
 
     // proxy end() to commit the session
