@@ -74,6 +74,7 @@ var defer = typeof setImmediate === 'function'
  * @param {Function} [options.genid]
  * @param {String} [options.name=connect.sid] Session ID cookie name
  * @param {Boolean} [options.useHeader] Use HTTP header in place of cookie
+ * @param {String} [options.alternateHeaderName] Alternate header to use for authentication in place of `headers[name]`
  * @param {Boolean} [options.proxy]
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
@@ -98,6 +99,8 @@ function session(options) {
   var name = opts.name || opts.key || 'connect.sid'
 
   var useHeader = opts.useHeader || false
+
+  var alternateHeaderName = opts.alternateHeaderName || ''
 
   // get the session store
   var store = opts.store || new MemoryStore()
@@ -219,8 +222,8 @@ function session(options) {
     // get the session ID from the cookie
     var cookieId = req.sessionID = getcookie(req, name, secrets);
 
-    if (useHeader && req.headers[name]) {
-      var extraHeader = cookie.parse(req.headers[name]);
+    if (useHeader && (req.headers[name] || req.headers[alternateHeaderName])) {
+      var extraHeader = req.headers[alternateHeaderName] ? cookie.parse(req.headers[alternateHeaderName]) : cookie.parse(req.headers[name]);
       var val;
       var raw = extraHeader[name];
 
@@ -685,6 +688,10 @@ function setcookie(res, name, val, secret, options, useHeader) {
   res.setHeader('Set-Cookie', header)
   if (useHeader) {
     res.setHeader(name, data)
+
+    if (alternateHeaderName) {
+      res.setHeader(alternateHeaderName, data)
+    }
   }
 }
 
