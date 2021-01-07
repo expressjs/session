@@ -268,7 +268,7 @@ function session(options) {
       }
 
       // set cookie
-      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data, useHeader);
+      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data, useHeader, alternateHeaderName);
     });
 
     // proxy end() to commit the session
@@ -676,7 +676,7 @@ function issecure(req, trustProxy) {
  * @private
  */
 
-function setcookie(res, name, val, secret, options, useHeader) {
+function setcookie(res, name, val, secret, options, useHeader, alternateHeaderName) {
   var signed = 's:' + signature.sign(val, secret);
   var data = cookie.serialize(name, signed, options);
 
