@@ -18,7 +18,7 @@ $ npm install express-session
 ## API
 
 ```js
-var session = require('express-session')
+const session = require('express-session')
 ```
 
 ### session(options)
@@ -127,7 +127,7 @@ have your node.js behind a proxy and are using `secure: true`, you need to set
 "trust proxy" in express:
 
 ```js
-var app = express()
+const app = express()
 app.set('trust proxy', 1) // trust first proxy
 app.use(session({
   secret: 'keyboard cat',
@@ -141,8 +141,8 @@ For using secure cookies in production, but allowing for testing in development,
 the following is an example of enabling this setup based on `NODE_ENV` in express:
 
 ```js
-var app = express()
-var sess = {
+const app = express()
+const sess = {
   secret: 'keyboard cat',
   cookie: {}
 }
@@ -410,7 +410,7 @@ to adjust the `.expires` property appropriately. The following
 are essentially equivalent
 
 ```js
-var hour = 3600000
+const hour = 3600000
 req.session.cookie.expires = new Date(Date.now() + hour)
 req.session.cookie.maxAge = hour
 ```
@@ -809,11 +809,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 A simple example using `express-session` to store page views for a user.
 
 ```js
-var express = require('express')
-var parseurl = require('parseurl')
-var session = require('express-session')
+const express = require('express')
+const parseurl = require('parseurl')
+const session = require('express-session')
 
-var app = express()
+const app = express()
 
 app.use(session({
   secret: 'keyboard cat',
@@ -827,7 +827,7 @@ app.use(function (req, res, next) {
   }
 
   // get the url pathname
-  var pathname = parseurl(req).pathname
+  let pathname = parseurl(req).pathname
 
   // count the views
   req.session.views[pathname] = (req.session.views[pathname] || 0) + 1
