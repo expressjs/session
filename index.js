@@ -162,6 +162,11 @@ function session(options) {
 
     if (cookieOptions.secure === 'auto') {
       req.session.cookie.secure = issecure(req, trustProxy);
+      // if sameSite is set to "none", secure is required,
+      // but auto can set secure to false, therefor remove sameSite attribute in this case
+      if (req.session.cookie.sameSite === 'none' && !req.session.cookie.secure) {
+        delete req.session.cookie.sameSite;
+      }
     }
   };
 
