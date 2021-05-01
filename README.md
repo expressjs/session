@@ -799,6 +799,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [session-rethinkdb-url]: https://www.npmjs.com/package/session-rethinkdb
 [session-rethinkdb-image]: https://badgen.net/github/stars/llambda/session-rethinkdb?label=%E2%98%85
 
+[![★][@databunker/session-store-image] @databunker/session-store][@databunker/session-store-url] A [Databunker](https://databunker.org/)-based encrypted session store.
+
+[@databunker/session-store-url]: https://www.npmjs.com/package/@databunker/session-store
+[@databunker/session-store-image]: https://badgen.net/github/stars/securitybunker/databunker-session-store?label=%E2%98%85
+
 [![★][sessionstore-image] sessionstore][sessionstore-url] A session store that works with various databases.
 
 [sessionstore-url]: https://www.npmjs.com/package/sessionstore
