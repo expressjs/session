@@ -41,8 +41,8 @@
   "scripts": {
     "lint": "eslint --plugin markdown --ext js,md . && node ./scripts/lint-readme.js",
     "test": "mocha --require test/support/env --check-leaks --bail --no-exit --reporter spec test/",
+    "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc npm test",
-    "test-travis": "nyc npm test -- --no-exit",
     "version": "node scripts/version-history.js && git add HISTORY.md"
   }
 }
