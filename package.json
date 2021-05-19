@@ -23,7 +23,7 @@
     "after": "0.8.2",
     "cookie-parser": "1.4.5",
     "eslint": "7.26.0",
-    "eslint-plugin-markdown": "1.0.2",
+    "eslint-plugin-markdown": "2.1.0",
     "express": "4.17.1",
     "mocha": "8.4.0",
     "nyc": "15.1.0",
@@ -39,7 +39,7 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
-    "lint": "eslint --plugin markdown --ext js,md . && node ./scripts/lint-readme.js",
+    "lint": "eslint . && node ./scripts/lint-readme.js",
     "test": "mocha --require test/support/env --check-leaks --bail --no-exit --reporter spec test/",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc npm test",
