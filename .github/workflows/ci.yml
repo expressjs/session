@@ -99,7 +99,7 @@ jobs:
           node-version: "15.14"
 
         - name: Node.js 16.x
-          node-version: "16.1"
+          node-version: "16.2"
 
     steps:
     - uses: actions/checkout@v2
