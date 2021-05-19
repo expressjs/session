@@ -622,8 +622,8 @@ describe('session()', function(){
       before(function () {
         function setup (req) {
           req.secure = req.headers['x-secure']
-              ? JSON.parse(req.headers['x-secure'])
-              : undefined
+            ? JSON.parse(req.headers['x-secure'])
+            : undefined
         }
 
         function respond (req, res) {
@@ -655,8 +655,8 @@ describe('session()', function(){
       before(function () {
         function setup (req) {
           req.secure = req.headers['x-secure']
-              ? JSON.parse(req.headers['x-secure'])
-              : undefined
+            ? JSON.parse(req.headers['x-secure'])
+            : undefined
         }
 
         function respond (req, res) {
