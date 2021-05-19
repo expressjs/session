@@ -2271,6 +2271,8 @@ describe('session()', function(){
   })
 })
 
+
+
 function cookie(res) {
   var setCookie = res.headers['set-cookie'];
   return (setCookie && setCookie[0]) || undefined;
