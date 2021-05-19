@@ -1,5 +1,5 @@
-unreleased
-==========
+1.17.2 / 2021-05-19
+===================
 
   * Fix `res.end` patch to always commit headers
   * deps: cookie@0.4.1
