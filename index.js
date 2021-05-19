@@ -114,8 +114,15 @@ function session(options) {
   // get the cookie signing secret
   var secret = opts.secret
 
+  // get a function for computing the domain from the request
+  var getDomainFromRequest = opts.getDomainFromRequest
+
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
+  }
+
+  if (getDomainFromRequest !== undefined && typeof getDomainFromRequest !== 'function') {
+    throw new TypeError('getDomainFromRequest option must be a function');
   }
 
   if (resaveSession === undefined) {
@@ -159,6 +166,12 @@ function session(options) {
     req.sessionID = generateId(req);
     req.session = new Session(req);
     req.session.cookie = new Cookie(cookieOptions);
+
+    if (getDomainFromRequest) {
+      // If a function was specified for computing the domain
+      // from the request, then use it now.
+      req.session.cookie.domain = getDomainFromRequest(req);
+    }
 
     if (cookieOptions.secure === 'auto') {
       req.session.cookie.secure = issecure(req, trustProxy);
