@@ -69,7 +69,7 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
  */
 
 defineMethod(Session.prototype, 'save', function save(fn) {
-  this.req.sessionStore.set(this.id, this, fn || function(){});
+  this.req.sessionStore.setPromise = this.req.sessionStore.set(this.id, this, fn || function(){});
   return this;
 });
 
