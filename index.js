@@ -457,7 +457,7 @@ function session(options) {
         return false;
       }
 
-      return cookieId === req.sessionID && !shouldSave(req);
+      return cookieId === req.sessionID;
     }
 
     // determine if cookie should be set on response
