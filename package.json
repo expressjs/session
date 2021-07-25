@@ -23,7 +23,7 @@
     "after": "0.8.2",
     "cookie-parser": "1.4.5",
     "eslint": "7.26.0",
-    "eslint-plugin-markdown": "2.1.0",
+    "eslint-plugin-markdown": "2.2.0",
     "express": "4.17.1",
     "mocha": "8.4.0",
     "nyc": "15.1.0",
