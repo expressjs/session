@@ -223,7 +223,16 @@ function session(options) {
         return;
       }
 
-      if (!shouldSetCookie(req)) {
+      if (typeof req.sessionID !== 'string') {
+        debug('session ignored because of bogus req.sessionID %o', req.sessionID);
+        return false;
+      }
+
+      function getHash() {
+        return hash(req.session);
+      }
+
+      if (!shouldSetCookie(req, getHash)) {
         return;
       }
 
@@ -325,13 +334,25 @@ function session(options) {
         return _end.call(res, chunk, encoding);
       }
 
+      // cannot set cookie without a session ID
+      if (typeof req.sessionID !== 'string') {
+        debug('session ignored because of bogus req.sessionID %o', req.sessionID);
+        return _end.call(res, chunk, encoding);
+      }
+
       if (!touched) {
         // touch session
         req.session.touch()
         touched = true
       }
 
-      if (shouldSave(req)) {
+      // Instead of getting the hash multiple times, only call when needed, and then cache it
+      var hashCache;
+      function getHash() {
+        return hashCache ? hashCache : hash(req.session);
+      }
+
+      if (shouldSave(req, getHash)) {
         req.session.save(function onsave(err) {
           if (err) {
             defer(next, err);
@@ -341,7 +362,7 @@ function session(options) {
         });
 
         return writetop();
-      } else if (storeImplementsTouch && shouldTouch(req)) {
+      } else if (storeImplementsTouch && shouldTouch(req, getHash)) {
         // store implements touch method
         debug('touching');
         store.touch(req.sessionID, req.session, function ontouch(err) {
@@ -422,13 +443,13 @@ function session(options) {
     }
 
     // check if session has been modified
-    function isModified(sess) {
-      return originalId !== sess.id || originalHash !== hash(sess);
+    function isModified(sess, getHash) {
+      return originalId !== sess.id || originalHash !== getHash();
     }
 
     // check if session has been saved
-    function isSaved(sess) {
-      return originalId === sess.id && savedHash === hash(sess);
+    function isSaved(sess, getHash) {
+      return originalId === sess.id && savedHash === getHash();
     }
 
     // determine if session should be destroyed
@@ -437,39 +458,22 @@ function session(options) {
     }
 
     // determine if session should be saved to store
-    function shouldSave(req) {
-      // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
-        debug('session ignored because of bogus req.sessionID %o', req.sessionID);
-        return false;
-      }
-
+    function shouldSave(req, getHash) {
       return !saveUninitializedSession && cookieId !== req.sessionID
-        ? isModified(req.session)
-        : !isSaved(req.session)
+        ? isModified(req.session, getHash)
+        : !isSaved(req.session, getHash)
     }
 
     // determine if session should be touched
-    function shouldTouch(req) {
-      // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
-        debug('session ignored because of bogus req.sessionID %o', req.sessionID);
-        return false;
-      }
-
-      return cookieId === req.sessionID && !shouldSave(req);
+    function shouldTouch(req, getHash) {
+      return cookieId === req.sessionID && !shouldSave(req, getHash);
     }
 
     // determine if cookie should be set on response
-    function shouldSetCookie(req) {
-      // cannot set cookie without a session ID
-      if (typeof req.sessionID !== 'string') {
-        return false;
-      }
-
+    function shouldSetCookie(req, getHash) {
       return cookieId !== req.sessionID
-        ? saveUninitializedSession || isModified(req.session)
-        : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
+        ? saveUninitializedSession || isModified(req.session, getHash)
+        : rollingSessions || req.session.cookie.expires != null && isModified(req.session, getHash);
     }
 
     // generate a session if the browser doesn't send a sessionID
