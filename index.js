@@ -70,6 +70,7 @@ var defer = typeof setImmediate === 'function'
  * Setup session store with the given `options`.
  *
  * @param {Object} [options]
+ * @param {Boolean} [options.checkTouchModified] Enable check preventing touch if session is unmodified
  * @param {Object} [options.cookie] Options for cookie
  * @param {Function} [options.genid]
  * @param {String} [options.name=connect.sid] Session ID cookie name
@@ -86,6 +87,9 @@ var defer = typeof setImmediate === 'function'
 
 function session(options) {
   var opts = options || {}
+
+  // get the touch modification checker option
+  var checkTouchModified = opts.checkTouchModified
 
   // get the cookie options
   var cookieOptions = opts.cookie || {}
@@ -207,6 +211,7 @@ function session(options) {
 
     var originalHash;
     var originalId;
+    var originalExpires;
     var savedHash;
     var touched = false
 
@@ -228,8 +233,10 @@ function session(options) {
         return false;
       }
 
+      // Instead of getting the hash multiple times, only call when needed, and then cache it
+      var hashCache;
       function getHash() {
-        return hash(req.session);
+        return hashCache ? hashCache : (hashCache = hash(req.session));
       }
 
       if (!shouldSetCookie(req, getHash)) {
@@ -242,7 +249,7 @@ function session(options) {
         return;
       }
 
-      if (!touched) {
+      if (!touched && !checkTouchModified) {
         // touch session
         req.session.touch()
         touched = true
@@ -340,7 +347,7 @@ function session(options) {
         return _end.call(res, chunk, encoding);
       }
 
-      if (!touched) {
+      if (!touched && !checkTouchModified) {
         // touch session
         req.session.touch()
         touched = true
@@ -349,7 +356,7 @@ function session(options) {
       // Instead of getting the hash multiple times, only call when needed, and then cache it
       var hashCache;
       function getHash() {
-        return hashCache ? hashCache : hash(req.session);
+        return hashCache ? hashCache : (hashCache = hash(req.session));
       }
 
       if (shouldSave(req, getHash)) {
@@ -385,6 +392,7 @@ function session(options) {
       store.generate(req);
       originalId = req.sessionID;
       originalHash = hash(req.session);
+      originalExpires = req.session.cookie.expires;
       wrapmethods(req.session);
     }
 
@@ -393,6 +401,7 @@ function session(options) {
       store.createSession(req, sess)
       originalId = req.sessionID
       originalHash = hash(sess)
+      originalExpires = req.session.cookie.expires
 
       if (!resaveSession) {
         savedHash = originalHash
@@ -466,7 +475,8 @@ function session(options) {
 
     // determine if session should be touched
     function shouldTouch(req, getHash) {
-      return cookieId === req.sessionID && !shouldSave(req, getHash);
+      return cookieId === req.sessionID && !shouldSave(req, getHash) &&
+        (!checkTouchModified || originalExpires !== req.session.cookie.expires || isModified(req.session, getHash));
     }
 
     // determine if cookie should be set on response

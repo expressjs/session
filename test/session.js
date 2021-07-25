@@ -1192,6 +1192,153 @@ describe('session()', function(){
     })
   });
 
+  describe('checkTouchModified option', function(){
+    describe('when false', function(){
+      it('should touch unmodified sessions', function(done){
+        var store = new session.MemoryStore()
+        var server = createServer({ checkTouchModified: false, store: store, resave: false }, function (req, res) {
+          req.session.user = 'bob';
+          res.end()
+        })
+
+        var touched = false
+        var _touch = store.touch;
+        store.touch = function touch(sid, sess, callback) {
+          touched = true;
+          _touch.call(store, sid, sess, callback);
+        }
+
+        assert.strictEqual(touched, false);
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err);
+
+          request(server)
+            .get('/')
+            .set('Cookie', cookie(res))
+            .expect(200, function (err, res) {
+              assert.strictEqual(touched, true);
+              done();
+            })
+        });
+      });
+    });
+
+    describe('when true', function(){
+      it('should not touch unmodified sessions', function(done){
+        var store = new session.MemoryStore()
+        var server = createServer({ checkTouchModified: true, store: store, resave: false }, function (req, res) {
+          if (!req.session.user) {
+            req.session.user = 'bob';
+          }
+          res.end()
+        })
+
+        var touched = false
+        var _touch = store.touch;
+        store.touch = function touch(sid, sess, callback) {
+          touched = true;
+          _touch.call(store, sid, sess, callback);
+        }
+
+        assert.strictEqual(touched, false);
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err);
+
+          setTimeout(function () {
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(200, function (err, res) {
+                assert.strictEqual(touched, false);
+                done();
+              })
+          }, 10);
+        });
+      });
+
+      it('should touch manually touched sessions', function(done){
+        var store = new session.MemoryStore()
+        var server = createServer({ checkTouchModified: true, store: store, resave: false }, function (req, res) {
+          if (!req.session.user) {
+            req.session.touch();
+          } else {
+            req.session.user = 'bob';
+          }
+          res.end()
+        })
+
+        var touched = false
+        var _touch = store.touch;
+        store.touch = function touch(sid, sess, callback) {
+          touched = true;
+          _touch.call(store, sid, sess, callback);
+        }
+
+        assert.strictEqual(touched, false);
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function(err, res){
+          if (err) return done(err);
+
+          setTimeout(function () {
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(200, function (err, res) {
+                assert.strictEqual(touched, true);
+                done();
+              })
+          }, 10);
+        });
+      });
+
+      it('should not touch modified sessions, but save them instead', function(done){
+        var store = new session.MemoryStore()
+        var server = createServer({ checkTouchModified: true, store: store, resave: false }, function (req, res) {
+          req.session.count = req.session.count || 0
+          req.session.count++
+          res.end('hits: ' + req.session.count)
+        })
+
+        var touched = false
+        var _touch = store.touch;
+        store.touch = function touch(sid, sess, callback) {
+          touched = true;
+          _touch.call(store, sid, sess, callback);
+        }
+
+        assert.strictEqual(touched, false);
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'hits: 1', function(err, res){
+          if (err) return done(err);
+
+          setTimeout(function () {
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(200, 'hits: 2', function (err, res) {
+                assert.strictEqual(touched, false);
+                done();
+              })
+          }, 10);
+        });
+      });
+    });
+  });
+
   describe('secret option', function () {
     it('should reject empty arrays', function () {
       assert.throws(createServer.bind(null, { secret: [] }), /secret option array/);
