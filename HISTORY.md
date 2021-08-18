@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Add debug log for pathname mismatch
   * Add `partitioned` to `cookie` options
   * Add `priority` to `cookie` options
   * Fix handling errors from setting cookie
