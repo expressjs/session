@@ -581,7 +581,7 @@ describe('session()', function(){
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
-          .expect(500, /Cannot read property/, done)
+          .expect(500, /Cannot read prop/, done)
         })
       })
     })
