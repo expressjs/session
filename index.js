@@ -444,6 +444,10 @@ function session(options) {
         return false;
       }
 
+      if (savedHash) {
+        return !isSaved(req.session);
+      }
+
       return !saveUninitializedSession && cookieId !== req.sessionID
         ? isModified(req.session)
         : !isSaved(req.session)
