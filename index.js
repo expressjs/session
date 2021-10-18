@@ -444,7 +444,7 @@ function session(options) {
         return false;
       }
 
-      return !saveUninitializedSession && cookieId !== req.sessionID
+      return !saveUninitializedSession && !savedHash && cookieId !== req.sessionID
         ? isModified(req.session)
         : !isSaved(req.session)
     }
