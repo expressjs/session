@@ -542,8 +542,8 @@ and other multi-core embedded devices).
 
 [![★][connect-arango-image] connect-arango][connect-arango-url] An ArangoDB-based session store.
 
-[connect-arango-url]: https://www.npmjs.com/package/connect-arango
-[connect-arango-image]: https://badgen.net/github/stars/AlexanderArvidsson/connect-arango?label=%E2%98%85
+[connect-arango-url]: https://github.com/ryanking1809/connect-arango
+[connect-arango-image]: https://badgen.net/github/stars/ryanking1809/connect-arango?label=%E2%98%85
 
 [![★][connect-azuretables-image] connect-azuretables][connect-azuretables-url] An [Azure Table Storage](https://azure.microsoft.com/en-gb/services/storage/tables/)-based session store.
 
