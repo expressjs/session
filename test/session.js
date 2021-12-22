@@ -610,6 +610,7 @@ describe('session()', function(){
         .expect(200, done)
       })
 
+      // TODO: Fix tests
       it('should work when no header', function(done){
         request(server)
         .get('/')

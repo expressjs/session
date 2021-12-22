@@ -621,6 +621,14 @@ function hash(sess) {
  */
 
 function issecure(req, trustProxy) {
+
+  // socket is localhost
+  if (req.connection.remoteAddress === '127.0.0.1' ||
+      req.connection.remoteAddress === '::ffff:127.0.0.1'
+  ) {
+    return true;
+  }
+
   // socket is https server
   if (req.connection && req.connection.encrypted) {
     return true;
