@@ -1,9 +1,14 @@
-# express-session
+# @etherpad/express-session
 
 [![NPM Version][npm-version-image]][npm-url]
 [![NPM Downloads][npm-downloads-image]][node-url]
 [![Build Status][ci-image]][ci-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
+
+This is a friendly fork of
+[express-session](https://github.com/expressjs/session). The purpose of this
+fork is to test out changes that will be submitted upstream, and to quickly get
+fixes and improvements into Etherpad.
 
 ## Installation
 
@@ -886,11 +891,11 @@ On Windows, use the corresponding command;
 [MIT](LICENSE)
 
 [rfc-6265bis-03-4.1.2.7]: https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
-[ci-image]: https://badgen.net/github/checks/expressjs/session/master?label=ci
-[ci-url]: https://github.com/expressjs/session/actions?query=workflow%3Aci
-[coveralls-image]: https://badgen.net/coveralls/c/github/expressjs/session/master
-[coveralls-url]: https://coveralls.io/r/expressjs/session?branch=master
+[ci-image]: https://badgen.net/github/checks/ether/express-session/main?label=ci
+[ci-url]: https://github.com/ether/express-session/actions?query=workflow%3Aci
+[coveralls-image]: https://badgen.net/coveralls/c/github/ether/express-session/main
+[coveralls-url]: https://coveralls.io/r/ether/express-session?branch=main
 [node-url]: https://nodejs.org/en/download
-[npm-downloads-image]: https://badgen.net/npm/dm/express-session
-[npm-url]: https://npmjs.org/package/express-session
-[npm-version-image]: https://badgen.net/npm/v/express-session
+[npm-downloads-image]: https://badgen.net/npm/dm/@etherpad/express-session
+[npm-url]: https://npmjs.org/package/@etherpad/express-session
+[npm-version-image]: https://badgen.net/npm/v/@etherpad/express-session
