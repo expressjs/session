@@ -32,7 +32,26 @@ var Cookie = module.exports = function Cookie(options) {
       throw new TypeError('argument options must be a object')
     }
 
+    var keys = [];
     for (var key in options) {
+      keys.push(key);
+    }
+    keys.sort(function(a, b) {
+      var relativeOrder = {
+        // The setter for .maxAge modifies .expires, so .maxAge must be set before .expires if both
+        // are present in options.
+        maxAge: 0,
+        // The setter for .expires modifies ._expires and .originalMaxAge, so it must be set before
+        // those.
+        expires: 1,
+        _expires: 2,
+        originalMaxAge: 2,
+      };
+      if (!(a in relativeOrder) || !(b in relativeOrder)) return 0;
+      return relativeOrder[a] - relativeOrder[b];
+    });
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       if (key !== 'data') {
         this[key] = options[key]
       }

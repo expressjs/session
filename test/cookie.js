@@ -56,6 +56,19 @@ describe('new Cookie()', function () {
         assert.strictEqual(cookie.expires, expires)
       })
 
+      it('should not override originalMaxAge option', function () {
+        // This test relies on for-in iteration order, but for-in iteration order is only specified
+        // in ES2020 and later (https://stackoverflow.com/a/30919039). Thus, this test might not be
+        // reliable on older versions of Node.js (it might pass when it should fail, but it will
+        // never fail when it should pass).
+        var cookie = new Cookie({ originalMaxAge: 1000, expires: new Date(1) })
+        assert.strictEqual(cookie.originalMaxAge, 1000);
+        // Repeat the test but with the property definition order swapped in case that causes for-in
+        // iteration order to also swap on older Node.js releases.
+        cookie = new Cookie({ expires: new Date(1), originalMaxAge: 1000 })
+        assert.strictEqual(cookie.originalMaxAge, 1000);
+      })
+
       it('should set maxAge', function () {
         var expires = new Date(Date.now() + 60000)
         var cookie = new Cookie({ expires: expires })
