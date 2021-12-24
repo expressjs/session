@@ -1,3 +1,8 @@
+2.0.0 / not yet released
+===================
+
+  * Dropped support for unmaintained versions of Node.js (< 12.13.0) and io.js.
+
 1.17.2 / 2021-05-19
 ===================
 
