@@ -124,11 +124,16 @@ attribute is not set.
 the cookie back to the server in the future if the browser does not have an HTTPS
 connection.
 
-Please note that `secure: true` is a **recommended** option. However, it requires
-an https-enabled website (or connection via localhost), i.e., HTTPS is necessary
-for secure cookies. If `secure` is set, and you access your site over HTTP, the 
-cookie will not be set. If you have your node.js behind a proxy and are using
-`secure: true`, you need to set "trust proxy" in express:
+Please note that `secure: true` is a **recommended** option. However, for the cookie
+to be set, it requires one of these conditions:
+
+  - https-enabled website
+  - localhost connection
+  - node.js behind a proxy and "trust proxy" in express
+
+If none of these are true, the cookie will not be set.
+
+Here is an example with "trust proxy":
 
 ```js
 var app = express()
