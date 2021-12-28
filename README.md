@@ -210,6 +210,26 @@ The default value is `undefined`.
     if there is a direct TLS/SSL connection.
   - `undefined` Uses the "trust proxy" setting from express
 
+##### propagateTouch
+
+Default: `false`. The default is `false` for backwards compatibility reasons
+only; you are encouraged to set this to `true`. Using `false` is deprecated; the
+default behavior will change to `true` in a future version and this option will
+be removed.
+
+If `true`, calling `req.session.touch()` also does the following:
+
+  - Suppresses the middleware's automatic call to `req.session.touch()`
+    (assuming it hasn't already happened).
+  - Immediately calls `store.touch()` if the session is initialized (changed
+    from its default state) or if `saveUninitialized` is enabled.
+  - Suppresses the middleware's automatic call to `store.touch()` (assuming it
+    hasn't already happened) if a call to `store.touch()` was attempted by
+    `req.session.touch()`.
+
+If `false`, `req.session.touch()` will not call `store.touch()` nor will it
+suppress the automatic calls to `req.session.touch()` and `store.touch()`.
+
 ##### resave
 
 Forces the session to be saved back to the session store, even if the session
@@ -387,10 +407,12 @@ req.session.save(function(err) {
 })
 ```
 
-#### Session.touch()
+#### Session.touch(callback)
 
-Updates the `.maxAge` property. Typically this is
-not necessary to call, as the session middleware does this for you.
+Updates the `.maxAge` property and maybe calls `store.touch()` (see the
+`propagateTouch` option). It is not usually necessary to call this method, as
+the session middleware does it for you. The callback is optional; if provided,
+it will be called with an error argument when done.
 
 ### req.session.id
 
