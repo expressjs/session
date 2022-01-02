@@ -16,6 +16,11 @@ var Cookie = require('../session/cookie')
 
 var min = 60 * 1000;
 
+/* istanbul ignore next */
+var defer = typeof setImmediate === 'function'
+  ? setImmediate
+  : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
+
 describe('session()', function(){
   it('should export constructors', function(){
     assert.strictEqual(typeof session.Session, 'function')
@@ -873,6 +878,187 @@ describe('session()', function(){
       .expect(200, done)
     })
   })
+
+  describe('propagateTouch option', function () {
+    it('defaults to false', function (done) {
+      var called = false;
+      var store = new session.MemoryStore();
+      store.touch = function touch(sid, sess, callback) { called = true; defer(callback); };
+      var server = createServer({ store: store }, function (req, res) {
+        assert(!called);
+        req.session.modified = true;
+        req.session.touch(function (err) {
+          if (err) throw err;
+          assert(!called);
+          res.end();
+        });
+      });
+      request(server).get('/').expect(200, done);
+    });
+
+    it('does not call store.touch() if unimplemented', function (done) {
+      var store = new session.MemoryStore();
+      store.touch = null;
+      var server = createServer({ propagateTouch: true, store: store }, function (req, res) {
+        req.session.modified = true;
+        req.session.touch(function (err) {
+          if (err) throw err;
+          res.end();
+        });
+      });
+      request(server).get('/').expect(200, done);
+    });
+
+    it('calls store.touch() if implemented', function (done) {
+      var store = new session.MemoryStore();
+      var called = false;
+      store.touch = function touch(sid, sess, callback) { called = true; defer(callback); };
+      var server = createServer({ propagateTouch: true, store: store }, function (req, res) {
+        req.session.modified = true;
+        assert(!called);
+        req.session.touch(function (err) {
+          if (err) throw err;
+          assert(called);
+          res.end();
+        });
+      });
+      request(server).get('/').expect(200, done);
+    });
+
+    it('waits for store.touch() to complete', function (done) {
+      var store = new session.MemoryStore();
+      var called = false;
+      store.touch = function touch(sid, sess, callback) {
+        setTimeout(function () { called = true; callback(); }, 100);
+      };
+      var server = createServer({ propagateTouch: true, store: store }, function (req, res) {
+        req.session.modified = true;
+        assert(!called);
+        req.session.touch(function (err) {
+          if (err) throw err;
+          assert(called);
+          res.end();
+        });
+      });
+      request(server).get('/').expect(200, done);
+    });
+
+    it('passes back store.touch() error', function (done) {
+      var store = new session.MemoryStore();
+      store.touch = function touch(sid, sess, callback) { defer(callback, new Error('boom!')); };
+      var server = createServer({ propagateTouch: true, store: store }, function (req, res) {
+        req.session.modified = true;
+        req.session.touch(function (err) {
+          assert(err != null);
+          assert.strictEqual(err.message, 'boom!');
+          res.end();
+        });
+      });
+      request(server).get('/').expect(200, done);
+    });
+
+    xit('suppresses automatic session.touch()', function (done) {
+      // TODO
+    });
+
+    xit('suppresses automatic session.touch() even on failure', function (done) {
+      // TODO
+    });
+
+    xit('only suppresses automatic session.touch() if session.touch() attempted', function (done) {
+      // TODO
+    });
+
+    it('suppresses automatic store.touch()', function (done) {
+      var store = new session.MemoryStore();
+      var calls = 0;
+      store.touch = function touch(sid, sess, callback) { ++calls; defer(callback); };
+      var doTouch = false;
+      var server = createServer({ propagateTouch: true, store: store }, function (req, res) {
+        req.session.modified = true;
+        var callsBefore = calls;
+        req.session.touch(function (err) {
+          if (err) throw err;
+          assert.strictEqual(calls, callsBefore + 1);
+          res.end();
+        });
+      });
+      assert.strictEqual(calls, 0);
+      // Two requests must be made for this test because the middleware never calls store.touch()
+      // automatically on first request (it calls store.save() instead).
+      request(server)
+          .get('/')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, function (err, res) {
+            if (err) return done(err);
+            assert.strictEqual(calls, 1);
+            doTouch = true;
+            request(server)
+                .get('/')
+                .set('Cookie', cookie(res))
+                .expect(200, function (err) {
+                  if (err) return done(err);
+                  assert.strictEqual(calls, 2);
+                  done();
+                });
+          });
+    });
+
+    xit('suppresses automatic store.touch() even on failure', function (done) {
+      // TODO
+    });
+
+    xit('only suppresses automatic store.touch() if store.touch() was attempted', function (done) {
+      // TODO
+    });
+
+    xit('keeps working after automatic touch', function (done) {
+      // TODO
+    });
+
+    it('always calls store.touch() when saveUninitialized=true', function (done) {
+      var called = false;
+      var store = new session.MemoryStore();
+      store.touch = function touch(sid, sess, callback) { called = true; defer(callback); };
+      var server = createServer({
+        propagateTouch: true,
+        store: store,
+        saveUninitialized: true,
+      }, function (req, res) {
+        assert(!called);
+        req.session.touch(function (err) {
+          if (err) throw err;
+          assert(called);
+          res.end();
+        });
+      });
+      request(server).get('/').expect(200, done);
+    });
+
+    it('calls store.touch() iff modified when saveUninitialized=false', function (done) {
+      var called = false;
+      var store = new session.MemoryStore();
+      store.touch = function touch(sid, sess, callback) { called = true; defer(callback); };
+      var server = createServer({
+        propagateTouch: true,
+        store: store,
+        saveUninitialized: false,
+      }, function (req, res) {
+        assert(!called);
+        req.session.touch(function (err) {
+          if (err) throw err;
+          req.session.modified = true;
+          assert(!called);
+          req.session.touch(function (err) {
+            if (err) throw err;
+            assert(called);
+            res.end();
+          });
+        });
+      });
+      request(server).get('/').expect(200, done);
+    });
+  });
 
   describe('rolling option', function(){
     it('should default to false', function(done){
@@ -1810,6 +1996,21 @@ describe('session()', function(){
           })
         })
       })
+
+      it('should call the callback asynchronously', function (done) {
+        var server = createServer(null, function (req, res) {
+          var i = 0;
+          req.session.touch(function (err) {
+            ++i;
+            res.end();
+          });
+          assert.strictEqual(i, 0);
+        });
+
+        request(server)
+        .get('/')
+        .expect(200, done);
+      });
     })
 
     describe('.cookie', function(){
