@@ -32,7 +32,6 @@
   "files": [
     "session/",
     "HISTORY.md",
-    "LICENSE",
     "index.js"
   ],
   "engines": {
