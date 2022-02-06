@@ -595,6 +595,11 @@ and other multi-core embedded devices).
 [connect-loki-url]: https://www.npmjs.com/package/connect-loki
 [connect-loki-image]: https://badgen.net/github/stars/Requarks/connect-loki?label=%E2%98%85
 
+[![★][connect-lowdb-image] connect-lowdb][connect-lowdb-url] A lowdb-based session store.
+
+[connect-lowdb-url]: https://www.npmjs.com/package/connect-lowdb
+[connect-lowdb-image]: https://badgen.net/github/stars/travishorn/connect-lowdb?label=%E2%98%85
+
 [![★][connect-memcached-image] connect-memcached][connect-memcached-url] A memcached-based session store.
 
 [connect-memcached-url]: https://www.npmjs.com/package/connect-memcached
