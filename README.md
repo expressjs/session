@@ -200,12 +200,12 @@ each other. The simplest method is to simply set different `name`s per app.
 
 ##### proxy
 
-Trust the reverse proxy when setting secure cookies (via the "X-Forwarded-Proto"
+Trust the reverse proxy when setting secure cookies (via the "X-Forwarded-Proto" or "Forwarded"
 header).
 
 The default value is `undefined`.
 
-  - `true` The "X-Forwarded-Proto" header will be used.
+  - `true` The "X-Forwarded-Proto" or "Forwarded" header will be used.
   - `false` All headers are ignored and the connection is considered secure only
     if there is a direct TLS/SSL connection.
   - `undefined` Uses the "trust proxy" setting from express
