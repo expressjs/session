@@ -643,7 +643,16 @@ function issecure(req, trustProxy) {
     ? header.substr(0, index).toLowerCase().trim()
     : header.toLowerCase().trim()
 
-  return proto === 'https';
+  if (proto === 'https') {
+    return true;
+  }
+  
+  // read proto from the standardized replacement 'Forwarded' header
+  if (req.headers['forwarded']) {
+    return req.headers['forwarded'].indexOf('proto=https') !== -1;
+  }
+
+  return false;
 }
 
 /**
