@@ -27,7 +27,7 @@
     "cookie-parser": "1.4.6",
     "eslint": "7.32.0",
     "eslint-plugin-markdown": "2.2.1",
-    "express": "4.17.2",
+    "express": "4.17.3",
     "mocha": "9.2.1",
     "nyc": "15.1.0",
     "supertest": "6.2.2"
