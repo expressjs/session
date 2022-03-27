@@ -102,6 +102,7 @@ is the root path of the domain.
 ##### cookie.sameSite
 
 Specifies the `boolean` or `string` to be the value for the `SameSite` `Set-Cookie` attribute.
+By default, this is `false`.
 
   - `true` will set the `SameSite` attribute to `Strict` for strict same site enforcement.
   - `false` will not set the `SameSite` attribute.
