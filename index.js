@@ -637,13 +637,30 @@ function issecure(req, trustProxy) {
   }
 
   // read the proto from x-forwarded-proto header
-  var header = req.headers['x-forwarded-proto'] || '';
-  var index = header.indexOf(',');
-  var proto = index !== -1
-    ? header.substr(0, index).toLowerCase().trim()
-    : header.toLowerCase().trim()
+  if(req.headers['x-forwarded-proto']) {
+    var header = req.headers['x-forwarded-proto'];
+    var index = header.indexOf(',');
+    var proto = index !== -1
+      ? header.substr(0, index).toLowerCase().trim()
+      : header.toLowerCase().trim()
 
-  return proto === 'https';
+    return proto === 'https';
+  }
+
+  // read the proto from forwarded header
+  if(req.headers['forwarded']) {
+    var header = req.headers['forwarded'];
+    var protoDirective = header.split(/[,;]/g)
+      .find(function(directive) {
+        return directive.startsWith("proto=");
+      });
+    if(protoDirective) {
+      var protocol = proto.substr(6).toLowerCase().trim()
+      return protocol === 'https';
+    }
+  }
+
+  return false;
 }
 
 /**
