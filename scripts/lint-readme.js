@@ -25,6 +25,7 @@ README_CONTENTS.split(NEWLINE_REGEXP).forEach(function (line, lineidx) {
       case 0: // premble
         if (line[0] !== '[') break
         state = 1
+        // fall through
       case 1: // header
         var prev = header
 
