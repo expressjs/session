@@ -148,6 +148,7 @@ MemoryStore.prototype.touch = function touch(sessionId, session, callback) {
   var currentSession = getSession.call(this, sessionId)
 
   if (currentSession) {
+    var maxAge = new Date(currentSession.cookie.expires).getTime() - Date.now()
     // update expiration
     currentSession.cookie = session.cookie
     this.sessions[sessionId] = JSON.stringify(currentSession)

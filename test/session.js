@@ -1101,6 +1101,158 @@ describe('session()', function(){
           .end(cb)
         })
       })
+
+      it('should not call touch when > 75% of maxAge remains', function (done) {
+        var store = new session.MemoryStore()
+        var sid
+        var server = createServer({ cookie: { maxAge: min }, store: store, resave: false, touchAtMaxAgeRatio: 0.75 }, function (req, res) {
+          req.session.user = 'bob'
+          sid = req.session.id
+          res.end(req.session.id)
+        })
+
+        // First call will not call touch because it creates the session
+        // Second call should not call touch
+        // Touches are expensive as they cause writes on the session store
+        // On DynamoDB for example, touches cost 5x more than a read
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          var originalExpires = expires(res)
+          var sessCookie = cookie(res)
+
+          store.touch = function touch (sid, sess, callback) {
+            callback(new Error('boom!'))
+          }
+
+          setTimeout(function () {
+            request(server)
+            .get('/')
+            .set('Cookie', sessCookie)
+            .expect(200, function (err, res) {
+              store.get(sid, function (err, sess) {
+                if (err) return done(err)
+                // Take 26% of the maxAge off the session
+                var cookieExpiresReduced = new Date(sess.cookie.expires).getTime() - (min * 0.26)
+                sess.cookie.expires = new Date(cookieExpiresReduced).toISOString()
+                store.set(sid, sess, function (err) {
+                  if (err) return done(err)
+                  request(server)
+                  .get('/')
+                  .set('Cookie', sessCookie)
+                  .expect(200, function (err, res) {
+                    var newExpires = expires(res)
+
+                    // Should not update the session via store.touch
+                    assert.notStrictEqual(newExpires, originalExpires)
+
+                    if (err) return done(err)
+                    done()
+                  })
+                })
+              })
+            })
+          }, (1000 - (Date.now() % 1000) + 200));
+        })
+      })
+
+      it('should call touch when touchAtMaxAgeRatio not set', function (done) {
+        var cb = after(2, done)
+        var store = new session.MemoryStore()
+        var sid
+        var server = createServer({ cookie: { maxAge: min }, store: store, resave: false }, function (req, res) {
+          req.session.user = 'bob'
+          sid = req.session.id
+          res.end(req.session.id)
+        })
+
+        // First call will not call touch because it creates the session
+        // Second call should not call touch
+        // Touches are expensive as they cause writes on the session store
+        // On DynamoDB for example, touches cost 5x more than a read
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          var sessCookie = cookie(res)
+
+          store.touch = function touch (sid, sess, callback) {
+            callback();
+            cb();
+          }
+
+          request(server)
+          .get('/')
+          .set('Cookie', sessCookie)
+          .expect(200, function (err, res) {
+            if (err) return cb(err)
+            cb();
+          });
+        })
+      })
+
+      it('should call touch when < 75% of maxAge remains', function (done) {
+        var store = new session.MemoryStore()
+        var sid
+        var server = createServer({ cookie: { maxAge: min }, store: store, resave: false, touchAtMaxAgeRatio: 0.75 }, function (req, res) {
+          sid = req.session.id
+          req.session.user = 'bob'
+          res.end(req.session.id)
+        })
+
+        // First call will not call touch because it creates the session
+        // Second call should not call touch
+        // Touches are expensive as they cause writes on the session store
+        // On DynamoDB for example, touches cost 5x more than a read
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          var originalExpires = expires(res)
+          var sessCookie = cookie(res)
+
+          store.get(sid, function (err, sess) {
+            if (err) return done(err)
+            // Take 26% of the maxAge off the session
+            var cookieExpiresReduced = new Date(sess.cookie.expires).getTime() - (min * 0.26)
+            sess.cookie.expires = new Date(cookieExpiresReduced).toISOString()
+            store.set(sid, sess, function (err) {
+              if (err) return done(err)
+              request(server)
+              .get('/')
+              .set('Cookie', sessCookie)
+              .expect(200, function (err, res) {
+
+                store.get(sid, function (err, sess) {
+                  if (err) return done(err)
+                  // Take 26% of the maxAge off the session
+                  var cookieExpiresReduced = new Date(sess.cookie.expires).getTime() - (min * 0.26)
+                  sess.cookie.expires = new Date(cookieExpiresReduced).toISOString()
+                  store.set(sid, sess, function (err) {
+                    if (err) return done(err)
+                    request(server)
+                    .get('/')
+                    .set('Cookie', sessCookie)
+                    .expect(200, function (err, res) {
+                      var newExpires = expires(res)
+
+                      // Should not update the session via store.touch
+                      assert.notStrictEqual(newExpires, originalExpires)
+
+                      if (err) return done(err)
+                      done()
+                    })
+                  })
+                })
+              })
+            })
+          })
+        })
+      })
     })
   });
 

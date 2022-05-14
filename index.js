@@ -75,6 +75,7 @@ var defer = typeof setImmediate === 'function'
  * @param {String} [options.name=connect.sid] Session ID cookie name
  * @param {Boolean} [options.proxy]
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
+ * @param {Boolean} [options.touchAtMaxAgeRatio] `.touch()` session when `maxAge` has reached `.touchAtMaxAgeRatio` of the `originalMaxAge`
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
  * @param {String|Array} [options.secret] Secret for signing session ID
@@ -105,6 +106,9 @@ function session(options) {
   // get the resave session option
   var resaveSession = opts.resave;
 
+  // get the max age touch ratio
+  var touchAtMaxAgeRatio = opts.touchAtMaxAgeRatio;
+
   // get the rolling session option
   var rollingSessions = Boolean(opts.rolling)
 
@@ -121,6 +125,10 @@ function session(options) {
   if (resaveSession === undefined) {
     deprecate('undefined resave option; provide resave option');
     resaveSession = true;
+  }
+
+  if (touchAtMaxAgeRatio && (touchAtMaxAgeRatio < 0 || touchAtMaxAgeRatio > 1)) {
+    throw new TypeError('touchAtMaxAgeRatio must be a number between 0 and 1');
   }
 
   if (saveUninitializedSession === undefined) {
@@ -454,6 +462,10 @@ function session(options) {
       // cannot set cookie without a session ID
       if (typeof req.sessionID !== 'string') {
         debug('session ignored because of bogus req.sessionID %o', req.sessionID);
+        return false;
+      }
+
+      if (touchAtMaxAgeRatio && req.session.cookie.maxAge > touchAtMaxAgeRatio * req.session.cookie.originalMaxAge) {
         return false;
       }
 
