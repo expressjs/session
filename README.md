@@ -677,6 +677,11 @@ and other multi-core embedded devices).
 [connect-neo4j-url]: https://www.npmjs.com/package/connect-neo4j
 [connect-neo4j-image]: https://badgen.net/github/stars/MaxAndersson/connect-neo4j?label=%E2%98%85
 
+[![★][connect-ottoman-image] connect-ottoman][connect-ottoman-url] A [couchbase ottoman](http://www.couchbase.com/)-based session store.
+
+[connect-ottoman-url]: https://www.npmjs.com/package/connect-ottoman
+[connect-ottoman-image]: https://badgen.net/github/stars/noiissyboy/connect-ottoman?label=%E2%98%85
+
 [![★][connect-pg-simple-image] connect-pg-simple][connect-pg-simple-url] A PostgreSQL-based session store.
 
 [connect-pg-simple-url]: https://www.npmjs.com/package/connect-pg-simple
