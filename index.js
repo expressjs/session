@@ -66,6 +66,20 @@ var defer = typeof setImmediate === 'function'
   ? setImmediate
   : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
 
+function http2Fix() {
+  var http;
+  try {
+    http = require('http2');
+  } catch (e) {
+    return;
+  }
+  if ( typeof (http.Http2ServerResponse.prototype._implicitHeader) !== 'function') {
+    http.Http2ServerResponse.prototype._implicitHeader = function () {
+      this.writeHead(this.statusCode);
+    };
+  }
+}
+
 /**
  * Setup session store with the given `options`.
  *
@@ -77,6 +91,7 @@ var defer = typeof setImmediate === 'function'
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
+ * @param {Boolean} [options.useHttp2=false] Use http2
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
@@ -175,6 +190,9 @@ function session(options) {
   store.on('connect', function onconnect() {
     storeReady = true
   })
+  if (options.useHttp2) {
+    http2Fix();
+  }
 
   return function session(req, res, next) {
     // self-awareness

@@ -6,7 +6,9 @@ var express = require('express')
 var fs = require('fs')
 var http = require('http')
 var https = require('https')
+var http2 = require('http2')
 var request = require('supertest')
+var getPort = require('get-port')
 var session = require('../')
 var SmartStore = require('./support/smart-store')
 var SyncStore = require('./support/sync-store')
@@ -2037,6 +2039,64 @@ describe('session()', function(){
           .get('/')
           .expect(shouldNotHaveHeader('Set-Cookie'))
           .expect(200, done)
+        })
+      })
+
+      describe('.http2 plain', function(){
+        var app
+        var server
+        before(function () {
+          app = createRequestListener({ secret: 'keyboard cat', useHttp2: true })
+          server = http2.createServer(app)
+        })
+
+        it('should set cookie with http2', function (done) {
+
+          request(server).get('/').http2()
+          .expect(200)
+          .end(function(err, res) {
+            shouldSetCookie('connect.sid')
+            if (err) {
+              return done(err)
+            }
+            done();
+          });
+        })
+      })
+
+      describe('.http2 secure', function(){
+        var server
+        var uri
+        before(function (done) {
+          var app = createRequestListener({ secret: 'keyboard cat', useHttp2: true })
+          var cert = fs.readFileSync(__dirname + '/fixtures/server.crt', 'ascii')
+          server = http2.createSecureServer({
+            key: fs.readFileSync(__dirname + '/fixtures/server.key', 'ascii'),
+            cert: cert
+          }, app)
+          getPort().then(function(port) {
+            server.listen(port)
+            uri = 'https://localhost:' + port
+            done()
+          }).catch(function(err) {
+            return done(err)
+          })
+        })
+        after(function() {
+          server.close()
+        })
+
+        it('should set cookie with http2', function (done) {
+
+          request(uri).get('/').http2()
+          .expect(200)
+          .end(function(err, res) {
+            shouldSetCookie('connect.sid')
+            if (err) {
+              return done(err)
+            }
+            done();
+          });
         })
       })
 
