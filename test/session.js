@@ -490,6 +490,34 @@ describe('session()', function(){
     })
   })
 
+  describe('when session is corrupt', function () {
+    it('should return an error', function (done) {
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.count = req.session.count || 0
+        req.session.count++
+        res.end('hits: ' + req.session.count)
+      })
+
+      store.get = function returnCorruptSession(sid, callback) {
+        callback(undefined, {});
+      }
+
+      request(server)
+      .get('/')
+      .expect(200, 'hits: 1', function (err, res) {
+        if (err) return done(err)
+        store.load(sid(res), function (err, sess) {
+          assert.strictEqual(err.message, 'sess.cookie is undefined')
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(500, "Cannot read property 'expires' of undefined", done)
+        })
+      })
+    })
+  })
+
   describe('when session expired in store', function () {
     it('should create a new session', function (done) {
       var count = 0
