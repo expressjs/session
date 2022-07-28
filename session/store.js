@@ -68,7 +68,7 @@ Store.prototype.load = function(sid, fn){
   var self = this;
   this.get(sid, function(err, sess){
     if (err) return fn(err);
-    if (!sess) return fn();
+    if (!sess || !sess.cookie) return fn();
     var req = { sessionID: sid, sessionStore: self };
     fn(null, self.createSession(req, sess))
   });
