@@ -508,7 +508,7 @@ describe('session()', function(){
       .expect(200, 'hits: 1', function (err, res) {
         if (err) return done(err)
         store.load(sid(res), function (err, sess) {
-          assert.strictEqual(err.message, 'sess.cookie is undefined')
+          assert.strictEqual(err.message, "Cannot read property 'expires' of undefined")
           request(server)
           .get('/')
           .set('Cookie', cookie(res))

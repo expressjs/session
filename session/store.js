@@ -69,9 +69,14 @@ Store.prototype.load = function(sid, fn){
   this.get(sid, function(err, sess){
     if (err) return fn(err);
     if (!sess) return fn();
-    if (!sess.cookie) return fn(new Error('sess.cookie is undefined'));
     var req = { sessionID: sid, sessionStore: self };
-    fn(null, self.createSession(req, sess))
+    try {
+      sess = self.createSession(req, sess)
+    } catch (e) {
+      err = e
+      sess = null
+    }
+    fn(err, sess)
   });
 };
 
