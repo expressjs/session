@@ -508,7 +508,8 @@ describe('session()', function(){
       .expect(200, 'hits: 1', function (err, res) {
         if (err) return done(err)
         store.load(sid(res), function (err, sess) {
-          assert.match(err.message, /Cannot read prop/)
+          assert.ok(err);
+          assert.ok(err.message.match(/Cannot read prop/));
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
