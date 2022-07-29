@@ -341,7 +341,7 @@ a new SID and `Session` instance will be initialized at `req.session`
 and the `callback` will be invoked.
 
 ```js
-req.session.regenerate(function(err) {
+req.session.regenerate(function(err, session) {
   // will have a new session here
 })
 ```
@@ -363,7 +363,7 @@ Reloads the session data from the store and re-populates the
 `req.session` object. Once complete, the `callback` will be invoked.
 
 ```js
-req.session.reload(function(err) {
+req.session.reload(function(err, session) {
   // session updated
 })
 ```
