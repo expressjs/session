@@ -508,11 +508,11 @@ describe('session()', function(){
       .expect(200, 'hits: 1', function (err, res) {
         if (err) return done(err)
         store.load(sid(res), function (err, sess) {
-          assert.strictEqual(err.message, "Cannot read property 'expires' of undefined")
+          assert.match(err.message, /Cannot read prop/)
           request(server)
           .get('/')
           .set('Cookie', cookie(res))
-          .expect(500, "Cannot read property 'expires' of undefined", done)
+          .expect(500, /Cannot read prop/, done)
         })
       })
     })
