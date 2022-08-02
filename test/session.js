@@ -16,6 +16,16 @@ var Cookie = require('../session/cookie')
 
 var min = 60 * 1000;
 
+var describeHttp2 = describe.skip
+try {
+  var http2 = require('http2')
+  describeHttp2 = describe
+} catch (err) {
+  if (err) {
+    console.log('http2 tests disabled.')
+  }
+}
+
 describe('session()', function(){
   it('should export constructors', function(){
     assert.strictEqual(typeof session.Session, 'function')
@@ -2294,6 +2304,37 @@ describe('session()', function(){
       })
     })
   })
+
+  describeHttp2('http2', function () {
+    it('should work with http2 server', function (done) {
+      var server = createHttp2Server(null, function (req, res) {
+        res.setHeader(http2.constants.HTTP2_HEADER_CONTENT_TYPE, 'text/plain')
+        res.end('Hello, world!')
+      })
+      server.on('listening', function () {
+        var client = createHttp2Client(server.address().port)
+        // using ES5 as Node.js <=4.0.0 does not have Computed Property Names
+        var reqHeaders = {}
+        reqHeaders[http2.constants.HTTP2_HEADER_PATH] = '/'
+        var request = client.request(reqHeaders)
+        request.on('response', function (headers) {
+          assert.strictEqual(headers[http2.constants.HTTP2_HEADER_STATUS], 200)
+          assert.strictEqual(headers[http2.constants.HTTP2_HEADER_CONTENT_TYPE], 'text/plain')
+        })
+        var chunks = []
+        request.on('data', function (chunk) {
+          chunks.push(chunk)
+        })
+        request.on('end', function () {
+          closeHttp2(client, server, function () {
+            assert.strictEqual(Buffer.concat(chunks).toString(), 'Hello, world!')
+            done()
+          })
+        })
+        request.end()
+      })
+    })
+  })
 })
 
 function cookie(res) {
@@ -2315,6 +2356,48 @@ function createServer (options, respond) {
   }
 
   return server.on('request', createRequestListener(opts, fn))
+}
+
+function createHttp2Server (options, respond) {
+  var fn = respond
+  var opts = options
+  var server = http2.createServer()
+
+  // setup, options, respond
+  if (typeof arguments[0] === 'function') {
+    opts = arguments[1]
+    fn = arguments[2]
+
+    server.on('request', arguments[0])
+  }
+
+  server.on('request', createRequestListener(opts, fn))
+  server.listen(0, '127.0.0.1')
+  return server
+}
+
+function createHttp2Client (port) {
+  return http2.connect('http://127.0.0.1:' + port)
+}
+
+function closeHttp2 (client, server, callback) {
+  if (typeof client.shutdown === 'function') {
+    // this is the node v8.x way of closing the connections
+    client.shutdown({}, function () {
+      server.close(function () {
+        callback()
+      })
+    })
+  } else {
+    // this is the node v9.x onwards way of closing the connections
+    client.close(function () {
+      // force existing connections to time out after 1ms.
+      // this is done to force the server to close in some cases where it wouldn't do it otherwise.
+      server.close(function () {
+        callback()
+      })
+    })
+  }
 }
 
 function createRequestListener(opts, fn) {
