@@ -272,7 +272,7 @@ function session(options) {
           return ret;
         }
 
-        if (!res._header) {
+        if (typeof res.headersSent === 'boolean' ? !res.headersSent : !res._header) {
           res.writeHead(res.statusCode)
         }
 
