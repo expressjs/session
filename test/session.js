@@ -1381,6 +1381,25 @@ describe('session()', function(){
     })
   });
 
+  describe('res._header patch', function () {
+    it('should be equivalent to res.headersSent', function (done) {
+      request(createServer(function(req, res) {
+        assert.strictEqual(!!res._header, !!res.headersSent,
+          'res._header should be equal to res.headersSent (prior state change)')
+
+        var oldState = !!res._header;
+        res.end('ended')
+        var newState = !!res._header;
+        assert.notStrictEqual(oldState, newState)
+
+        assert.strictEqual(!!res._header, !!res.headersSent,
+          'res._header should be equal to res.headersSent (after state change)')
+      }))
+      .get('/')
+      .expect(200, 'ended', done)
+    })
+  })
+
   describe('res.end patch', function () {
     it('should correctly handle res.end/res.write patched prior', function (done) {
       function setup (req, res) {
