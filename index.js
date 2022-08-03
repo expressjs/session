@@ -273,7 +273,7 @@ function session(options) {
         }
 
         if (!res._header) {
-          res._implicitHeader()
+          res.writeHead(res.statusCode)
         }
 
         if (chunk == null) {
