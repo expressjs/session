@@ -2313,10 +2313,7 @@ describe('session()', function(){
       })
       server.on('listening', function () {
         var client = createHttp2Client(server.address().port)
-        // using ES5 as Node.js <=4.0.0 does not have Computed Property Names
-        var reqHeaders = {}
-        reqHeaders[http2.constants.HTTP2_HEADER_PATH] = '/'
-        var request = client.request(reqHeaders)
+        var request = client.request()
         request.on('response', function (headers) {
           assert.strictEqual(headers[http2.constants.HTTP2_HEADER_STATUS], 200)
           assert.strictEqual(headers[http2.constants.HTTP2_HEADER_CONTENT_TYPE], 'text/plain')
