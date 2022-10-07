@@ -118,7 +118,6 @@ function session(options) {
   // should the header be set as token instead of cookie
   var shouldReplaceCookieWithToken = opts.shouldReplaceCookieWithToken
 
-
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
   }
