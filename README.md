@@ -295,6 +295,9 @@ the secret without invalidating sessions, provide an array of secrets, with the 
 secret as first element of the array, and including previous secrets as the later
 elements.
 
+**Note** HMAC-256 is used to sign the session ID. For this reason, the secret should
+contain at least 32 bytes of entropy.
+
 ##### store
 
 The session store instance, defaults to a new `MemoryStore` instance.
