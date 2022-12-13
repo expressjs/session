@@ -111,7 +111,7 @@ jobs:
           node-version: "17.9"
 
         - name: Node.js 18.x
-          node-version: "18.9"
+          node-version: "18.12"
 
     steps:
     - uses: actions/checkout@v2
