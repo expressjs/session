@@ -728,6 +728,11 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-session-level-url]: https://www.npmjs.com/package/express-session-level
 [express-session-level-image]: https://badgen.net/github/stars/tgohn/express-session-level?label=%E2%98%85
 
+[![★][express-session-rethinkdb-esm-image] express-session-rethinkdb-esm][express-session-rethinkdb-esm-url] A [RethinkDB](https://rethinkdb.com/)-based session store using JavaScript modules.
+
+[express-session-rethinkdb-esm-url]: https://www.npmjs.com/package/express-session-rethinkdb-esm
+[express-session-rethinkdb-esm-image]: https://badgen.net/github/stars/rpsirois/express-session-rethinkdb-esm?label=%E2%98%85
+
 [![★][express-session-rsdb-image] express-session-rsdb][express-session-rsdb-url] Session store based on Rocket-Store: A very simple, super fast and yet powerfull, flat file database.
 
 [express-session-rsdb-url]: https://www.npmjs.com/package/express-session-rsdb
