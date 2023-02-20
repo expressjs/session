@@ -829,6 +829,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [tch-nedb-session-url]: https://www.npmjs.com/package/tch-nedb-session
 [tch-nedb-session-image]: https://badgen.net/github/stars/tomaschyly/NeDBSession?label=%E2%98%85
 
+[sequelize-mariadb-store][sequelize-mariadb-store-url] Store based in sequelize and MariaDB
+
+[sequelize-mariadb-store-url]: https://www.npmjs.com/package/@duskim/express-store
+
+
 ## Examples
 
 ### View counter
