@@ -833,7 +833,6 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 
 [sequelize-mariadb-store-url]: https://www.npmjs.com/package/@duskim/express-store
 
-
 ## Examples
 
 ### View counter
