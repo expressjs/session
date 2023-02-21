@@ -794,6 +794,11 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [restsession-url]: https://www.npmjs.com/package/restsession
 [restsession-image]: https://badgen.net/github/stars/jankal/restsession?label=%E2%98%85
 
+[![★][sequelize-mariadb-store-image] sequelize-mariadb-store][sequelize-mariadb-store-url] Store based in sequelize and MariaDB
+
+[sequelize-mariadb-store-url]: https://www.npmjs.com/package/@duskim/express-store
+[sequelize-mariadb-store-image]: https://badgen.net/github/stars/duskim/sequelize-mariadb-store?label=%E2%98%85
+
 [![★][sequelstore-connect-image] sequelstore-connect][sequelstore-connect-url] A session store using [Sequelize.js](http://sequelizejs.com/).
 
 [sequelstore-connect-url]: https://www.npmjs.com/package/sequelstore-connect
@@ -828,11 +833,6 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 
 [tch-nedb-session-url]: https://www.npmjs.com/package/tch-nedb-session
 [tch-nedb-session-image]: https://badgen.net/github/stars/tomaschyly/NeDBSession?label=%E2%98%85
-
-[![★][sequelize-mariadb-store-image] sequelize-mariadb-store][sequelize-mariadb-store-url] Store based in sequelize and MariaDB
-
-[sequelize-mariadb-store-url]: https://www.npmjs.com/package/@duskim/express-store
-[sequelize-mariadb-store-image]: https://badgen.net/github/stars/duskim/sequelize-mariadb-store?label=%E2%98%85
 
 ## Examples
 
