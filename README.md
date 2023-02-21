@@ -738,6 +738,11 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-sessions-url]: https://www.npmjs.com/package/express-sessions
 [express-sessions-image]: https://badgen.net/github/stars/konteck/express-sessions?label=%E2%98%85
 
+[![★][@duskim/express-store-image] @duskim/express-store][@duskim/express-store-url] Store based in sequelize and MariaDB.
+
+[@duskim/express-store-url]: https://www.npmjs.com/package/@duskim/express-store
+[@duskim/express-store-image]: https://badgen.net/github/stars/duskim/express-store?label=%E2%98%85
+
 [![★][firestore-store-image] firestore-store][firestore-store-url] A [Firestore](https://github.com/hendrysadrak/firestore-store)-based session store.
 
 [firestore-store-url]: https://www.npmjs.com/package/firestore-store
