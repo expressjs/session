@@ -738,6 +738,11 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-sessions-url]: https://www.npmjs.com/package/express-sessions
 [express-sessions-image]: https://badgen.net/github/stars/konteck/express-sessions?label=%E2%98%85
 
+[![★][@duskim/express-store-image] @duskim/express-store][@duskim/express-store-url] Store based in sequelize and MariaDB.
+
+[@duskim/express-store-url]: https://www.npmjs.com/package/@duskim/express-store
+[@duskim/express-store-image]: https://badgen.net/github/stars/duskim/express-store?label=%E2%98%85
+
 [![★][firestore-store-image] firestore-store][firestore-store-url] A [Firestore](https://github.com/hendrysadrak/firestore-store)-based session store.
 
 [firestore-store-url]: https://www.npmjs.com/package/firestore-store
@@ -793,11 +798,6 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 
 [restsession-url]: https://www.npmjs.com/package/restsession
 [restsession-image]: https://badgen.net/github/stars/jankal/restsession?label=%E2%98%85
-
-[![★][sequelize-mariadb-store-image] sequelize-mariadb-store][sequelize-mariadb-store-url] Store based in sequelize and MariaDB
-
-[sequelize-mariadb-store-url]: https://www.npmjs.com/package/@duskim/express-store
-[sequelize-mariadb-store-image]: https://badgen.net/github/stars/duskim/sequelize-mariadb-store?label=%E2%98%85
 
 [![★][sequelstore-connect-image] sequelstore-connect][sequelstore-connect-url] A session store using [Sequelize.js](http://sequelizejs.com/).
 
