@@ -693,6 +693,11 @@ and other multi-core embedded devices).
 [dynamodb-store-url]: https://www.npmjs.com/package/dynamodb-store
 [dynamodb-store-image]: https://badgen.net/github/stars/rafaelrpinto/dynamodb-store?label=%E2%98%85
 
+[![★][dynamodb-store-v3-image] dynamodb-store-v3][dynamodb-store-v3-url] Implementation of a session store using DynamoDB backed by the [AWS SDK for JavaScript v3](https://github.com/aws/aws-sdk-js-v3).
+
+[dynamodb-store-v3-url]: https://www.npmjs.com/package/dynamodb-store-v3
+[dynamodb-store-v3-image]: https://badgen.net/github/stars/FryDay/dynamodb-store-v3?label=%E2%98%85
+
 [![★][express-etcd-image] express-etcd][express-etcd-url] An [etcd](https://github.com/stianeikeland/node-etcd) based session store.
 
 [express-etcd-url]: https://www.npmjs.com/package/express-etcd
