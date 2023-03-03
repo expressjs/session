@@ -1694,6 +1694,40 @@ describe('session()', function(){
         })
       })
 
+      it('should error when the session is corrupt', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          store.clear(function (err) {
+            if (err) return done(err)
+            
+            store.get = function returnCorruptSession(sid, callback) {
+              callback(undefined, {});
+            }
+
+            req.session.reload(function (err) {
+              res.statusCode = err ? 500 : 200
+              res.end(err ? err.message : '')
+            })
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'session created', function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/foo')
+          .set('Cookie', cookie(res))
+          .expect(500, /Cannot read prop/, done)
+        })
+      })
+
       it('should not override an overriden `reload` in case of errors',  function (done) {
         var store = new session.MemoryStore()
         var server = createServer({ store: store, resave: false }, function (req, res) {

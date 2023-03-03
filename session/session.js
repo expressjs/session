@@ -92,8 +92,12 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
   store.get(this.id, function(err, sess){
     if (err) return fn(err);
     if (!sess) return fn(new Error('failed to load session'));
-    store.createSession(req, sess);
-    fn();
+    try {
+      store.createSession(req, sess);
+    } catch (e) {
+      err = e
+    }
+    fn(err);
   });
   return this;
 });
