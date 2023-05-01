@@ -1923,18 +1923,26 @@ describe('session()', function(){
         })
 
         it('should override defaults', function(done){
-          var server = createServer({ cookie: { path: '/admin', httpOnly: false, secure: true, maxAge: 5000 } }, function (req, res) {
+          var opts = {
+            httpOnly: false,
+            maxAge: 5000,
+            path: '/admin',
+            priority: 'high',
+            secure: true
+          }
+          var server = createServer({ cookie: opts }, function (req, res) {
             req.session.cookie.secure = false
             res.end()
           })
 
           request(server)
-          .get('/admin')
-          .expect(shouldSetCookieWithAttribute('connect.sid', 'Expires'))
-          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'HttpOnly'))
-          .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'Path', '/admin'))
-          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
-          .expect(200, done)
+            .get('/admin')
+            .expect(shouldSetCookieWithAttribute('connect.sid', 'Expires'))
+            .expect(shouldSetCookieWithoutAttribute('connect.sid', 'HttpOnly'))
+            .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'Path', '/admin'))
+            .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
+            .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'Priority', 'High'))
+            .expect(200, done)
         })
 
         it('should preserve cookies set before writeHead is called', function(done){

@@ -114,5 +114,13 @@ describe('new Cookie()', function () {
         assert.strictEqual(cookie.path, '/foo')
       })
     })
+
+    describe('priority', function () {
+      it('should set priority', function () {
+        var cookie = new Cookie({ priority: 'high' })
+
+        assert.strictEqual(cookie.priority, 'high')
+      })
+    })
   })
 })

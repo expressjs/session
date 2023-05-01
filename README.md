@@ -94,6 +94,20 @@ defined in the object is what is used.
 Specifies the value for the `Path` `Set-Cookie`. By default, this is set to `'/'`, which
 is the root path of the domain.
 
+##### cookie.priority
+
+Specifies the `string` to be the value for the [`Priority` `Set-Cookie` attribute][rfc-west-cookie-priority-00-4.1].
+
+  - `'low'` will set the `Priority` attribute to `Low`.
+  - `'medium'` will set the `Priority` attribute to `Medium`, the default priority when not set.
+  - `'high'` will set the `Priority` attribute to `High`.
+
+More information about the different priority levels can be found in
+[the specification][rfc-west-cookie-priority-00-4.1].
+
+**Note** This is an attribute that has not yet been fully standardized, and may change in the future.
+This also means many clients may ignore this attribute until they understand it.
+
 ##### cookie.sameSite
 
 Specifies the `boolean` or `string` to be the value for the `SameSite` `Set-Cookie` attribute.
@@ -994,6 +1008,7 @@ On Windows, use the corresponding command;
 [MIT](LICENSE)
 
 [rfc-6265bis-03-4.1.2.7]: https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+[rfc-west-cookie-priority-00-4.1]: https://tools.ietf.org/html/draft-west-cookie-priority-00#section-4.1
 [ci-image]: https://badgen.net/github/checks/expressjs/session/master?label=ci
 [ci-url]: https://github.com/expressjs/session/actions?query=workflow%3Aci
 [coveralls-image]: https://badgen.net/coveralls/c/github/expressjs/session/master
