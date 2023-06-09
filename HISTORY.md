@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * Support any type in `secret` that `crypto.createHmac` supports
+  * deps: cookie-signature@1.0.7
+
 1.17.3 / 2022-05-11
 ===================
 

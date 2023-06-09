@@ -2,6 +2,7 @@
 var after = require('after')
 var assert = require('assert')
 var cookieParser = require('cookie-parser')
+var crypto = require('crypto')
 var express = require('express')
 var fs = require('fs')
 var http = require('http')
@@ -1195,6 +1196,50 @@ describe('session()', function(){
   describe('secret option', function () {
     it('should reject empty arrays', function () {
       assert.throws(createServer.bind(null, { secret: [] }), /secret option array/);
+    })
+
+    it('should sign and unsign with a string', function (done) {
+      var server = createServer({ secret: 'awesome cat' }, function (req, res) {
+        if (!req.session.user) {
+          req.session.user = 'bob'
+          res.end('set')
+        } else {
+          res.end('get:' + JSON.stringify(req.session.user))
+        }
+      })
+
+      request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'set', function (err, res) {
+          if (err) return done(err)
+          request(server)
+            .get('/')
+            .set('Cookie', cookie(res))
+            .expect(200, 'get:"bob"', done)
+        })
+    })
+
+    it('should sign and unsign with a Buffer', function (done) {
+      var server = createServer({ secret: crypto.randomBytes(32) }, function (req, res) {
+        if (!req.session.user) {
+          req.session.user = 'bob'
+          res.end('set')
+        } else {
+          res.end('get:' + JSON.stringify(req.session.user))
+        }
+      })
+
+      request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'set', function (err, res) {
+          if (err) return done(err)
+          request(server)
+            .get('/')
+            .set('Cookie', cookie(res))
+            .expect(200, 'get:"bob"', done)
+        })
     })
 
     describe('when an array', function () {

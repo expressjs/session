@@ -274,12 +274,13 @@ it to be saved. *This has been fixed in PassportJS 0.3.0*
 
 **Required option**
 
-This is the secret used to sign the session ID cookie. This can be either a string
-for a single secret, or an array of multiple secrets. If an array of secrets is
-provided, only the first element will be used to sign the session ID cookie, while
-all the elements will be considered when verifying the signature in requests. The
-secret itself should be not easily parsed by a human and would best be a random set
-of characters. A best practice may include:
+This is the secret used to sign the session ID cookie. The secret can be any type
+of value that is supported by Node.js `crypto.createHmac` (like a string or a
+`Buffer`). This can be either a single secret, or an array of multiple secrets. If
+an array of secrets is provided, only the first element will be used to sign the
+session ID cookie, while all the elements will be considered when verifying the
+signature in requests. The secret itself should be not easily parsed by a human and
+would best be a random set of characters. A best practice may include:
 
   - The use of environment variables to store the secret, ensuring the secret itself
     does not exist in your repository.
