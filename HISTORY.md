@@ -1,3 +1,9 @@
+1.17.3 / 2022-05-11
+===================
+
+  * Fix resaving already-saved new session at end of request
+  * deps: cookie@0.4.2
+
 1.17.2 / 2021-05-19
 ===================
 

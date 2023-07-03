@@ -29,27 +29,28 @@ jobs:
         - Node.js 15.x
         - Node.js 16.x
         - Node.js 17.x
+        - Node.js 18.x
 
         include:
         - name: Node.js 0.10
           node-version: "0.10"
-          npm-i: mocha@3.5.3 nyc@10.3.2 supertest@2.0.0
+          npm-i: mocha@2.5.3 nyc@10.3.2 supertest@2.0.0
 
         - name: Node.js 0.12
           node-version: "0.12"
-          npm-i: mocha@3.5.3 nyc@10.3.2 supertest@2.0.0
+          npm-i: mocha@2.5.3 nyc@10.3.2 supertest@2.0.0
 
         - name: io.js 1.x
           node-version: "1.8"
-          npm-i: mocha@3.5.3 nyc@10.3.2 supertest@2.0.0
+          npm-i: mocha@2.5.3 nyc@10.3.2 supertest@2.0.0
 
         - name: io.js 2.x
           node-version: "2.5"
-          npm-i: mocha@3.5.3 nyc@10.3.2 supertest@2.0.0
+          npm-i: mocha@2.5.3 nyc@10.3.2 supertest@2.0.0
 
         - name: io.js 3.x
           node-version: "3.3"
-          npm-i: mocha@3.5.3 nyc@10.3.2 supertest@2.0.0
+          npm-i: mocha@2.5.3 nyc@10.3.2 supertest@2.0.0
 
         - name: Node.js 4.x
           node-version: "4.9"
@@ -61,11 +62,11 @@ jobs:
 
         - name: Node.js 6.x
           node-version: "6.17"
-          npm-i: mocha@6.2.2 nyc@14.1.1
+          npm-i: mocha@6.2.2 nyc@14.1.1 supertest@6.1.6
 
         - name: Node.js 7.x
           node-version: "7.10"
-          npm-i: mocha@6.2.2 nyc@14.1.1
+          npm-i: mocha@6.2.2 nyc@14.1.1 supertest@6.1.6
 
         - name: Node.js 8.x
           node-version: "8.17"
@@ -85,21 +86,26 @@ jobs:
 
         - name: Node.js 12.x
           node-version: "12.22"
+          npm-i: mocha@9.2.2
 
         - name: Node.js 13.x
           node-version: "13.14"
+          npm-i: mocha@9.2.2
 
         - name: Node.js 14.x
-          node-version: "14.18"
+          node-version: "14.19"
 
         - name: Node.js 15.x
           node-version: "15.14"
 
         - name: Node.js 16.x
-          node-version: "16.13"
+          node-version: "16.15"
 
         - name: Node.js 17.x
-          node-version: "17.3"
+          node-version: "17.9"
+
+        - name: Node.js 18.x
+          node-version: "18.0"
 
     steps:
     - uses: actions/checkout@v2
