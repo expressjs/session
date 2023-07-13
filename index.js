@@ -64,7 +64,7 @@ var warning = 'Warning: connect.session() MemoryStore is not\n'
 /* istanbul ignore next */
 var defer = typeof setImmediate === 'function'
   ? setImmediate
-  : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
+  : function (fn) { process.nextTick(fn.bind.apply(fn, arguments)) }
 
 /**
  * Setup session store with the given `options`.
@@ -155,7 +155,7 @@ function session(options) {
   }
 
   // generates the new session
-  store.generate = function(req){
+  store.generate = function (req) {
     req.sessionID = generateId(req);
     req.session = new Session(req);
     req.session.cookie = new Cookie(cookieOptions);
@@ -169,16 +169,27 @@ function session(options) {
 
   // register event listeners for the store to track readiness
   var storeReady = true
-  store.on('disconnect', function ondisconnect() {
+
+  function ondisconnect() {
     storeReady = false
-  })
-  store.on('connect', function onconnect() {
+  }
+
+  function onconnect() {
     storeReady = true
-  })
+  }
+
+  store.on('disconnect', ondisconnect)
+  store.on('connect', onconnect)
+
+  function cleanEventListeners() {
+    store.off('disconnect', ondisconnect);
+    store.off('connect', onconnect);
+  }
 
   return function session(req, res, next) {
     // self-awareness
     if (req.session) {
+      cleanEventListeners();
       next()
       return
     }
@@ -187,16 +198,21 @@ function session(options) {
     // the store has temporarily disconnected etc
     if (!storeReady) {
       debug('store is disconnected')
+      cleanEventListeners();
       next()
       return
     }
 
     // pathname mismatch
     var originalPath = parseUrl.original(req).pathname || '/'
-    if (originalPath.indexOf(cookieOptions.path || '/') !== 0) return next();
+    if (originalPath.indexOf(cookieOptions.path || '/') !== 0) {
+      cleanEventListeners();
+      return next();
+    }
 
     // ensure a secret is available or bail
     if (!secret && !req.secret) {
+      cleanEventListeners();
       next(new Error('secret option required for sessions'));
       return;
     }
@@ -217,7 +233,7 @@ function session(options) {
     var cookieId = req.sessionID = getcookie(req, name, secrets);
 
     // set-cookie
-    onHeaders(res, function(){
+    onHeaders(res, function () {
       if (!req.session) {
         debug('no session');
         return;
@@ -368,7 +384,7 @@ function session(options) {
     }
 
     // inflate the session
-    function inflate (req, sess) {
+    function inflate(req, sess) {
       store.createSession(req, sess)
       originalId = req.sessionID
       originalHash = hash(sess)
@@ -380,7 +396,7 @@ function session(options) {
       wrapmethods(req.session)
     }
 
-    function rewrapmethods (sess, callback) {
+    function rewrapmethods(sess, callback) {
       return function () {
         if (req.session !== sess) {
           wrapmethods(req.session)
@@ -476,16 +492,18 @@ function session(options) {
     if (!req.sessionID) {
       debug('no SID sent, generating session');
       generate();
+      cleanEventListeners();
       next();
       return;
     }
 
     // generate the session object
     debug('fetching %s', req.sessionID);
-    store.get(req.sessionID, function(err, sess){
+    store.get(req.sessionID, function (err, sess) {
       // error handling
       if (err && err.code !== 'ENOENT') {
         debug('error %j', err);
+        cleanEventListeners();
         next(err)
         return
       }
@@ -499,10 +517,12 @@ function session(options) {
           inflate(req, sess)
         }
       } catch (e) {
+        cleanEventListeners();
         next(e)
         return
       }
 
+      cleanEventListeners();
       next()
     });
   };
