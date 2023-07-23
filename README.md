@@ -560,6 +560,11 @@ and other multi-core embedded devices).
 [connect-cloudant-store-url]: https://www.npmjs.com/package/connect-cloudant-store
 [connect-cloudant-store-image]: https://badgen.net/github/stars/adriantanasa/connect-cloudant-store?label=%E2%98%85
 
+[![★][connect-cosmosdb-image] connect-cosmosdb][connect-cosmosdb-url] An Azure [Cosmos DB](https://azure.microsoft.com/en-us/products/cosmos-db/)-based session store.
+
+[connect-cosmosdb-url]: https://www.npmjs.com/package/connect-cosmosdb
+[connect-cosmosdb-image]: https://badgen.net/github/stars/thekillingspree/connect-cosmosdb?label=%E2%98%85
+
 [![★][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](http://www.couchbase.com/)-based session store.
 
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
