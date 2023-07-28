@@ -85,7 +85,7 @@ jobs:
       run: npm run lint
 
     - name: Collect code coverage
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@v2
       if: steps.list_env.outputs.nyc != ''
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

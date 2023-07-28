@@ -144,18 +144,8 @@ class MemoryStore extends Store {
        * Get session from the store.
        * @private
        */
-  getSession(sessionId){
-    let sess
-    let unwrapped_id
-
-    if (typeof sessionId === 'string') {
-      unwrapped_id = sessionId
-    } else {
-      // @ts-ignore
-      unwrapped_id = sessionId.value
-    }
-
-    sess = this.sessions[unwrapped_id]
+  getSession(sessionId) {
+    let sess = this.sessions[sessionId]
 
     if (!sess) {
       return
@@ -171,7 +161,7 @@ class MemoryStore extends Store {
 
       // destroy expired session
       if (expires && expires <= Date.now()) {
-        delete this.sessions[unwrapped_id]
+        delete this.sessions[sessionId]
         return
       }
     }
