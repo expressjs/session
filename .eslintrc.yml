@@ -1,4 +1,6 @@
 root: true
+parserOptions:
+  ecmaVersion: latest
 extends:
   - plugin:markdown/recommended
 plugins:

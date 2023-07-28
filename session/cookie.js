@@ -11,8 +11,8 @@
  * Module dependencies.
  */
 
-var cookie = require('cookie')
-var deprecate = require('depd')('express-session')
+const cookie = require('cookie')
+const deprecate = require('depd')('express-session')
 
 /**
  * Initialize a new `Cookie` with the given `options`.
@@ -22,33 +22,28 @@ var deprecate = require('depd')('express-session')
  * @api private
  */
 
-var Cookie = module.exports = function Cookie(options) {
-  this.path = '/';
-  this.maxAge = null;
-  this.httpOnly = true;
+class Cookie {
+  constructor(options) {
+    this.path = '/';
+    this.maxAge = null;
+    this.httpOnly = true;
 
-  if (options) {
-    if (typeof options !== 'object') {
-      throw new TypeError('argument options must be a object')
-    }
+    if (options) {
+      if (typeof options !== 'object') {
+        throw new TypeError('argument options must be a object')
+      }
 
-    for (var key in options) {
-      if (key !== 'data') {
-        this[key] = options[key]
+      for (var key in options) {
+        if (key !== 'data') {
+          this[key] = options[key]
+        }
       }
     }
+
+    if (this.originalMaxAge === undefined || this.originalMaxAge === null) {
+      this.originalMaxAge = this.maxAge
+    }
   }
-
-  if (this.originalMaxAge === undefined || this.originalMaxAge === null) {
-    this.originalMaxAge = this.maxAge
-  }
-};
-
-/*!
- * Prototype.
- */
-
-Cookie.prototype = {
 
   /**
    * Set expires `date`.
@@ -60,7 +55,7 @@ Cookie.prototype = {
   set expires(date) {
     this._expires = date;
     this.originalMaxAge = this.maxAge;
-  },
+  }
 
   /**
    * Get expires `date`.
@@ -71,7 +66,7 @@ Cookie.prototype = {
 
   get expires() {
     return this._expires;
-  },
+  }
 
   /**
    * Set expires via max-age in `ms`.
@@ -92,7 +87,7 @@ Cookie.prototype = {
     this.expires = typeof ms === 'number'
       ? new Date(Date.now() + ms)
       : ms;
-  },
+  }
 
   /**
    * Get expires max-age in `ms`.
@@ -105,7 +100,7 @@ Cookie.prototype = {
     return this.expires instanceof Date
       ? this.expires.valueOf() - Date.now()
       : this.expires;
-  },
+  }
 
   /**
    * Return cookie data object.
@@ -124,7 +119,7 @@ Cookie.prototype = {
       , path: this.path
       , sameSite: this.sameSite
     }
-  },
+  }
 
   /**
    * Return a serialized cookie string.
@@ -133,9 +128,9 @@ Cookie.prototype = {
    * @api public
    */
 
-  serialize: function(name, val){
+  serialize(name, val) {
     return cookie.serialize(name, val, this.data);
-  },
+  }
 
   /**
    * Return JSON representation of this cookie.
@@ -144,7 +139,9 @@ Cookie.prototype = {
    * @api private
    */
 
-  toJSON: function(){
+  toJSON() {
     return this.data;
   }
-};
+}
+
+module.exports = Cookie

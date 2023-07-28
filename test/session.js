@@ -76,8 +76,8 @@ describe('session()', function(){
   })
 
   it('should load session from cookie sid', function (done) {
-    var count = 0
-    var server = createServer(null, function (req, res) {
+    let count = 0
+    const server = createServer(null, function (req, res) {
       req.session.num = req.session.num || ++count
       res.end('session ' + req.session.num)
     });

@@ -629,7 +629,7 @@ function getcookie(req, name, secrets) {
 
 function hash(sess) {
   // serialize
-  var str = JSON.stringify(sess, function (key, val) {
+  const str = JSON.stringify(sess, function (key, val) {
     // ignore sess.cookie property
     if (this === sess && key === 'cookie') {
       return

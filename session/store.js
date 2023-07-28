@@ -12,91 +12,84 @@
  * @private
  */
 
-var Cookie = require('./cookie')
-var EventEmitter = require('events').EventEmitter
-var Session = require('./session')
-var util = require('util')
+const Cookie = require('./cookie')
+const EventEmitter = require('events').EventEmitter
+const Session = require('./session')
 
 /**
  * Module exports.
  * @public
  */
 
-module.exports = Store
 
 /**
  * Abstract base class for session stores.
  * @public
  */
 
-function Store () {
-  EventEmitter.call(this)
+class Store extends EventEmitter {
+
+  constructor() {
+    super();
+    EventEmitter.call(this)
+  }
+  /**
+   * Re-generate the given request's session.
+   *
+   * @param  req
+   * @param {Function} fn
+   * @api public
+   */
+  regenerate(req, fn){
+    const self = this;
+    this.destroy(req.sessionID, (err)=>{
+      self.generate(req);
+      fn(err);
+    });
+  }
+  /**
+   * Load a `Session` instance via the given `sid`
+   * and invoke the callback `fn(err, sess)`.
+   *
+   * @param {String} sid
+   * @param {Function} fn
+   * @api public
+   */
+  load(sid, fn){
+    const self = this;
+    this.get(sid, function(err, sess){
+      if (err) return fn(err);
+      if (!sess) return fn();
+      const req = { sessionID: sid, sessionStore: self };
+      fn(null, self.createSession(req, sess))
+    });
+  }
+  /**
+   * Create session from JSON `sess` data.
+   *
+   * @param {Function} req
+   * @param {Object} sess
+   * @return {Session}
+   * @api private
+   */
+  createSession(req, sess) {
+    const expires = sess.cookie.expires
+    const originalMaxAge = sess.cookie.originalMaxAge
+
+    sess.cookie = new Cookie(sess.cookie);
+
+    if (typeof expires === 'string') {
+      // convert expires to a Date object
+      sess.cookie.expires = new Date(expires)
+    }
+
+    // keep originalMaxAge intact
+    sess.cookie.originalMaxAge = originalMaxAge
+
+    req.session = new Session(req, sess);
+    return req.session;
+  }
 }
 
-/**
- * Inherit from EventEmitter.
- */
 
-util.inherits(Store, EventEmitter)
-
-/**
- * Re-generate the given requests's session.
- *
- * @param {IncomingRequest} req
- * @return {Function} fn
- * @api public
- */
-
-Store.prototype.regenerate = function(req, fn){
-  var self = this;
-  this.destroy(req.sessionID, function(err){
-    self.generate(req);
-    fn(err);
-  });
-};
-
-/**
- * Load a `Session` instance via the given `sid`
- * and invoke the callback `fn(err, sess)`.
- *
- * @param {String} sid
- * @param {Function} fn
- * @api public
- */
-
-Store.prototype.load = function(sid, fn){
-  var self = this;
-  this.get(sid, function(err, sess){
-    if (err) return fn(err);
-    if (!sess) return fn();
-    var req = { sessionID: sid, sessionStore: self };
-    fn(null, self.createSession(req, sess))
-  });
-};
-
-/**
- * Create session from JSON `sess` data.
- *
- * @param {IncomingRequest} req
- * @param {Object} sess
- * @return {Session}
- * @api private
- */
-
-Store.prototype.createSession = function(req, sess){
-  var expires = sess.cookie.expires
-  var originalMaxAge = sess.cookie.originalMaxAge
-
-  sess.cookie = new Cookie(sess.cookie);
-
-  if (typeof expires === 'string') {
-    // convert expires to a Date object
-    sess.cookie.expires = new Date(expires)
-  }
-
-  // keep originalMaxAge intact
-  sess.cookie.originalMaxAge = originalMaxAge
-
-  req.session = new Session(req, sess);
-  return req.session;
-};
+module.exports = Store
