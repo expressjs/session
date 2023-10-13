@@ -837,11 +837,6 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [session-pouchdb-store-url]: https://www.npmjs.com/package/session-pouchdb-store
 [session-pouchdb-store-image]: https://badgen.net/github/stars/solzimer/session-pouchdb-store?label=%E2%98%85
 
-[![★][session-rethinkdb-image] session-rethinkdb][session-rethinkdb-url] A [RethinkDB](http://rethinkdb.com/)-based session store.
-
-[session-rethinkdb-url]: https://www.npmjs.com/package/session-rethinkdb
-[session-rethinkdb-image]: https://badgen.net/github/stars/llambda/session-rethinkdb?label=%E2%98%85
-
 [![★][@cyclic.sh/session-store-image] @cyclic.sh/session-store][@cyclic.sh/session-store-url] A DynamoDB-based session store for [Cyclic.sh](https://www.cyclic.sh/) apps.
 
 [@cyclic.sh/session-store-url]: https://www.npmjs.com/package/@cyclic.sh/session-store
