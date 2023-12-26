@@ -1,10 +1,11 @@
 unreleased
 ==========
 
+  * Add `partitioned` to `cookie` options
   * Add `priority` to `cookie` options
   * Fix handling errors from setting cookie
   * Support any type in `secret` that `crypto.createHmac` supports
-  * deps: cookie@0.5.0
+  * deps: cookie@0.6.0
     - Fix `expires` option to reject invalid dates
     - perf: improve default decode speed
     - perf: remove slow string split in parse

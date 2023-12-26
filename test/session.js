@@ -2233,6 +2233,41 @@ describe('session()', function(){
           })
         })
       })
+
+      describe('.partitioned', function () {
+        describe('by default', function () {
+          it('should not set partitioned attribute', function (done) {
+            var server = createServer()
+
+            request(server)
+              .get('/')
+              .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Partitioned'))
+              .expect(200, done)
+          })
+        })
+
+        describe('when "false"', function () {
+          it('should not set partitioned attribute', function (done) {
+            var server = createServer({ cookie: { partitioned: false } })
+
+            request(server)
+              .get('/')
+              .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Partitioned'))
+              .expect(200, done)
+          })
+        })
+
+        describe('when "true"', function () {
+          it('should set partitioned attribute', function (done) {
+            var server = createServer({ cookie: { partitioned: true } })
+
+            request(server)
+              .get('/')
+              .expect(shouldSetCookieWithAttribute('connect.sid', 'Partitioned'))
+              .expect(200, done)
+          })
+        })
+      })
     })
   })
 
