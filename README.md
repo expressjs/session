@@ -89,6 +89,18 @@ no maximum age is set.
 **Note** If both `expires` and `maxAge` are set in the options, then the last one
 defined in the object is what is used.
 
+##### cookie.partitioned
+
+Specifies the `boolean` value for the [`Partitioned` `Set-Cookie`](rfc-cutler-httpbis-partitioned-cookies)
+attribute. When truthy, the `Partitioned` attribute is set, otherwise it is not.
+By default, the `Partitioned` attribute is not set.
+
+**Note** This is an attribute that has not yet been fully standardized, and may
+change in the future. This also means many clients may ignore this attribute until
+they understand it.
+
+More information about can be found in [the proposal](https://github.com/privacycg/CHIPS).
+
 ##### cookie.path
 
 Specifies the value for the `Path` `Set-Cookie`. By default, this is set to `'/'`, which
@@ -1003,6 +1015,7 @@ On Windows, use the corresponding command;
 [MIT](LICENSE)
 
 [rfc-6265bis-03-4.1.2.7]: https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+[rfc-cutler-httpbis-partitioned-cookies]: https://tools.ietf.org/html/draft-cutler-httpbis-partitioned-cookies/
 [rfc-west-cookie-priority-00-4.1]: https://tools.ietf.org/html/draft-west-cookie-priority-00#section-4.1
 [ci-image]: https://badgen.net/github/checks/expressjs/session/master?label=ci
 [ci-url]: https://github.com/expressjs/session/actions?query=workflow%3Aci

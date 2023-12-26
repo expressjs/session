@@ -10,7 +10,7 @@
   "repository": "expressjs/session",
   "license": "MIT",
   "dependencies": {
-    "cookie": "0.5.0",
+    "cookie": "0.6.0",
     "cookie-signature": "1.0.7",
     "debug": "2.6.9",
     "depd": "~2.0.0",

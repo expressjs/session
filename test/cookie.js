@@ -107,6 +107,14 @@ describe('new Cookie()', function () {
       })
     })
 
+    describe('partitioned', function () {
+      it('should set partitioned', function () {
+        var cookie = new Cookie({ partitioned: true })
+
+        assert.strictEqual(cookie.partitioned, true)
+      })
+    })
+
     describe('path', function () {
       it('should set path', function () {
         var cookie = new Cookie({ path: '/foo' })
