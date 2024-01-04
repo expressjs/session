@@ -123,7 +123,7 @@ jobs:
           node-version: "20.9"
 
         - name: Node.js 21.x
-          node-version: "21.1"
+          node-version: "21.5"
 
     steps:
     - uses: actions/checkout@v3
