@@ -1,5 +1,5 @@
-unreleased
-==========
+1.18.0 / 2024-01-28
+===================
 
   * Add debug log for pathname mismatch
   * Add `partitioned` to `cookie` options
