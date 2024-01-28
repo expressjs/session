@@ -1945,6 +1945,23 @@ describe('session()', function(){
             .expect(200, done)
         })
 
+        it('should forward errors setting cookie', function (done) {
+          var cb = after(2, done)
+          var server = createServer({ cookie: { expires: new Date(NaN) } }, function (req, res) {
+            res.end()
+          })
+
+          server.on('error', function onerror (err) {
+            assert.ok(err)
+            assert.strictEqual(err.message, 'option expires is invalid')
+            cb()
+          })
+
+          request(server)
+            .get('/admin')
+            .expect(200, cb)
+        })
+
         it('should preserve cookies set before writeHead is called', function(done){
           var server = createServer(null, function (req, res) {
             var cookie = new Cookie()

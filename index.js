@@ -240,7 +240,11 @@ function session(options) {
       }
 
       // set cookie
-      setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data);
+      try {
+        setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data)
+      } catch (err) {
+        defer(next, err)
+      }
     });
 
     // proxy end() to commit the session
