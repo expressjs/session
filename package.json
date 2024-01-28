@@ -27,7 +27,7 @@
     "express": "4.17.3",
     "mocha": "10.2.0",
     "nyc": "15.1.0",
-    "supertest": "6.3.3"
+    "supertest": "6.3.4"
   },
   "files": [
     "session/",
