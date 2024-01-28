@@ -120,7 +120,7 @@ jobs:
           node-version: "19.9"
 
         - name: Node.js 20.x
-          node-version: "20.10"
+          node-version: "20.11"
 
         - name: Node.js 21.x
           node-version: "21.6"
