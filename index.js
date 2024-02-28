@@ -246,6 +246,11 @@ function session(options) {
       // set cookie
       try {
         setcookie(res, name, req.sessionID, secrets[0], req.session.cookie.data)
+
+        const cookieData  = { ...req.session.cookie.data };
+        cookieData.partitioned = !!cookieData.partitioned
+
+        setcookie(res, name, req.sessionID, secrets[0], cookieData)
       } catch (err) {
         defer(next, err)
       }
