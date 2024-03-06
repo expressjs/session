@@ -76,15 +76,14 @@ var defer = typeof setImmediate === 'function'
  * for all paths in OPTIONS requests.
  *
  * @param {string} originalPath - The original request path.
- * @param {Object} cookieOptions - The cookie options object.
- * @param {string} cookieOptions.path - The path for which the cookie is set.
+ * @param {string} cookiePath - The path for which the cookie is set.
  * @returns {boolean} Returns true if the original path matches the cookie path, false otherwise.
  */
-function verifyPath(originalPath, cookieOptions) {
+function verifyPath(originalPath, cookiePath) {
   if (originalPath === '*') {
-    return cookieOptions.path === '/';
+    return cookiePath === '/';
   }
-  return originalPath.indexOf(cookieOptions.path || '/') === 0;
+  return originalPath.indexOf(cookiePath || '/') === 0;
 }
 
 /**
@@ -213,7 +212,7 @@ function session(options) {
     }
     // pathname mismatch
     var originalPath = parseUrl.original(req).pathname || '/'
-    if (!verifyPath(originalPath, cookieOptions)) {
+    if (!verifyPath(originalPath, cookieOptions.path)) {
       debug('pathname mismatch')
       next()
       return
