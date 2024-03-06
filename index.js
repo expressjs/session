@@ -67,6 +67,27 @@ var defer = typeof setImmediate === 'function'
   : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
 
 /**
+ * Verifies if the original request path matches the path specified in the cookie options.
+ * The main purpose is to ensure that the session middleware processes requests that are intended for paths
+ * that match the cookie path.
+ *
+ * A special case is handled for OPTIONS requests with a wildcard '*', which is considered a match only
+ * if the cookie path is the default '/'. This is due to the semantics of HTTP that allows '*' as a wildcard
+ * for all paths in OPTIONS requests.
+ *
+ * @param {string} originalPath - The original request path.
+ * @param {Object} cookieOptions - The cookie options object.
+ * @param {string} cookieOptions.path - The path for which the cookie is set.
+ * @returns {boolean} Returns true if the original path matches the cookie path, false otherwise.
+ */
+function verifyPath(originalPath, cookieOptions) {
+  if (originalPath === '*') {
+    return cookieOptions.path === '/';
+  }
+  return originalPath.indexOf(cookieOptions.path || '/') === 0;
+}
+
+/**
  * Setup session store with the given `options`.
  *
  * @param {Object} [options]
@@ -190,10 +211,9 @@ function session(options) {
       next()
       return
     }
-
     // pathname mismatch
     var originalPath = parseUrl.original(req).pathname || '/'
-    if (originalPath.indexOf(cookieOptions.path || '/') !== 0) {
+    if (!verifyPath(originalPath, cookieOptions)) {
       debug('pathname mismatch')
       next()
       return
