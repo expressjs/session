@@ -8,6 +8,16 @@
 'use strict';
 
 /**
+ * Node.js 0.8+ async implementation.
+ * @private
+ */
+
+/* istanbul ignore next */
+var defer = typeof setImmediate === 'function'
+  ? setImmediate
+  : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
+
+/**
  * Expose Session.
  */
 
@@ -40,12 +50,15 @@ function Session(req, data) {
  * the cookie from expiring when the
  * session is still active.
  *
+ * @param {Function} fn optional done callback
  * @return {Session} for chaining
  * @api public
  */
 
-defineMethod(Session.prototype, 'touch', function touch() {
-  return this.resetMaxAge();
+defineMethod(Session.prototype, 'touch', function touch(fn) {
+  this.resetMaxAge();
+  if (fn) defer(fn);
+  return this;
 });
 
 /**
