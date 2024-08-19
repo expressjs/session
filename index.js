@@ -593,14 +593,14 @@ function getcookie(req, name, secrets) {
     }
   }
 
-  // back-compat read from cookieParser() signedCookies data
+  /* Removed due to incompatibility with hyper-express// back-compat read from cookieParser() signedCookies data
   if (!val && req.signedCookies) {
     val = req.signedCookies[name];
 
     if (val) {
       deprecate('cookie should be available in req.headers.cookie');
     }
-  }
+  }*/
 
   // back-compat read from cookieParser() cookies data
   if (!val && req.cookies) {
