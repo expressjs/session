@@ -295,7 +295,7 @@ function session(options) {
           return ret;
         }
 
-        if (!res._header) {
+        if (!res._header && res._implicitHeader) {
           res._implicitHeader()
         }
 
