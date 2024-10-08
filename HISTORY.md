@@ -1,6 +1,5 @@
-unreleased
+1.18.1 / 2024-10-08
 ==========
-
 
   * deps: cookie@0.7.2
     - Fix object assignment of `hasOwnProperty`
