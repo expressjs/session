@@ -1,9 +1,3 @@
-unreleased
-==================
-
-  * deps: depd@^2.0.0, on-headers@^1.0.0, parseurl@^1.3.3, uid-safe@^2.1.5
-    - Change tilde (~) to caret (^) policy: https://github.com/expressjs/discussions/pull/290
-
 1.18.1 / 2024-10-08
 ==========
 
