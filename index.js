@@ -13,7 +13,6 @@
  * @private
  */
 
-var Buffer = require('node:buffer').Buffer
 var cookie = require('cookie');
 var crypto = require('crypto')
 var debug = require('debug')('express-session');
