@@ -783,7 +783,7 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-sessions-url]: https://www.npmjs.com/package/express-sessions
 [express-sessions-image]: https://badgen.net/github/stars/konteck/express-sessions?label=%E2%98%85
 
-[![★][express-sqlite3-image] express-sqlite3][express-sqlite3-url] A [SQLite3](https://github.com/mapbox/node-sqlite3) based session store.
+[![★][express-sqlite3-image] express-sqlite3][express-sqlite3-url] A light-weight and configurable [SQLite3](https://github.com/mapbox/node-sqlite3) based session store.
 
 [express-sqlite3-url]: https://www.npmjs.com/package/express-sqlite3
 [express-sqlite3-image]: https://badgen.net/github/stars/RomanBurunkov/express-sqlite3?label=%E2%98%85
