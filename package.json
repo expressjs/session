@@ -42,6 +42,7 @@
     "test": "mocha --require test/support/env --check-leaks --bail --no-exit --reporter spec test/",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc npm test",
-    "version": "node scripts/version-history.js && git add HISTORY.md"
+    "version": "node scripts/version-history.js && git add HISTORY.md",
+    "gencert": "./test/support/gencert.sh"
   }
 }
