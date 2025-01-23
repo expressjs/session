@@ -1,12 +1,5 @@
 #! /bin/sh
 set -ex
 
-openssl genpkey -algorithm RSA -out new_server.key -pkeyopt rsa_keygen_bits:2048
-
-openssl x509 -in ./test/fixtures/server.crt -signkey new_server.key -days 3650 -out new_server.crt
-
-openssl x509 -in new_server.crt -text -noout
-
-mv new_server.crt ./test/fixtures/server.crt
-
-mv new_server.key ./test/fixtures/server.key
+openssl req -x509 -nodes -newkey rsa:2048 -keyout ./test/fixtures/server.key -out ./test/fixtures/server.crt -days 3650 \
+-subj "/C=US/ST=Illinois/L=Chicago/O=node-express-session/CN=express-session.local"
