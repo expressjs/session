@@ -491,6 +491,35 @@ describe('session()', function(){
     })
   })
 
+  describe('when session is corrupt', function () {
+    it('should return an error', function (done) {
+      var store = new session.MemoryStore()
+      var server = createServer({ store: store }, function (req, res) {
+        req.session.count = req.session.count || 0
+        req.session.count++
+        res.end('hits: ' + req.session.count)
+      })
+
+      store.get = function returnCorruptSession(sid, callback) {
+        callback(undefined, {});
+      }
+
+      request(server)
+      .get('/')
+      .expect(200, 'hits: 1', function (err, res) {
+        if (err) return done(err)
+        store.load(sid(res), function (err, sess) {
+          assert.ok(err);
+          assert.ok(err.message.match(/Cannot read prop/));
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(500, /Cannot read prop/, done)
+        })
+      })
+    })
+  })
+
   describe('when session expired in store', function () {
     it('should create a new session', function (done) {
       var count = 0
@@ -1707,6 +1736,40 @@ describe('session()', function(){
           .get('/foo')
           .set('Cookie', cookie(res))
           .expect(500, 'failed to load session', done)
+        })
+      })
+
+      it('should error when the session is corrupt', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          store.clear(function (err) {
+            if (err) return done(err)
+            
+            store.get = function returnCorruptSession(sid, callback) {
+              callback(undefined, {});
+            }
+
+            req.session.reload(function (err) {
+              res.statusCode = err ? 500 : 200
+              res.end(err ? err.message : '')
+            })
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'session created', function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/foo')
+          .set('Cookie', cookie(res))
+          .expect(500, /Cannot read prop/, done)
         })
       })
 
