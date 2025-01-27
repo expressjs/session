@@ -523,7 +523,7 @@ function session(options) {
  * @private
  */
 
-function generateSessionId(sess) {
+function generateSessionId() {
   return uid(24);
 }
 
