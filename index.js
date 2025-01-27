@@ -280,8 +280,8 @@ function session(options) {
           return ret;
         }
 
-        if (!res._header) {
-          res._implicitHeader()
+        if (typeof res.headersSent === 'boolean' ? !res.headersSent : !res._header) {
+          res.writeHead(res.statusCode)
         }
 
         if (chunk == null) {
