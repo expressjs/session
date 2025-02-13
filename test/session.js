@@ -2310,10 +2310,10 @@ describe('session()', function(){
   })
 
   describe('cookieParser()', function () {
-    it('should read from req.cookies', function(done){
+    it('shouldn\'t read from req.cookies', function(done){
       var app = express()
         .use(cookieParser())
-        .use(function(req, res, next){ req.headers.cookie = 'foo=bar'; next() })
+        .use(function(req, res, next){ delete req.headers.cookie; next() })
         .use(createSession())
         .use(function(req, res, next){
           req.session.count = req.session.count || 0
@@ -2328,56 +2328,11 @@ describe('session()', function(){
         request(app)
         .get('/')
         .set('Cookie', cookie(res))
-        .expect(200, '2', done)
-      })
-    })
-
-    it('should reject unsigned from req.cookies', function(done){
-      var app = express()
-        .use(cookieParser())
-        .use(function(req, res, next){ req.headers.cookie = 'foo=bar'; next() })
-        .use(createSession({ key: 'sessid' }))
-        .use(function(req, res, next){
-          req.session.count = req.session.count || 0
-          req.session.count++
-          res.end(req.session.count.toString())
-        })
-
-      request(app)
-      .get('/')
-      .expect(200, '1', function (err, res) {
-        if (err) return done(err)
-        request(app)
-        .get('/')
-        .set('Cookie', 'sessid=' + sid(res))
         .expect(200, '1', done)
       })
     })
 
-    it('should reject invalid signature from req.cookies', function(done){
-      var app = express()
-        .use(cookieParser())
-        .use(function(req, res, next){ req.headers.cookie = 'foo=bar'; next() })
-        .use(createSession({ key: 'sessid' }))
-        .use(function(req, res, next){
-          req.session.count = req.session.count || 0
-          req.session.count++
-          res.end(req.session.count.toString())
-        })
-
-      request(app)
-      .get('/')
-      .expect(200, '1', function (err, res) {
-        if (err) return done(err)
-        var val = cookie(res).replace(/...\./, '.')
-        request(app)
-        .get('/')
-        .set('Cookie', val)
-        .expect(200, '1', done)
-      })
-    })
-
-    it('should read from req.signedCookies', function(done){
+    it('shouldn\'t read from req.signedCookies', function(done){
       var app = express()
         .use(cookieParser('keyboard cat'))
         .use(function(req, res, next){ delete req.headers.cookie; next() })
@@ -2395,7 +2350,7 @@ describe('session()', function(){
         request(app)
         .get('/')
         .set('Cookie', cookie(res))
-        .expect(200, '2', done)
+        .expect(200, '1', done)
       })
     })
   })
