@@ -143,8 +143,8 @@ function session(options) {
     secret = [secret];
   }
 
-  if (!secret) {
-    deprecate('req.secret; provide secret option');
+  if (secret === undefined) {
+    throw new Error('secret is required for sessions');
   }
 
   // notify user that this store is not
@@ -207,7 +207,7 @@ function session(options) {
 
     // backwards compatibility for signed cookies
     // req.secret is passed from the cookie parser middleware
-    var secrets = secret || [req.secret];
+    var secrets = secret;
 
     var originalHash;
     var originalId;

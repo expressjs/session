@@ -35,20 +35,8 @@ describe('session()', function(){
     .expect(200, done)
   })
 
-  it('should error without secret', function(done){
-    request(createServer({ secret: undefined }))
-    .get('/')
-    .expect(500, /secret.*required/, done)
-  })
-
-  it('should get secret from req.secret', function(done){
-    function setup (req) {
-      req.secret = 'keyboard cat'
-    }
-
-    request(createServer(setup, { secret: undefined }))
-    .get('/')
-    .expect(200, '', done)
+  it('should reject without secret', function(){
+    assert.throws(session.bind(null, { secret: undefined }), /secret.*required/)
   })
 
   it('should create a new session', function (done) {
