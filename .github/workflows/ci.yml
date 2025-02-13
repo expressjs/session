@@ -185,7 +185,7 @@ jobs:
       run: |
         if npm -ps ls nyc | grep -q nyc; then
           npm run test-ci
-          cp coverage/lcov.info "coverage/${{ matrix.name }}.lcov"
+          cp coverage/lcov.info "coverage/${{ matrix.node-version }}.lcov"
         else
           npm test
         fi
@@ -198,17 +198,17 @@ jobs:
       if: steps.list_env.outputs.nyc != ''
       run: |
         if [[ -d ./coverage ]]; then
-          mv ./coverage "./${{ matrix.name }}"
+          mv ./coverage "./${{ matrix.node-version }}"
           mkdir ./coverage
-          mv "./${{ matrix.name }}" "./coverage/${{ matrix.name }}"
+          mv "./${{ matrix.node-version }}" "./coverage/${{ matrix.node-version }}"
         fi
 
     - name: Upload code coverage
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: steps.list_env.outputs.nyc != ''
       with:
-        name: coverage
-        path: ./coverage
+        name: coverage-${{ matrix.node-version }}
+        path: "./coverage/${{ matrix.node-version }}"
         retention-days: 1
 
   coverage:
@@ -222,9 +222,8 @@ jobs:
       run: sudo apt-get -y install lcov
 
     - name: Collect coverage reports
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: coverage
         path: ./coverage
 
     - name: Merge coverage reports
