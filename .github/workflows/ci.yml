@@ -46,7 +46,7 @@ jobs:
         node-version: [18, 19, 20, 21, 22, 23]
         # Node.js release schedule: https://nodejs.org/en/about/releases/
 
-    name: Node.js ${{ matrix.node-version }} - ${{matrix.os}}
+    name: Test - Node.js ${{ matrix.node-version }} - ${{matrix.os}}
 
     runs-on: ${{ matrix.os }}
     steps:
