@@ -67,10 +67,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Output Node and NPM versions
-        run: |
-          echo "Node.js version: $(node -v)"
-          echo "NPM version: $(npm -v)"
 
       - name: Run tests
         shell: bash
