@@ -35,10 +35,6 @@ describe('session()', function(){
     .expect(200, done)
   })
 
-  it('should reject without secret', function(){
-    assert.throws(session.bind(null, { secret: undefined }), /secret.*required/)
-  })
-
   it('should create a new session', function (done) {
     var store = new session.MemoryStore()
     var server = createServer({ store: store }, function (req, res) {
@@ -1182,6 +1178,10 @@ describe('session()', function(){
   });
 
   describe('secret option', function () {
+    it('should reject without secret', function(){
+      assert.throws(session.bind(null, { secret: undefined }), /secret.*required/)
+    })
+
     it('should reject empty arrays', function () {
       assert.throws(createServer.bind(null, { secret: [] }), /secret option array/);
     })
