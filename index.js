@@ -143,7 +143,7 @@ function session(options) {
     secrets = [secrets];
   }
 
-  if (secrets === undefined) {
+  if (!secrets) {
     throw new Error('secret option required for sessions');
   }
 

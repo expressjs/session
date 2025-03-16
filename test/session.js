@@ -1178,8 +1178,11 @@ describe('session()', function(){
   });
 
   describe('secret option', function () {
-    it('should reject without secret', function(){
-      assert.throws(session.bind(null, { secret: undefined }), /secret.*required/)
+    it('should reject without secret',function () {
+      for (const secret of [undefined, null, '', false]) {
+        console.log(secret)
+        assert.throws(session.bind(null, { secret }), /secret option required for sessions/)
+      }
     })
 
     it('should reject empty arrays', function () {
