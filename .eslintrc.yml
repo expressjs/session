@@ -6,10 +6,14 @@ plugins:
 overrides:
   - files: '**/*.md'
     processor: 'markdown/markdown'
+env:
+  es2022: true
+  node: true
 rules:
   eol-last: error
   eqeqeq: ["error", "always", { "null": "ignore" }]
   indent: ["error", 2, { "MemberExpression": "off", "SwitchCase": 1 }]
   no-mixed-spaces-and-tabs: error
   no-trailing-spaces: error
+  no-unused-vars: [error, { vars: all, args: none, ignoreRestSiblings: true }]
   one-var: ["error", { "initialized": "never" }]

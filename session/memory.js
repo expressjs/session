@@ -17,16 +17,6 @@ var Store = require('./store')
 var util = require('util')
 
 /**
- * Shim setImmediate for node.js < 0.10
- * @private
- */
-
-/* istanbul ignore next */
-var defer = typeof setImmediate === 'function'
-  ? setImmediate
-  : function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
-
-/**
  * Module exports.
  */
 
@@ -68,7 +58,7 @@ MemoryStore.prototype.all = function all(callback) {
     }
   }
 
-  callback && defer(callback, null, sessions)
+  callback && setImmediate(callback, null, sessions)
 }
 
 /**
@@ -80,7 +70,7 @@ MemoryStore.prototype.all = function all(callback) {
 
 MemoryStore.prototype.clear = function clear(callback) {
   this.sessions = Object.create(null)
-  callback && defer(callback)
+  callback && setImmediate(callback)
 }
 
 /**
@@ -92,7 +82,7 @@ MemoryStore.prototype.clear = function clear(callback) {
 
 MemoryStore.prototype.destroy = function destroy(sessionId, callback) {
   delete this.sessions[sessionId]
-  callback && defer(callback)
+  callback && setImmediate(callback)
 }
 
 /**
@@ -104,7 +94,7 @@ MemoryStore.prototype.destroy = function destroy(sessionId, callback) {
  */
 
 MemoryStore.prototype.get = function get(sessionId, callback) {
-  defer(callback, null, getSession.call(this, sessionId))
+  setImmediate(callback, null, getSession.call(this, sessionId))
 }
 
 /**
@@ -118,7 +108,7 @@ MemoryStore.prototype.get = function get(sessionId, callback) {
 
 MemoryStore.prototype.set = function set(sessionId, session, callback) {
   this.sessions[sessionId] = JSON.stringify(session)
-  callback && defer(callback)
+  callback && setImmediate(callback)
 }
 
 /**
@@ -153,7 +143,7 @@ MemoryStore.prototype.touch = function touch(sessionId, session, callback) {
     this.sessions[sessionId] = JSON.stringify(currentSession)
   }
 
-  callback && defer(callback)
+  callback && setImmediate(callback)
 }
 
 /**
