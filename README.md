@@ -18,7 +18,10 @@ $ npm install express-session
 ## API
 
 ```js
-var session = require('express-session')
+const session = require('express-session')
+
+const app = express()
+app.use(session(/* options */))
 ```
 
 ### session(options)
