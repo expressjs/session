@@ -29,7 +29,7 @@ module.exports = Store
  * @public
  */
 
-function Store () {
+function Store() {
   EventEmitter.call(this)
 }
 
@@ -47,9 +47,9 @@ util.inherits(Store, EventEmitter)
  * @api public
  */
 
-Store.prototype.regenerate = function(req, fn){
+Store.prototype.regenerate = function(req, fn) {
   var self = this;
-  this.destroy(req.sessionID, function(err){
+  this.destroy(req.sessionID, function(err) {
     self.generate(req);
     fn(err);
   });
@@ -64,9 +64,9 @@ Store.prototype.regenerate = function(req, fn){
  * @api public
  */
 
-Store.prototype.load = function(sid, fn){
+Store.prototype.load = function(sid, fn) {
   var self = this;
-  this.get(sid, function(err, sess){
+  this.get(sid, function(err, sess) {
     if (err) return fn(err);
     if (!sess) return fn();
     var req = { sessionID: sid, sessionStore: self };
@@ -78,25 +78,16 @@ Store.prototype.load = function(sid, fn){
  * Create session from JSON `sess` data.
  *
  * @param {IncomingRequest} req
- * @param {Object} sess
+ * @param {Object} data
  * @return {Session}
  * @api private
  */
 
-Store.prototype.createSession = function(req, sess){
-  var expires = sess.cookie.expires
-  var originalMaxAge = sess.cookie.originalMaxAge
-
-  sess.cookie = new Cookie(sess.cookie);
-
-  if (typeof expires === 'string') {
-    // convert expires to a Date object
-    sess.cookie.expires = new Date(expires)
-  }
-
-  // keep originalMaxAge intact
-  sess.cookie.originalMaxAge = originalMaxAge
-
-  req.session = new Session(req, sess);
+Store.prototype.createSession = function(req, data) {
+  console.log(`createSession: ${JSON.stringify(data)}`)
+  const { cookie: cookieData, ...sessionData } = data
+  const session = new Session(req, sessionData);
+  session.cookie = Cookie.fromJSON(cookieData)
+  req.session = session
   return req.session;
 };
