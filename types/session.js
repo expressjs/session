@@ -4,36 +4,29 @@
  * Copyright(c) 2011 TJ Holowaychuk
  * MIT Licensed
  */
-
 'use strict';
-
 // FIXME: ES5-style classes no support for @implements or @augments https://github.com/microsoft/TypeScript/issues/38985
 // FIXME: ES5-style classes no support for @extends https://github.com/microsoft/TypeScript/issues/36369
-
 /**
  * @import { Request } from "./request.types"
  * @import { SessionData } from "./session.types"
  * @typedef {Request['sessionStore']} SessionStore
  */
-
 /**
  * Create a new `Session` with the given request and `data`.
  */
-
 class Session {
   /**
    * @type {Request}
    */
   // @ts-ignore
   #req;
-
   /**
    * The request sessionID at the time of Session construction, i.e., req.sessionID.
    * @type {string}
    */
   // @ts-ignore
   #id;
-
   /**
    * Each session has a unique ID associated with it.
    * This property is an alias of `req.sessionID` and cannot be modified.
@@ -42,9 +35,8 @@ class Session {
    * @public
    */
   get id() {
-    return this.#id
+    return this.#id;
   }
-
   /**
    * Create a new `Session` with the given request and `data`.
    *
@@ -53,23 +45,22 @@ class Session {
    * @param {Partial<SessionData>} data
    */
   constructor(req, data) {
-    this.#req = req
-    this.#id = req.sessionID
-
+    this.#req = req;
+    this.#id = req.sessionID;
     if (typeof data === 'object' && data !== null) {
       /** @type {{[x: string]: any}} */
-      const thisAsObject = this
+      const thisAsObject = this;
       /** @type {{[x: string]: any}} */
-      const dataAsObject = data
+      const dataAsObject = data;
       // merge data into this, ignoring prototype properties
       for (var prop in dataAsObject) {
         if (!(prop in thisAsObject)) {
-          thisAsObject[prop] = dataAsObject[prop]
+          console.log(`thisAsObject[${prop}] = dataAsObject[${prop}]: ${typeof dataAsObject[prop]}`);
+          thisAsObject[prop] = dataAsObject[prop];
         }
       }
     }
   }
-
   /**
    * Update reset `.cookie.maxAge` to prevent
    * the cookie from expiring when the
@@ -81,7 +72,6 @@ class Session {
   touch() {
     return this.resetMaxAge();
   }
-
   /**
    * Reset `.maxAge` to `.originalMaxAge`.
    *
@@ -91,11 +81,10 @@ class Session {
    */
   resetMaxAge() {
     if (this.cookie) {
-      this.cookie.maxAge = this.cookie.originalMaxAge
+      this.cookie.maxAge = this.cookie.originalMaxAge;
     }
     return this;
   }
-
   /**
    * Save the session data with optional callback `fn(err)`.
    *
@@ -104,11 +93,10 @@ class Session {
    * @public
    */
   save(fn) {
-    const sessionData = /** @type {SessionData} */ (/** @type {any} */ (this))
+    const sessionData = /** @type {SessionData} */ ( /** @type {any} */(this));
     this.#req.sessionStore.set(this.id, sessionData, fn || function() { });
     return this;
   }
-
   /**
    * Re-loads the session data _without_ altering
    * the maxAge properties. Invokes the callback `fn(err)`,
@@ -121,24 +109,23 @@ class Session {
    * @public
    */
   reload(fn) {
-    const req = this.#req
-    const store = this.#req.sessionStore
-
+    const req = this.#req;
+    const store = this.#req.sessionStore;
     store.get(this.id,
       /**
        * @param {any|undefined} err
        * @param {SessionData|null|undefined} sess
        */
       function(err, sess) {
-        if (err) return fn(err);
-        if (!sess) return fn(new Error('failed to load session'));
+        if (err)
+          return fn(err);
+        if (!sess)
+          return fn(new Error('failed to load session'));
         store.createSession(req, sess);
         fn();
-      }
-    )
+      });
     return this;
   }
-
   /**
    * Destroy `this` session.
    *
@@ -147,11 +134,10 @@ class Session {
    * @public
    */
   destroy(fn) {
-    delete (/** @type {{session?: Session}} */(/** @type {any} */this.#req)).session
-    this.#req.sessionStore.destroy(this.id, fn)
-    return this
+    delete ( /** @type {{session?: Session}} */( /** @type {any} */this.#req)).session;
+    this.#req.sessionStore.destroy(this.id, fn);
+    return this;
   }
-
   /**
    * Regenerate this request's session.
    *
@@ -164,11 +150,9 @@ class Session {
     return this;
   }
 }
-
 /**
  * Expose Session.
  */
-
 module.exports = {
   Session,
-}
+};
