@@ -13,7 +13,7 @@ var SmartStore = require('./support/smart-store')
 var SyncStore = require('./support/sync-store')
 var utils = require('./support/utils')
 
-var Cookie = require('../session/cookie')
+const { Cookie } = require('../session/cookie')
 
 var min = 60 * 1000;
 

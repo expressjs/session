@@ -8,125 +8,112 @@
 'use strict';
 
 /**
- * @import { CookieSerializeOptions } from "cookie"
- * @import { CookieOptions } from "./cookie-options"
+ * Module dependencies.
+ */
+
+const cookie = require('cookie')
+const deprecate = require('depd')('express-session')
+
+/**
+ * @import { CookieOptions } from "./cookie.types"
  */
 
 /**
- * Cookie TODO: add description
- * @class
- * @implements CookieOptions
+ * @implements {CookieOptions}
  */
-
 class Cookie {
-  /** @type {Date | undefined} @private */
+  /** @private @type {Date | undefined} */
   _expires;
-  /** @type {number | undefined} */
+  /** @type {number | undefined} - Returns the original `maxAge` (time-to-live), in milliseconds, of the session cookie. */
   originalMaxAge;
-  /** @type {boolean | undefined} */
-  partitioned;
-  /** @type { "low" | "medium" | "high" | undefined} */
-  priority;
-  /** @type {boolean | undefined} */
-  signed; // FIXME: how this is used??
-  /** @type {boolean} */
+  /** @type {CookieOptions['signed']} */
+  signed;
+  /** @type {CookieOptions['httpOnly']} */
   httpOnly;
-  /** @type {string} */
+  /** @type {CookieOptions['path']} */
   path;
-  /** @type {string | undefined} */
+  /** @type {CookieOptions['domain']} */
   domain;
-  /** @type {boolean | "auto" | undefined} */
+  /** @type {CookieOptions['secure']} */
   secure;
-  /** @type {((val: string) => string) | undefined} */
-  encode;
-  /** @type {boolean | "lax" | "strict" | "none" | undefined} */
+  /** @type {CookieOptions['sameSite']} */
   sameSite;
 
   /**
    * Initialize a new `Cookie` with the given `options`.
+   *
    * @param {CookieOptions} options
-   * @private
    */
   constructor(options) {
+    this.path = '/';
+    this.maxAge = undefined;
+    this.httpOnly = true;
+
     if (options) {
       if (typeof options !== 'object') {
         throw new TypeError('argument options must be a object')
       }
-      console.log(`CookieOptions: ${JSON.stringify(options)}`)
-      this.maxAge = options.maxAge
-      this.originalMaxAge ??= options.maxAge // FIXME: rethink this
 
-      this.partitioned = options.partitioned
-      this.priority = options.priority
-      this.secure = options.secure
-      this.httpOnly = options.httpOnly ?? true
-      this.domain = options.domain
-      this.path = options.path || '/'
-      this.sameSite = options.sameSite
-
-      this.signed = options.signed // FIXME: how this is used??
-      this.encode = options.encode // FIXME: is this used / real ??
-    } else {
-      this.path = '/'
-      this.httpOnly = true
+      /** @type {{[x: string]: any}} */
+      const thisAsObject = this
+      /** @type {{[x: string]: any}} */
+      const optionsAsObject = options
+      for (var key in optionsAsObject) {
+        if (key !== 'data') {
+          thisAsObject[key] = optionsAsObject[key]
+        }
+      }
     }
-  }
 
-  /**
-   * Initialize a new `Cookie` using stored cookie data.
-   * @param {CookieOptions & {expires?: string, originalMaxAge?: number}} data
-   * @returns {Cookie}
-   * @protected
-   */
-  static fromJSON(data) {
-    console.log(`Cookie.fromJSON: ${JSON.stringify(data)}`)
-    const { expires, originalMaxAge, ...options } = data
-    const cookie = new Cookie(options)
-    cookie.expires = expires ? new Date(expires) : undefined
-    cookie.originalMaxAge = originalMaxAge
-    return cookie
+    if (this.originalMaxAge === undefined || this.originalMaxAge === null) {
+      this.originalMaxAge = this.maxAge
+    }
   }
 
   /**
    * Set expires `date`.
    *
-   * @param {Date | null | undefined} date
+   * @param {Date | undefined} date
    * @public
    */
 
   set expires(date) {
-    this._expires = date || undefined
-    this.originalMaxAge = this.maxAge
+    /* @type {Date | undefined} */
+    this._expires = date;
+    /* @type {number | undefined} */
+    this.originalMaxAge = this.maxAge;
   }
 
   /**
-   * Get expires `Date` object to be the value for the `Expires Set-Cookie` attribute.
-   * By default, no expiration is set, and most clients will consider this a "non-persistent cookie" and will delete it on a condition like exiting a web browser application.
+   * Get expires `date`.
    *
    * @return {Date | undefined}
    * @public
    */
 
   get expires() {
-    return this._expires
+    return this._expires;
   }
 
   /**
    * Set expires via max-age in `ms`.
    *
-   * @param {number | undefined} ms
+   * @param {Number | Date | undefined} ms
    * @public
    */
 
   set maxAge(ms) {
-    if (ms !== undefined) {
-      if (typeof ms !== 'number') {
-        throw new TypeError('maxAge must be a number')
-      }
-      this.expires = new Date(Date.now() + ms)
-    } else {
-      this.expires = undefined
+    if (ms && typeof ms !== 'number' && !(ms instanceof Date)) {
+      throw new TypeError('maxAge must be a number or Date')
     }
+
+    if (ms instanceof Date) {
+      deprecate('maxAge as Date; pass number of milliseconds instead')
+    }
+
+    this.expires = typeof ms === 'number'
+      ? new Date(Date.now() + ms)
+      : ms;
   }
 
   /**
@@ -139,24 +126,23 @@ class Cookie {
   get maxAge() {
     return this.expires instanceof Date
       ? this.expires.valueOf() - Date.now()
-      : this.expires
+      : this.expires;
   }
 
   /**
    * Return cookie data object.
    *
-   * @return {CookieSerializeOptions}
-   * @private
+   * @this {Cookie & CookieOptions}
+   * @return {Object}
+   * @public
    */
 
   get data() {
-    if (this.secure === 'auto') {
-      throw new Error("Invalid runtime state, the Cookie.secure == 'auto', which should not be possible.")
-    }
     return {
+      originalMaxAge: this.originalMaxAge,
       partitioned: this.partitioned,
       priority: this.priority
-      , expires: this.expires
+      , expires: this._expires
       , secure: this.secure
       , httpOnly: this.httpOnly
       , domain: this.domain
@@ -166,23 +152,30 @@ class Cookie {
   }
 
   /**
+   * Return a serialized cookie string.
+   *
+   * @param {string} name
+   * @param {string} val
+   * @return {string}
+   * @public
+   */
+
+  serialize(name, val) {
+    return cookie.serialize(name, val, this.data);
+  }
+
+  /**
    * Return JSON representation of this cookie.
    *
-   * Used by `JSON.stringify`
-   *
-   * @returns {Object}
-   * @protected
+   * @return {Object}
+   * @private
    */
 
   toJSON() {
-    const data = {
-      ...this.data,
-      expires: this.expires,
-      originalMaxAge: this.originalMaxAge,
-    }
-    console.log(`Cookie.toJSON: ${JSON.stringify(data)}`)
-    return data
+    return this.data;
   }
 }
 
-module.exports = Cookie
+module.exports = {
+  Cookie,
+}

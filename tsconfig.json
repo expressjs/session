@@ -18,10 +18,10 @@
     "outDir": "types"
   },
   "include": [
-    "./session/**/*.d.ts",
-    // "./session/**/*.js"
-    //"./session/session.js",
+    "./session/**/*.ts",
+    // "./session/**/*.js",
     "./session/cookie.js",
+    "./session/session.js",
     // "./index.js"
   ],
   "verbose": true

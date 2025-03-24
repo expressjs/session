@@ -22,9 +22,9 @@ var parseUrl = require('parseurl');
 var signature = require('cookie-signature')
 var uid = require('uid-safe').sync
 
-var Cookie = require('./session/cookie')
+const { Cookie } = require('./session/cookie')
 var MemoryStore = require('./session/memory')
-var Session = require('./session/session')
+const { Session } = require('./session/session')
 var Store = require('./session/store')
 
 // environment

@@ -12,9 +12,9 @@
  * @private
  */
 
-var Cookie = require('./cookie')
+const { Cookie } = require('./cookie')
 var EventEmitter = require('events').EventEmitter
-var Session = require('./session')
+const { Session } = require('./session')
 var util = require('util')
 
 /**
@@ -44,7 +44,7 @@ util.inherits(Store, EventEmitter)
  *
  * @param {IncomingRequest} req
  * @return {Function} fn
- * @api public
+ * @public
  */
 
 Store.prototype.regenerate = function(req, fn) {
@@ -61,7 +61,7 @@ Store.prototype.regenerate = function(req, fn) {
  *
  * @param {String} sid
  * @param {Function} fn
- * @api public
+ * @public
  */
 
 Store.prototype.load = function(sid, fn) {
@@ -78,16 +78,25 @@ Store.prototype.load = function(sid, fn) {
  * Create session from JSON `sess` data.
  *
  * @param {IncomingRequest} req
- * @param {Object} data
+ * @param {Object} sess
  * @return {Session}
  * @api private
  */
 
-Store.prototype.createSession = function(req, data) {
-  console.log(`createSession: ${JSON.stringify(data)}`)
-  const { cookie: cookieData, ...sessionData } = data
-  const session = new Session(req, sessionData);
-  session.cookie = Cookie.fromJSON(cookieData)
-  req.session = session
+Store.prototype.createSession = function(req, sess) {
+  var expires = sess.cookie.expires
+  var originalMaxAge = sess.cookie.originalMaxAge
+
+  sess.cookie = new Cookie(sess.cookie);
+
+  if (typeof expires === 'string') {
+    // convert expires to a Date object
+    sess.cookie.expires = new Date(expires)
+  }
+
+  // keep originalMaxAge intact
+  sess.cookie.originalMaxAge = originalMaxAge
+
+  req.session = new Session(req, sess);
   return req.session;
 };

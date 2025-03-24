@@ -1,6 +1,6 @@
 
 var assert = require('assert')
-var Cookie = require('../session/cookie')
+const { Cookie } = require('../session/cookie')
 
 describe('new Cookie()', function () {
   it('should create a new cookie object', function () {
