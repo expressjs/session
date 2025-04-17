@@ -843,6 +843,42 @@ describe('session()', function(){
     });
   });
 
+  describe('hash option', function(){
+    it('should reject non-function values', function(){
+      assert.throws(session.bind(null, { hash: 'bogus!' }), /hash.*must/)
+    });
+
+    it('should provide default hash', function(done){
+      request(createServer())
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, done)
+    });
+
+    it('should allow custom function', function(done){
+      var counter = 0;
+      function hash() {
+        counter++;
+        var str = JSON.stringify(sess, function (key, val) {
+          if (this === sess && key === 'cookie') {
+            return
+          }
+          return val
+        })
+        return str;
+      }
+
+      var server = createServer({ hash: hash }, function (req, res) {
+        res.end('counter ' + counter)
+      });
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, 'counter 1', done)
+    });
+  });
+
   describe('key option', function(){
     it('should default to "connect.sid"', function(done){
       request(createServer())

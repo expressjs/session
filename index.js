@@ -80,6 +80,7 @@ var defer = typeof setImmediate === 'function'
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
+ * @param {Function} [options.hash] Hash method to detect changes in the session object
  * @return {Function} middleware
  * @public
  */
@@ -114,8 +115,15 @@ function session(options) {
   // get the cookie signing secret
   var secret = opts.secret
 
+  // get the hash method
+  var hash = opts.hash || hashSession
+
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
+  }
+
+  if (typeof hash !== 'function') {
+    throw new TypeError('hash option must be a function');
   }
 
   if (resaveSession === undefined) {
@@ -601,7 +609,7 @@ function getcookie(req, name, secrets) {
  * @private
  */
 
-function hash(sess) {
+function hashSession(sess) {
   // serialize
   var str = JSON.stringify(sess, function (key, val) {
     // ignore sess.cookie property
