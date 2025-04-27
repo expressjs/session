@@ -2430,7 +2430,7 @@ function createRequestListener(opts, fn) {
     var server = this
 
     _session(req, res, function (err) {
-      if (err && !res._header) {
+      if (err && !res.headersSent) {
         res.statusCode = err.status || 500
         res.end(err.message)
         return

@@ -269,8 +269,8 @@ function session(options) {
           return ret;
         }
 
-        if (!res._header) {
-          res._implicitHeader()
+        if (!res.headersSent) {
+          res.writeHead(res.statusCode);
         }
 
         if (chunk == null) {
