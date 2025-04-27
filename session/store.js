@@ -12,9 +12,9 @@
  * @private
  */
 
-var Cookie = require('./cookie')
+const { Cookie } = require('./cookie')
 var EventEmitter = require('events').EventEmitter
-var Session = require('./session')
+const { Session } = require('./session')
 var util = require('util')
 
 /**
@@ -29,7 +29,7 @@ module.exports = Store
  * @public
  */
 
-function Store () {
+function Store() {
   EventEmitter.call(this)
 }
 
@@ -44,12 +44,12 @@ util.inherits(Store, EventEmitter)
  *
  * @param {IncomingRequest} req
  * @return {Function} fn
- * @api public
+ * @public
  */
 
-Store.prototype.regenerate = function(req, fn){
+Store.prototype.regenerate = function(req, fn) {
   var self = this;
-  this.destroy(req.sessionID, function(err){
+  this.destroy(req.sessionID, function(err) {
     self.generate(req);
     fn(err);
   });
@@ -61,12 +61,12 @@ Store.prototype.regenerate = function(req, fn){
  *
  * @param {String} sid
  * @param {Function} fn
- * @api public
+ * @public
  */
 
-Store.prototype.load = function(sid, fn){
+Store.prototype.load = function(sid, fn) {
   var self = this;
-  this.get(sid, function(err, sess){
+  this.get(sid, function(err, sess) {
     if (err) return fn(err);
     if (!sess) return fn();
     var req = { sessionID: sid, sessionStore: self };
@@ -83,7 +83,7 @@ Store.prototype.load = function(sid, fn){
  * @api private
  */
 
-Store.prototype.createSession = function(req, sess){
+Store.prototype.createSession = function(req, sess) {
   var expires = sess.cookie.expires
   var originalMaxAge = sess.cookie.originalMaxAge
 
