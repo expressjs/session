@@ -193,7 +193,7 @@ function session(options) {
 
     // pathname mismatch
     var originalPath = parseUrl.original(req).pathname || '/'
-    if (originalPath.indexOf(cookieOptions.path || '/') !== 0) {
+    if (originalPath.indexOf(cookieOptions.path || '/') !== 0 && originalPath !== '*') {
       debug('pathname mismatch')
       next()
       return
