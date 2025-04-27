@@ -101,7 +101,7 @@ function session(options) {
   var saveUninitializedSession = opts.saveUninitialized
 
   // get the cookie signing secret
-  var secret = opts.secret
+  var secrets = opts.secret
 
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
@@ -124,16 +124,16 @@ function session(options) {
   // TODO: switch to "destroy" on next major
   var unsetDestroy = opts.unset === 'destroy'
 
-  if (Array.isArray(secret) && secret.length === 0) {
+  if (Array.isArray(secrets) && secrets.length === 0) {
     throw new TypeError('secret option array must contain one or more strings');
   }
 
-  if (secret && !Array.isArray(secret)) {
-    secret = [secret];
+  if (secrets && !Array.isArray(secrets)) {
+    secrets = [secrets];
   }
 
-  if (!secret) {
-    deprecate('req.secret; provide secret option');
+  if (!secrets) {
+    throw new Error('secret option required for sessions');
   }
 
   // notify user that this store is not
@@ -187,16 +187,6 @@ function session(options) {
       next()
       return
     }
-
-    // ensure a secret is available or bail
-    if (!secret && !req.secret) {
-      next(new Error('secret option required for sessions'));
-      return;
-    }
-
-    // backwards compatibility for signed cookies
-    // req.secret is passed from the cookie parser middleware
-    var secrets = secret || [req.secret];
 
     var originalHash;
     var originalId;
