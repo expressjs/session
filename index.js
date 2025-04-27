@@ -553,14 +553,8 @@ function getcookie(req, name, secrets) {
 
 function hash(sess) {
   // serialize
-  var str = JSON.stringify(sess, function (key, val) {
-    // ignore sess.cookie property
-    if (this === sess && key === 'cookie') {
-      return
-    }
-
-    return val
-  })
+  const { cookie, ...sessWithoutCookie } = sess;
+  const str = JSON.stringify(sessWithoutCookie);
 
   // hash
   return crypto
