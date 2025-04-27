@@ -213,6 +213,26 @@ app.use(session({
 }))
 ```
 
+##### hash 
+
+Function to call to generate a hash of session object for detect changes.
+
+```js
+app.use(session({
+  hash: function(sess) {
+    // serialize
+    const { cookie, ...sessWithoutCookie } = sess;
+    const str = JSON.stringify(sessWithoutCookie);
+    // hash
+    return crypto
+      .createHash('sha1')
+      .update(str, 'utf8')
+      .digest('hex')
+  },
+  secret: 'keyboard cat'
+}))
+```
+
 ##### name
 
 The name of the session ID cookie to set in the response (and read from in the
