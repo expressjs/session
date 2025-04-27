@@ -207,6 +207,7 @@ function session(options) {
       }
 
       if (!shouldSetCookie(req)) {
+        debug('should not set cookie');
         return;
       }
 
@@ -219,6 +220,7 @@ function session(options) {
       if (!touched) {
         // touch session
         req.session.touch()
+        debug('touch session');
         touched = true
       }
 
@@ -579,17 +581,21 @@ function hash(sess) {
 function issecure(req, trustProxy) {
   // socket is https server
   if (req.connection && req.connection.encrypted) {
+    debug('connection encrypted');
     return true;
   }
 
   // do not trust proxy
   if (trustProxy === false) {
+    debug('proxy untrusted');
     return false;
   }
 
   // no explicit trust; try req.secure from express
   if (trustProxy !== true) {
-    return req.secure === true
+    var reqSecure = req.secure === true
+    debug('request %s', reqSecure ? 'secure' : 'insecure');
+    return reqSecure
   }
 
   // read the proto from x-forwarded-proto header
@@ -599,7 +605,9 @@ function issecure(req, trustProxy) {
     ? header.substr(0, index).toLowerCase().trim()
     : header.toLowerCase().trim()
 
-  return proto === 'https';
+  var protoSecure = proto === 'https';
+  debug('protocol %s', protoSecure ? 'secure' : 'insecure');
+  return protoSecure;
 }
 
 /**
