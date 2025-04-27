@@ -714,6 +714,11 @@ and other multi-core embedded devices).
 [connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
 [connect-sqlite3-image]: https://badgen.net/github/stars/rawberg/connect-sqlite3?label=%E2%98%85
 
+[![★][connect-surreal] connect-surreal][connect-surreal] A [SurrealDB](https://github.com/surrealdb/surrealdb.js) session store.
+
+[connect-surreal]: https://www.npmjs.com/package/connect-surreal
+[connect-surreal-image]: https://badgen.net/github/stars/knackstedt/connect-surreal?label=%E2%98%85
+
 [![★][connect-typeorm-image] connect-typeorm][connect-typeorm-url] A [TypeORM](https://github.com/typeorm/typeorm)-based session store.
 
 [connect-typeorm-url]: https://www.npmjs.com/package/connect-typeorm
