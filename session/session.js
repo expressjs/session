@@ -75,10 +75,10 @@ defineMethod(Session.prototype, 'save', function save(fn) {
 
 /**
  * Re-loads the session data _without_ altering
- * the maxAge properties. Invokes the callback `fn(err)`,
+ * the maxAge properties. Invokes the callback `fn(err, session)`,
  * after which time if no exception has occurred the
- * `req.session` property will be a new `Session` object,
- * although representing the same session.
+ * `req.session` property and `session` callback param will be
+ * the new `Session` object, although representing the same session.
  *
  * @param {Function} fn
  * @return {Session} for chaining
@@ -93,7 +93,7 @@ defineMethod(Session.prototype, 'reload', function reload(fn) {
     if (err) return fn(err);
     if (!sess) return fn(new Error('failed to load session'));
     store.createSession(req, sess);
-    fn();
+    fn(null, req.session);
   });
   return this;
 });
@@ -113,7 +113,8 @@ defineMethod(Session.prototype, 'destroy', function destroy(fn) {
 });
 
 /**
- * Regenerate this request's session.
+ * Regenerate this request's session. Invokes the callback `fn(err, session)`
+ * with the new session object or an error if one occurred.
  *
  * @param {Function} fn
  * @return {Session} for chaining
@@ -140,4 +141,4 @@ function defineMethod(obj, name, fn) {
     value: fn,
     writable: true
   });
-};
+}
