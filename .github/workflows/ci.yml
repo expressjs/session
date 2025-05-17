@@ -4,6 +4,9 @@ on:
 - pull_request
 - push
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -79,33 +82,34 @@ jobs:
 
         - name: Node.js 8.x
           node-version: "8.17"
-          npm-i: mocha@7.2.0 nyc@14.1.1
+          npm-i: mocha@7.2.0 nyc@14.1.1 supertest@6.1.6
 
         - name: Node.js 9.x
           node-version: "9.11"
-          npm-i: mocha@7.2.0 nyc@14.1.1
+          npm-i: mocha@7.2.0 nyc@14.1.1 supertest@6.1.6
 
         - name: Node.js 10.x
           node-version: "10.24"
-          npm-i: mocha@8.4.0
+          npm-i: mocha@8.4.0 supertest@6.1.6
 
         - name: Node.js 11.x
           node-version: "11.15"
-          npm-i: mocha@8.4.0
+          npm-i: mocha@8.4.0 supertest@6.1.6
 
         - name: Node.js 12.x
           node-version: "12.22"
-          npm-i: mocha@9.2.2
+          npm-i: mocha@9.2.2 supertest@6.1.6
 
         - name: Node.js 13.x
           node-version: "13.14"
-          npm-i: mocha@9.2.2
+          npm-i: mocha@9.2.2 supertest@6.1.6
 
         - name: Node.js 14.x
           node-version: "14.21"
 
         - name: Node.js 15.x
-          node-version: "15.14"
+          node-version: "15.14" 
+          npm-i: supertest@6.1.6
 
         - name: Node.js 16.x
           node-version: "16.20"
@@ -126,7 +130,7 @@ jobs:
           node-version: "21.6"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
     - name: Install Node.js ${{ matrix.node-version }}
       shell: bash -eo pipefail -l {0}
@@ -204,7 +208,7 @@ jobs:
         fi
 
     - name: Upload code coverage
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       if: steps.list_env.outputs.nyc != ''
       with:
         name: coverage-${{ matrix.node-version }}
@@ -212,17 +216,20 @@ jobs:
         retention-days: 1
 
   coverage:
+    permissions:
+      checks: write  # for coverallsapp/github-action to create new checks
+      contents: read  # for actions/checkout to fetch code
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
     - name: Install lcov
       shell: bash
       run: sudo apt-get -y install lcov
 
     - name: Collect coverage reports
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
       with:
         path: ./coverage
 
@@ -231,6 +238,6 @@ jobs:
       run: find ./coverage -name lcov.info -exec printf '-a %q\n' {} \; | xargs lcov -o ./coverage/lcov.info
 
     - name: Upload coverage report
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@09b709cf6a16e30b0808ba050c7a6e8a5ef13f8d # master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
