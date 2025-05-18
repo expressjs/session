@@ -49,6 +49,26 @@ For a list of stores, see [compatible session stores](#compatible-session-stores
 Settings object for the session ID cookie. The default value is
 `{ path: '/', httpOnly: true, secure: false, maxAge: null }`.
 
+In addition to providing a static object, you can also pass a callback function to dynamically generate the cookie options for each request. The callback receives the `req` object as its argument and should return an object containing the cookie settings.
+
+```js
+var app = express()
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: function(req) {
+    var match = req.url.match(/^\/([^/]+)/);
+    return {
+      path: match ? '/' + match[1] : '/',
+      httpOnly: true,
+      secure: req.secure || false,
+      maxAge: 60000
+    }
+  }
+}))
+```
+
 The following are options that can be set in this object.
 
 ##### cookie.domain
