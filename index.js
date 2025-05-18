@@ -452,6 +452,12 @@ function session(options) {
         return false;
       }
 
+      // skip save if flag is set
+      if (req.session.skipNextSave) {
+        delete req.session.skipNextSave;
+        return false;
+      }
+
       return !saveUninitializedSession && !savedHash && cookieId !== req.sessionID
         ? isModified(req.session)
         : !isSaved(req.session)
