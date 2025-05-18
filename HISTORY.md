@@ -2,6 +2,7 @@ unreleased
 ==========
 
   * cookie-parser@1.4.7
+  * deps: mocha@10.8.2
 
 1.18.1 / 2024-10-08
 ==========
