@@ -108,8 +108,7 @@ function session(options) {
   }
 
   if (resaveSession === undefined) {
-    deprecate('undefined resave option; provide resave option');
-    resaveSession = true;
+    resaveSession = false;
   }
 
   if (saveUninitializedSession === undefined) {

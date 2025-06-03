@@ -936,7 +936,7 @@ describe('session()', function(){
   });
 
   describe('resave option', function(){
-    it('should default to true', function(done){
+    it('should default to false', function(done){
       var store = new session.MemoryStore()
       var server = createServer({ store: store }, function (req, res) {
         req.session.user = 'bob'
@@ -946,14 +946,15 @@ describe('session()', function(){
       request(server)
       .get('/')
       .expect(shouldSetSessionInStore(store))
-      .expect(200, function(err, res){
-        if (err) return done(err);
+      .expect(200, function (err, res) {
+        if (err) return done(err)
+
         request(server)
-        .get('/')
-        .set('Cookie', cookie(res))
-        .expect(shouldSetSessionInStore(store))
-        .expect(200, done);
-      });
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldNotSetSessionInStore(store))
+          .expect(200, done)
+      })
     });
 
     describe('when true', function () {
