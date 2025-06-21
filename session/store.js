@@ -70,7 +70,13 @@ Store.prototype.load = function(sid, fn){
     if (err) return fn(err);
     if (!sess) return fn();
     var req = { sessionID: sid, sessionStore: self };
-    fn(null, self.createSession(req, sess))
+    try {
+      sess = self.createSession(req, sess)
+    } catch (e) {
+      err = e
+      sess = null
+    }
+    fn(err, sess)
   });
 };
 
