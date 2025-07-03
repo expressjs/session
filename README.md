@@ -249,8 +249,7 @@ parallel requests to your server and changes made to the session in one
 request may get overwritten when the other request ends, even if it made no
 changes (this behavior also depends on what store you're using).
 
-The default value is `true`, but using the default has been deprecated,
-as the default will change in the future. Please research into this setting
+The default value is `false`. Please research into this setting
 and choose what is appropriate to your use-case. Typically, you'll want
 `false`.
 
