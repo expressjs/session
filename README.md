@@ -269,7 +269,7 @@ With this enabled, the session identifier cookie will expire in
 [`maxAge`](#cookiemaxage) since the last response was sent instead of in
 [`maxAge`](#cookiemaxage) since the session was last modified by the server.
 
-This is typically used in conjuction with short, non-session-length
+This is typically used in conjunction with short, non-session-length
 [`maxAge`](#cookiemaxage) values to provide a quick timeout of the session data
 with reduced potential of it occurring during on going server interactions.
 
@@ -773,7 +773,7 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-session-level-url]: https://www.npmjs.com/package/express-session-level
 [express-session-level-image]: https://badgen.net/github/stars/tgohn/express-session-level?label=%E2%98%85
 
-[![★][express-session-rsdb-image] express-session-rsdb][express-session-rsdb-url] Session store based on Rocket-Store: A very simple, super fast and yet powerfull, flat file database.
+[![★][express-session-rsdb-image] express-session-rsdb][express-session-rsdb-url] Session store based on Rocket-Store: A very simple, super fast and yet powerful, flat file database.
 
 [express-session-rsdb-url]: https://www.npmjs.com/package/express-session-rsdb
 [express-session-rsdb-image]: https://badgen.net/github/stars/paragi/express-session-rsdb?label=%E2%98%85
