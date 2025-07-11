@@ -16,7 +16,7 @@ if (!MD_HEADER_REGEXP.test(historyFileLines[1])) {
 }
 
 if (!VERSION_PLACEHOLDER_REGEXP.test(historyFileLines[0])) {
-  console.error('Missing placegolder version in HISTORY.md')
+  console.error('Missing placeholder version in HISTORY.md')
   process.exit(1)
 }
 

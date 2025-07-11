@@ -1710,7 +1710,7 @@ describe('session()', function(){
         })
       })
 
-      it('should not override an overriden `reload` in case of errors',  function (done) {
+      it('should not override an overridden `reload` in case of errors',  function (done) {
         var store = new session.MemoryStore()
         var server = createServer({ store: store, resave: false }, function (req, res) {
           if (req.url === '/') {
