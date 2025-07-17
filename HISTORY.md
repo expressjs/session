@@ -1,7 +1,8 @@
 unpublished
 ==========
   * deps: mocha@10.8.2
-
+  * deps: on-headers@~1.1.0
+    - Fix [CVE-2025-7339](https://www.cve.org/CVERecord?id=CVE-2025-7339) ([GHSA-76c9-3jph-rj3q](https://github.com/expressjs/on-headers/security/advisories/GHSA-76c9-3jph-rj3q))
 
 1.18.1 / 2024-10-08
 ==========
