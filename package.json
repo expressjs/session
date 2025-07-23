@@ -8,6 +8,10 @@
     "Joe Wagner <njwjs722@gmail.com>"
   ],
   "repository": "expressjs/session",
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/express"
+  },
   "license": "MIT",
   "dependencies": {
     "cookie": "0.7.2",
