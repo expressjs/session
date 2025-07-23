@@ -80,6 +80,7 @@ var defer = typeof setImmediate === 'function'
  * @param {String|Array} [options.secret] Secret for signing session ID
  * @param {Object} [options.store=MemoryStore] Session store
  * @param {String} [options.unset]
+ * @param {Boolean} [options.shouldReplaceCookieWithToken] If header should be set as Cookie or X-Access-Token
  * @return {Function} middleware
  * @public
  */
@@ -113,6 +114,9 @@ function session(options) {
 
   // get the cookie signing secret
   var secret = opts.secret
+
+  // should the header be set as token instead of cookie
+  var shouldReplaceCookieWithToken = opts.shouldReplaceCookieWithToken
 
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
@@ -669,7 +673,11 @@ function setcookie(res, name, val, secret, options) {
   var prev = res.getHeader('Set-Cookie') || []
   var header = Array.isArray(prev) ? prev.concat(data) : [prev, data];
 
-  res.setHeader('Set-Cookie', header)
+  if (shouldReplaceCookieWithToken) {
+    res.setHeader('X-Access-Token', header)
+  } else {
+    res.setHeader('Set-Cookie', header)
+  }
 }
 
 /**
