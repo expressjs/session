@@ -1,0 +1,83 @@
+name: iojs-ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+concurrency:
+  group: "${{ github.workflow }} ✨ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["0.8", "1.8", "2.5", "3.3"]
+        include:
+          - node-version: "0.8"
+            npm-i: mocha@2.5.3 supertest@1.1.0
+            npm-rm: nyc
+          - node-version: "1.8"
+            npm-i: "mocha@3.5.3 nyc@10.3.2 supertest@2.0.0"
+          - node-version: "2.5"
+            npm-i: "mocha@3.5.3 nyc@10.3.2 supertest@2.0.0"
+          - node-version: "3.3"
+            npm-i: "mocha@3.5.3 nyc@10.3.2 supertest@2.0.0"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install node.js ${{ matrix.node-version }}
+      shell: bash -eo pipefail -l {0}
+      run: |
+        nvm install --default ${{ matrix.node-version }}
+        if [[ "${{ matrix.node-version }}" == 0.* && "$(cut -d. -f2 <<< "${{ matrix.node-version }}")" -lt 10 ]]; then
+          nvm install --alias=npm 0.10
+          nvm use ${{ matrix.node-version }}
+          sed -i '1s;^.*$;'"$(printf '#!%q' "$(nvm which npm)")"';' "$(readlink -f "$(which npm)")"
+          npm config set strict-ssl false
+        fi
+        dirname "$(nvm which ${{ matrix.node-version }})" >> "$GITHUB_PATH"
+        dirname "$(nvm which ${{ matrix.node-version }})" >> "$GITHUB_PATH"
+
+    - name: Configure npm
+      run: |
+        npm config set loglevel error
+        npm config set shrinkwrap false
+
+    - name: Install npm module(s) ${{ matrix.npm-i }}
+      run: npm install --save-dev ${{ matrix.npm-i }}
+      if: matrix.npm-i != ''
+
+    - name: Remove npm module(s) ${{ matrix.npm-rm }}
+      run: npm rm --silent --save-dev ${{ matrix.npm-rm }}
+      if: matrix.npm-rm != ''
+
+    - name: Remove eslint
+      shell: bash
+      run: |
+        # eslint for linting
+        node -pe 'Object.keys(require("./package").devDependencies).join("\n")' | \
+          grep -E '^eslint(-|$)' | \
+          sort -r | \
+          xargs -n1 npm rm --silent --save-dev
+
+    - name: Install Node.js dependencies
+      run: npm install
+
+    - name: List environment
+      id: list_env
+      shell: bash
+      run: |
+        echo "node@$(node -v)"
+        echo "npm@$(npm -v)"
+        npm -s ls ||:
+        (npm -s ls --depth=0 ||:) | awk -F'[ @]' 'NR>1 && $2 { print $2 "=" $3 }' >> "$GITHUB_OUTPUT"
+
+    - name: Run tests
+      shell: bash
+      run: npm run test
