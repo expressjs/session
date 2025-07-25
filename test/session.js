@@ -12,6 +12,7 @@ var session = require('../')
 var SmartStore = require('./support/smart-store')
 var SyncStore = require('./support/sync-store')
 var utils = require('./support/utils')
+var os = require('os')
 
 var Cookie = require('../session/cookie')
 
@@ -2078,6 +2079,11 @@ describe('session()', function(){
         })
 
         it('should set cookie when secure', function (done) {
+          if(os.platform() === 'win32') {
+            // TODO: generate a self-signed certificate than can be used on Windows
+            this.skip();
+          }
+
           var cert = fs.readFileSync(__dirname + '/fixtures/server.crt', 'ascii')
           var server = https.createServer({
             key: fs.readFileSync(__dirname + '/fixtures/server.key', 'ascii'),
