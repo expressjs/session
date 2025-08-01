@@ -14,7 +14,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "cookie": "0.4.2",
+    "cookie": "^1.0.2",
     "cookie-signature": "1.0.6",
     "debug": "^4.3.4",
     "depd": "~2.0.0",
