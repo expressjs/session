@@ -398,7 +398,7 @@ req.session.reload(function(err) {
 })
 ```
 
-#### Session.save(callback)
+#### Session.save([preventTouch, callback])
 
 Save the session back to the store, replacing the contents on the store with the
 contents in memory (though a store may do something else--consult the store's
@@ -412,9 +412,26 @@ does not need to be called.
 There are some cases where it is useful to call this method, for example,
 redirects, long-lived requests or in WebSockets.
 
+If `preventTouch` is `true`, `store.touch` will not be called at the end of the
+HTTP response, which can be useful if using this library with something like 
+[Next.js getServerSideProps](https://github.com/expressjs/session/issues/870) to prevent [gssp-no-mutating-res](https://nextjs.org/docs/messages/gssp-no-mutating-res).
+
+**Note** `rolling: true` may still cause the above error.
+
 ```js
 req.session.save(function(err) {
   // session saved
+})
+```
+
+```js
+// session saved + store.touch will not be called
+req.session.save(true)
+```
+
+```js
+req.session.save(true, function(err) {
+  // session saved + store.touch will not be called
 })
 ```
 
