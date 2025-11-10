@@ -163,6 +163,10 @@ function session(options) {
     if (cookieOptions.secure === 'auto') {
       req.session.cookie.secure = issecure(req, trustProxy);
     }
+
+    if (cookieOptions.sameSite === 'auto') {
+      req.session.cookie.sameSite = issecure(req, trustProxy) ? 'none' : 'lax';
+    }
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
