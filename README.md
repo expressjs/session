@@ -130,6 +130,7 @@ By default, this is `false`.
   - `'lax'` will set the `SameSite` attribute to `Lax` for lax same site enforcement.
   - `'none'` will set the `SameSite` attribute to `None` for an explicit cross-site cookie.
   - `'strict'` will set the `SameSite` attribute to `Strict` for strict same site enforcement.
+  - `'auto'` will set the `SameSite` attribute to `None` for secure connections and `Lax` for non-secure connections.
 
 More information about the different enforcement levels can be found in
 [the specification][rfc-6265bis-03-4.1.2.7].
@@ -140,6 +141,14 @@ the future. This also means many clients may ignore this attribute until they un
 **Note** There is a [draft spec](https://tools.ietf.org/html/draft-west-cookie-incrementalism-01)
 that requires that the `Secure` attribute be set to `true` when the `SameSite` attribute has been
 set to `'none'`. Some web browsers or other clients may be adopting this specification.
+
+The `cookie.sameSite` option can also be set to the special value `'auto'` to have
+this setting automatically match the determined security of the connection. When the connection
+is secure (HTTPS), the `SameSite` attribute will be set to `None` to enable cross-site usage.
+When the connection is not secure (HTTP), the `SameSite` attribute will be set to `Lax` for
+better security while maintaining functionality. This is useful when the Express `"trust proxy"`
+setting is properly setup to simplify development vs production configuration, particularly
+for SAML authentication scenarios.
 
 ##### cookie.secure
 
