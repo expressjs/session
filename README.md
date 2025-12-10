@@ -768,6 +768,12 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-session-etcd3-url]: https://www.npmjs.com/package/express-session-etcd3
 [express-session-etcd3-image]: https://badgen.net/github/stars/willgm/express-session-etcd3?label=%E2%98%85
 
+[![★][express-session-libsql-image] express-session-libsql][express-session-libsql-url] A LibSQL session store using [@libsql/client][libsql-client-url]
+
+[express-session-libsql-url]: https://www.npmjs.com/package/express-session-libsql
+[libsql-client-url]: https://www.npmjs.com/package/@libsql/client
+[express-session-libsql-image]: https://badgen.net/github/stars/lbennett-stacki/express-session-libsql?label=%E2%98%85
+
 [![★][express-session-level-image] express-session-level][express-session-level-url] A [LevelDB](https://github.com/Level/levelup) based session store.
 
 [express-session-level-url]: https://www.npmjs.com/package/express-session-level
