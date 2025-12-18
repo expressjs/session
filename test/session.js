@@ -917,7 +917,7 @@ describe('session()', function(){
             this.server = createServer(setup, { cookie: { secure: false, sameSite: 'auto' } }, respond)
           })
 
-          it('should set both Secure and SameSite=None when secure', function (done) {
+          it('should set SameSite=None without Secure when secure', function (done) {
             request(this.server)
               .get('/')
               .set('X-Secure', 'true')
@@ -926,7 +926,7 @@ describe('session()', function(){
               .expect(200, 'true', done)
           })
 
-          it('should set neither Secure nor SameSite=None when insecure', function (done) {
+          it('should set SameSite=Lax without Secure when insecure', function (done) {
             request(this.server)
               .get('/')
               .set('X-Secure', 'false')
@@ -958,12 +958,11 @@ describe('session()', function(){
               .expect(200, 'true', done)
           })
 
-          it.only('should set neither Secure nor SameSite=None when insecure', function (done) {
+          it('should not set cookie when insecure', function (done) {
             request(this.server)
               .get('/')
               .set('X-Secure', 'false')
-              .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
-              .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'Lax'))
+              .expect(shouldNotHaveHeader('Set-Cookie'))
               .expect(200, 'false', done)
           })
         })
