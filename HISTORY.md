@@ -1,3 +1,9 @@
+# Unreleased changes
+
+### 🚀 Improvements
+
+* deps: use tilde notation for dependencies
+
 1.18.2 / 2025-07-17
 ==========
   * deps: mocha@10.8.2
