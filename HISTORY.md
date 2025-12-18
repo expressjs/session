@@ -1,3 +1,9 @@
+1.18.2 / 2025-07-17
+==========
+  * deps: mocha@10.8.2
+  * deps: on-headers@~1.1.0
+    - Fix [CVE-2025-7339](https://www.cve.org/CVERecord?id=CVE-2025-7339) ([GHSA-76c9-3jph-rj3q](https://github.com/expressjs/on-headers/security/advisories/GHSA-76c9-3jph-rj3q))
+
 1.18.1 / 2024-10-08
 ==========
 
@@ -166,7 +172,7 @@
     - Improve error message when `expires` is not a `Date`
     - perf: enable strict mode
     - perf: use for loop in parse
-    - perf: use string concatination for serialization
+    - perf: use string concatenation for serialization
   * deps: parseurl@~1.3.1
     - perf: enable strict mode
   * deps: uid-safe@~2.1.1
