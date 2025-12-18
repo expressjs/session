@@ -481,6 +481,10 @@ and **optional**.
     available.
   * Optional methods are ones this module does not call at all, but helps
     present uniform stores to users.
+  * The `callback` function parameter may not be truthy at times.
+    Implementers must consider checking `callback` specifically to invoke it
+    only when it is defined.
+  
 
 For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
 
