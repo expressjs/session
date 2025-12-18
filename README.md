@@ -313,8 +313,10 @@ would best be a random set of characters. A best practice may include:
   - Periodic updates of the secret, while ensuring the previous secret is in the
     array.
 
-Using a secret that cannot be guessed will reduce the ability to hijack a session to
-only guessing the session ID (as determined by the `genid` option).
+Although primary session security is derived from the use of a high-entropy session
+ID, the additional use of signed cookies avoids needing to validate the contents of
+the cookie, and eliminates the need to implement rate limiting to avoid brute force
+attempts.
 
 Changing the secret value will invalidate all existing sessions. In order to rotate
 the secret without invalidating sessions, provide an array of secrets, with the new
