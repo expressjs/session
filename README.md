@@ -213,6 +213,18 @@ app.use(session({
 }))
 ```
 
+##### getDomainFromRequest
+
+Optional function to override the `Domain` `Set-Cookie` attribute.
+Provide a function that returns a string that will be used as the
+cookie domain. The function is given `req` as the first argument if
+you want to use some value attached to `req` when generating the
+domain (as for `genid`).  This can be useful if the same app is
+accessed from different families of domains, some of which should
+share cookies.
+
+If this function is not provided, `cookie.domain` is used instead.
+
 ##### name
 
 The name of the session ID cookie to set in the response (and read from in the
