@@ -1019,7 +1019,7 @@ describe('session()', function(){
         var store = new session.MemoryStore()
         var server = createServer({ resave: false, store: store }, function (req, res) {
           if (req.method === 'PUT') {
-            req.session.token = req.url.substr(1)
+            req.session.token = req.url.slice(1)
           }
           res.end('token=' + (req.session.token || ''))
         })
