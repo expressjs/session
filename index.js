@@ -593,7 +593,7 @@ function getcookie(req, name, secrets) {
     raw = cookies[name];
 
     if (raw) {
-      if (raw.substr(0, 2) === 's:') {
+      if (raw.slice(0, 2) === 's:') {
         val = unsigncookie(raw.slice(2), secrets);
 
         if (val === false) {
@@ -620,7 +620,7 @@ function getcookie(req, name, secrets) {
     raw = req.cookies[name];
 
     if (raw) {
-      if (raw.substr(0, 2) === 's:') {
+      if (raw.slice(0, 2) === 's:') {
         val = unsigncookie(raw.slice(2), secrets);
 
         if (val) {
@@ -696,7 +696,7 @@ function issecure(req, trustProxy) {
   var header = req.headers['x-forwarded-proto'] || '';
   var index = header.indexOf(',');
   var proto = index !== -1
-    ? header.substr(0, index).toLowerCase().trim()
+    ? header.slice(0, index).toLowerCase().trim()
     : header.toLowerCase().trim()
 
   return proto === 'https';
