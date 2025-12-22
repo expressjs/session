@@ -629,6 +629,25 @@ function hash(sess) {
  */
 
 function issecure(req, trustProxy) {
+
+  // socket is localhost
+  if (req.connection.remoteAddress === '127.0.0.1' ||
+      req.connection.remoteAddress === '::ffff:127.0.0.1' ||
+      req.connection.remoteAddress === '::1'
+  ) {
+    // if proxy is trusted; localhost connection is secure for sure
+    if (trustProxy === true) {
+      return true;
+    }
+
+    // proxy not explicitly trusted; no proxy means connection is secure
+    if (req.headers['x-forwarded-proto'] !== undefined) {
+      return true;
+    }
+
+    // proxy connected from localhost, we need to do other checks
+  }
+
   // socket is https server
   if (req.connection && req.connection.encrypted) {
     return true;
