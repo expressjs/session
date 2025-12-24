@@ -160,12 +160,14 @@ function session(options) {
     req.session = new Session(req);
     req.session.cookie = new Cookie(cookieOptions);
 
+    const isSecure = issecure(req, trustProxy);
+
     if (cookieOptions.secure === 'auto') {
-      req.session.cookie.secure = issecure(req, trustProxy);
+      req.session.cookie.secure = isSecure;
     }
 
     if (cookieOptions.sameSite === 'auto') {
-      req.session.cookie.sameSite = issecure(req, trustProxy) ? 'none' : 'lax';
+      req.session.cookie.sameSite = isSecure ? 'none' : 'lax';
     }
   };
 
