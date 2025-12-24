@@ -42,7 +42,7 @@
   },
   "scripts": {
     "lint": "eslint . && node ./scripts/lint-readme.js",
-    "test": "./test/support/gencert.sh && mocha --require test/support/env --check-leaks --bail --no-exit --reporter spec test/",
+    "test": "./test/support/gencert.sh && mocha --require test/support/env --check-leaks --no-exit --reporter spec test/",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc npm test",
     "version": "node scripts/version-history.js && git add HISTORY.md"
