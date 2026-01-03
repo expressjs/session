@@ -111,6 +111,10 @@ function session(options) {
   // get the save uninitialized session option
   var saveUninitializedSession = opts.saveUninitialized
 
+  // get optional getcookie and setcookie custom functions
+  var getcookie = opts.getcookie || getcookieDefault;
+  var setcookie = opts.setcookie || setcookieDefault;
+
   // get the cookie signing secret
   var secret = opts.secret
 
@@ -534,7 +538,7 @@ function generateSessionId() {
  * @private
  */
 
-function getcookie(req, name, secrets) {
+function getcookieDefault(req, name, secrets) {
   var header = req.headers.cookie;
   var raw;
   var val;
@@ -660,7 +664,7 @@ function issecure(req, trustProxy) {
  * @private
  */
 
-function setcookie(res, name, val, secret, options) {
+function setcookieDefault(res, name, val, secret, options) {
   var signed = 's:' + signature.sign(val, secret);
   var data = cookie.serialize(name, signed, options);
 
