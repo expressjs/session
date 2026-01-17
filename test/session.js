@@ -801,6 +801,173 @@ describe('session()', function(){
         })
       })
     })
+
+    describe('when "sameSite" set to "auto"', function () {
+      describe('basic functionality', function () {
+        before(function () {
+          function setup (req) {
+            req.secure = JSON.parse(req.headers['x-secure'])
+          }
+
+          function respond (req, res) {
+            res.end(String(req.secure))
+          }
+
+          this.server = createServer(setup, { cookie: { sameSite: 'auto' } }, respond)
+        })
+
+        it('should set SameSite=None for secure connections', function (done) {
+          request(this.server)
+          .get('/')
+          .set('X-Secure', 'true')
+          .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'None'))
+          .expect(200, 'true', done)
+        })
+
+        it('should set SameSite=Lax for insecure connections', function (done) {
+          request(this.server)
+          .get('/')
+          .set('X-Secure', 'false')
+          .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'Lax'))
+          .expect(200, 'false', done)
+        })
+      })
+
+      describe('with proxy settings', function () {
+        describe('when "proxy" is "true"', function () {
+          before(function () {
+            this.server = createServer({ proxy: true, cookie: { sameSite: 'auto' }})
+          })
+
+          it('should set SameSite=None when X-Forwarded-Proto is https', function (done) {
+            request(this.server)
+            .get('/')
+            .set('X-Forwarded-Proto', 'https')
+            .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'None'))
+            .expect(200, done)
+          })
+
+          it('should set SameSite=Lax when X-Forwarded-Proto is http', function (done) {
+            request(this.server)
+            .get('/')
+            .set('X-Forwarded-Proto', 'http')
+            .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'Lax'))
+            .expect(200, done)
+          })
+        })
+
+        describe('when "proxy" is "false"', function () {
+          before(function () {
+            this.server = createServer({ proxy: false, cookie: { sameSite: 'auto' }})
+          })
+
+          it('should set SameSite=Lax when X-Forwarded-Proto is https', function (done) {
+            request(this.server)
+            .get('/')
+            .set('X-Forwarded-Proto', 'https')
+            .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'Lax'))
+            .expect(200, done)
+          })
+        })
+      })
+
+      describe('combined with secure auto', function() {
+        describe('when "secure" is "auto"', function () {
+          before(function () {
+            function setup (req) {
+              req.secure = JSON.parse(req.headers['x-secure'])
+            }
+
+            function respond (req, res) {
+              res.end(String(req.secure))
+            }
+
+            this.server = createServer(setup, { cookie: { secure: 'auto', sameSite: 'auto' } }, respond)
+          })
+
+          it('should set both Secure and SameSite=None when secure', function (done) {
+            request(this.server)
+              .get('/')
+              .set('X-Secure', 'true')
+              .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
+              .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'None'))
+              .expect(200, 'true', done)
+          })
+
+          it('should set neither Secure nor SameSite=None when insecure', function (done) {
+            request(this.server)
+              .get('/')
+              .set('X-Secure', 'false')
+              .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
+              .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'Lax'))
+              .expect(200, 'false', done)
+          })
+        })
+
+        describe('when "secure" is "false"', function () {
+          before(function () {
+            function setup (req) {
+              req.secure = JSON.parse(req.headers['x-secure'])
+            }
+
+            function respond (req, res) {
+              res.end(String(req.secure))
+            }
+
+            this.server = createServer(setup, { cookie: { secure: false, sameSite: 'auto' } }, respond)
+          })
+
+          it('should set SameSite=None without Secure when secure', function (done) {
+            request(this.server)
+              .get('/')
+              .set('X-Secure', 'true')
+              .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
+              .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'None'))
+              .expect(200, 'true', done)
+          })
+
+          it('should set SameSite=Lax without Secure when insecure', function (done) {
+            request(this.server)
+              .get('/')
+              .set('X-Secure', 'false')
+              .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
+              .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'Lax'))
+              .expect(200, 'false', done)
+          })
+        })
+
+        describe('when "secure" is "true"', function () {
+          before(function () {
+            function setup (req) {
+              req.secure = JSON.parse(req.headers['x-secure'])
+            }
+
+            function respond (req, res) {
+              res.end(String(req.secure))
+            }
+
+            this.server = createServer(setup, { cookie: { secure: true, sameSite: 'auto' } }, respond)
+          })
+
+          it('should set both Secure and SameSite=None when secure', function (done) {
+            request(this.server)
+              .get('/')
+              .set('X-Secure', 'true')
+              .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
+              .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'None'))
+              .expect(200, 'true', done)
+          })
+
+          it('should not set cookie when insecure', function (done) {
+            request(this.server)
+              .get('/')
+              .set('X-Secure', 'false')
+              .expect(shouldNotHaveHeader('Set-Cookie'))
+              .expect(200, 'false', done)
+          })
+        })
+      })
+    })
   })
 
   describe('genid option', function(){
