@@ -160,7 +160,7 @@ function session(options) {
     req.session = new Session(req);
     req.session.cookie = new Cookie(cookieOptions);
 
-    const isSecure = issecure(req, trustProxy);
+    var isSecure = issecure(req, trustProxy);
 
     if (cookieOptions.secure === 'auto') {
       req.session.cookie.secure = isSecure;
