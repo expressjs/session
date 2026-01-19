@@ -23,6 +23,11 @@
       }
     }))
     ```
+* Add sameSite 'auto' support for automatic SameSite attribute configuration
+
+    Added `sameSite: 'auto'` option for cookie configuration that automatically sets `SameSite=None` for HTTPS and `SameSite=Lax` for HTTP connections, simplifying cookie handling across different environments.
+
+* deps: use tilde notation for dependencies
 
 1.18.2 / 2025-07-17
 ==========

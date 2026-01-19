@@ -14,13 +14,13 @@
   },
   "license": "MIT",
   "dependencies": {
-    "cookie": "0.7.2",
-    "cookie-signature": "1.0.7",
-    "debug": "2.6.9",
+    "cookie": "~0.7.2",
+    "cookie-signature": "~1.0.7",
+    "debug": "~2.6.9",
     "depd": "~2.0.0",
     "on-headers": "~1.1.0",
     "parseurl": "~1.3.3",
-    "safe-buffer": "5.2.1",
+    "safe-buffer": "~5.2.1",
     "uid-safe": "~2.1.5"
   },
   "devDependencies": {
@@ -35,7 +35,6 @@
   },
   "files": [
     "session/",
-    "HISTORY.md",
     "index.js"
   ],
   "engines": {
@@ -43,7 +42,7 @@
   },
   "scripts": {
     "lint": "eslint . && node ./scripts/lint-readme.js",
-    "test": "./test/support/gencert.sh && mocha --require test/support/env --check-leaks --bail --no-exit --reporter spec test/",
+    "test": "./test/support/gencert.sh && mocha --require test/support/env --check-leaks --no-exit --reporter spec test/",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc npm test",
     "version": "node scripts/version-history.js && git add HISTORY.md"

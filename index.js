@@ -160,8 +160,14 @@ function session(options) {
     req.session = new Session(req);
     req.session.cookie = new Cookie(typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions);
 
+    var isSecure = issecure(req, trustProxy);
+
     if (cookieOptions.secure === 'auto') {
-      req.session.cookie.secure = issecure(req, trustProxy);
+      req.session.cookie.secure = isSecure;
+    }
+
+    if (cookieOptions.sameSite === 'auto') {
+      req.session.cookie.sameSite = isSecure ? 'none' : 'lax';
     }
   };
 
@@ -524,7 +530,7 @@ function session(options) {
  * @private
  */
 
-function generateSessionId(sess) {
+function generateSessionId() {
   return uid(24);
 }
 
