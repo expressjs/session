@@ -70,7 +70,7 @@ var defer = typeof setImmediate === 'function'
  * Setup session store with the given `options`.
  *
  * @param {Object} [options]
- * @param {Object} [options.cookie] Options for cookie
+ * @param {Object|Function} [options.cookie] Options for cookie
  * @param {Function} [options.genid]
  * @param {String} [options.name=connect.sid] Session ID cookie name
  * @param {Boolean} [options.proxy]
@@ -158,7 +158,7 @@ function session(options) {
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    req.session.cookie = new Cookie(cookieOptions);
+    req.session.cookie = new Cookie(typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions);
 
     var isSecure = issecure(req, trustProxy);
 
@@ -199,7 +199,8 @@ function session(options) {
 
     // pathname mismatch
     var originalPath = parseUrl.original(req).pathname || '/'
-    if (originalPath.indexOf(cookieOptions.path || '/') !== 0) {
+    var resolvedCookieOptions = typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions
+    if (originalPath.indexOf(resolvedCookieOptions.path || '/') !== 0) {
       debug('pathname mismatch')
       next()
       return

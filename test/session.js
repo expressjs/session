@@ -802,6 +802,58 @@ describe('session()', function(){
       })
     })
 
+    describe('when "cookie" is a function', function () {
+      it('should call custom function and apply cookie options', function (done) {
+        var cookieCallbackCalled = false;
+        var cookieCallback = function () {
+          cookieCallbackCalled = true;
+          return { path: '/test', httpOnly: true, secure: false };
+        };
+        var server = createServer({ cookie: cookieCallback });
+        request(server)
+          .get('/test')
+          .expect(
+            shouldSetCookieWithAttributeAndValue('connect.sid', 'Path', '/test')
+          )
+          .expect(shouldSetCookieWithAttribute('connect.sid', 'HttpOnly'))
+          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
+          .expect(200, function (err) {
+            if (err) return done(err);
+            assert.strictEqual(
+              cookieCallbackCalled,
+              true,
+              'should have called cookie callback'
+            );
+            done();
+          });
+      });
+
+      it('should provide req argument', function (done) {
+        var _path = '/test';
+        var cookieCallbackCalled = false;
+        var cookieCallback = function (req) {
+          cookieCallbackCalled = true;
+          return { path: req.url, httpOnly: true, secure: false };
+        };
+        var server = createServer({ cookie: cookieCallback });
+        request(server)
+          .get(_path)
+          .expect(
+            shouldSetCookieWithAttributeAndValue('connect.sid', 'Path', _path)
+          )
+          .expect(shouldSetCookieWithAttribute('connect.sid', 'HttpOnly'))
+          .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
+          .expect(200, function (err) {
+            if (err) return done(err);
+            assert.strictEqual(
+              cookieCallbackCalled,
+              true,
+              'should have called cookie callback'
+            );
+            done();
+          });
+      });
+    });
     describe('when "sameSite" set to "auto"', function () {
       describe('basic functionality', function () {
         before(function () {
