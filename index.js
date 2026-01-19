@@ -74,6 +74,7 @@ var defer = typeof setImmediate === 'function'
  * @param {Function} [options.genid]
  * @param {String} [options.name=connect.sid] Session ID cookie name
  * @param {Boolean} [options.proxy]
+ * @param {Boolean} [options.propagateTouch] Whether session.touch() should call store.touch()
  * @param {Boolean} [options.resave] Resave unmodified sessions back to the store
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
@@ -95,6 +96,11 @@ function session(options) {
 
   // get the session cookie name
   var name = opts.name || opts.key || 'connect.sid'
+
+  var propagateTouch = opts.propagateTouch;
+  if (!propagateTouch) {
+    deprecate('falsy propagateTouch option; set to true');
+  }
 
   // get the session store
   var store = opts.store || new MemoryStore()
@@ -220,6 +226,19 @@ function session(options) {
     var originalId;
     var savedHash;
     var touched = false
+    var touchedStore = false;
+
+    function autoTouch() {
+      if (touched) return;
+      // For legacy reasons, auto-touch does not touch the session in the store. That is done later.
+      var backup = propagateTouch;
+      propagateTouch = false;
+      try {
+        req.session.touch();
+      } finally {
+        propagateTouch = backup;
+      }
+    }
 
     // expose store
     req.sessionStore = store;
@@ -244,11 +263,7 @@ function session(options) {
         return;
       }
 
-      if (!touched) {
-        // touch session
-        req.session.touch()
-        touched = true
-      }
+      autoTouch();
 
       // set cookie
       try {
@@ -340,11 +355,7 @@ function session(options) {
         return _end.call(res, chunk, encoding);
       }
 
-      if (!touched) {
-        // touch session
-        req.session.touch()
-        touched = true
-      }
+      autoTouch();
 
       if (shouldSave(req)) {
         req.session.save(function onsave(err) {
@@ -409,6 +420,7 @@ function session(options) {
     function wrapmethods(sess) {
       var _reload = sess.reload
       var _save = sess.save;
+      var _touch = sess.touch;
 
       function reload(callback) {
         debug('reloading %s', this.id)
@@ -419,6 +431,21 @@ function session(options) {
         debug('saving %s', this.id);
         savedHash = hash(this);
         _save.apply(this, arguments);
+      }
+
+      function touch(callback) {
+        debug('touching %s', this.id);
+        var cb = callback || function (err) { if (err) throw err; };
+        var touchStore = propagateTouch && storeImplementsTouch &&
+            // Don't touch the store unless the session has been or will be written to the store.
+            (saveUninitializedSession || isModified(this) || isSaved(this));
+        _touch.call(this, touchStore ? (function (err) {
+          if (err) return cb(err);
+          store.touch(this.id, this, cb);
+          touchedStore = true; // Set synchronously regardless of success/failure.
+        }).bind(this) : cb);
+        touched = true; // Set synchronously regardless of success/failure.
+        return this;
       }
 
       Object.defineProperty(sess, 'reload', {
@@ -432,6 +459,13 @@ function session(options) {
         configurable: true,
         enumerable: false,
         value: save,
+        writable: true
+      });
+
+      Object.defineProperty(sess, 'touch', {
+        configurable: true,
+        enumerable: false,
+        value: touch,
         writable: true
       });
     }
@@ -472,7 +506,7 @@ function session(options) {
         return false;
       }
 
-      return cookieId === req.sessionID && !shouldSave(req);
+      return !touchedStore && cookieId === req.sessionID && !shouldSave(req);
     }
 
     // determine if cookie should be set on response
