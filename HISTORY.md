@@ -1,33 +1,9 @@
-# Unreleased changes
+1.19.0 / 2026-01-22
+==========
 
-### 🚀 Improvements
-
-* Add dynamic cookie options support
-
-    Cookie options can now be dynamic, allowing for more flexible and context-aware configuration based on each request.  This feature enables programmatic modification of cookie attributes like `secure`, `httpOnly`, `sameSite`, `maxAge`, `domain`, and `path` based on session or request conditions.
-
-    ```js
-    var app = express()
-    app.use(session({
-      secret: 'keyboard cat',
-      resave: false,
-      saveUninitialized: true,
-      cookie: function (req) {
-        var match = req.url.match(/^\/([^/]+)/);
-        return {
-          path: match ? '/' + match[1] : '/',
-          httpOnly: true,
-          secure: req.secure || false,
-          maxAge: 60000
-        }
-      }
-    }))
-    ```
-* Add sameSite 'auto' support for automatic SameSite attribute configuration
-
-    Added `sameSite: 'auto'` option for cookie configuration that automatically sets `SameSite=None` for HTTPS and `SameSite=Lax` for HTTP connections, simplifying cookie handling across different environments.
-
-* deps: use tilde notation for dependencies
+  * Add dynamic cookie options support
+  * Add sameSite 'auto' support for automatic SameSite attribute configuration
+  * deps: use tilde notation for dependencies
 
 1.18.2 / 2025-07-17
 ==========
