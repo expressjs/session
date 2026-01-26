@@ -130,5 +130,19 @@ describe('new Cookie()', function () {
         assert.strictEqual(cookie.priority, 'high')
       })
     })
+
+    describe('domain', function () {
+      it('should set domain', function () {
+        var cookie = new Cookie({ domain: 'example.com' })
+
+        assert.strictEqual(cookie.domain, 'example.com')
+      })
+
+      it('should default to undefined', function () {
+        var cookie = new Cookie()
+
+        assert.strictEqual(cookie.domain, undefined)
+      })
+    })
   })
 })
