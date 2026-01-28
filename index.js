@@ -220,6 +220,7 @@ function session(options) {
     var originalId;
     var savedHash;
     var touched = false
+    var preventTouchForReq = false
 
     // expose store
     req.sessionStore = store;
@@ -415,10 +416,23 @@ function session(options) {
         _reload.call(this, rewrapmethods(this, callback))
       }
 
-      function save() {
-        debug('saving %s', this.id);
-        savedHash = hash(this);
-        _save.apply(this, arguments);
+      function save(preventTouchOrCb, cb) {
+        debug('saving %s', this.id)
+        savedHash = hash(this)
+
+        var _cb = cb;
+
+        if (typeof preventTouchOrCb === 'function') {
+          _cb = preventTouchOrCb
+          preventTouchOrCb = false
+        }
+
+        if (preventTouchOrCb === true) {
+          preventTouchForReq = true
+          debug('touch disabled for this request via save(preventTouch=true)')
+        }
+
+        _save.call(this, _cb)
       }
 
       Object.defineProperty(sess, 'reload', {
@@ -472,7 +486,7 @@ function session(options) {
         return false;
       }
 
-      return cookieId === req.sessionID && !shouldSave(req);
+      return !preventTouchForReq && cookieId === req.sessionID && !shouldSave(req);
     }
 
     // determine if cookie should be set on response
