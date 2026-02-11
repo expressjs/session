@@ -37,6 +37,10 @@ jobs:
         - Node.js 19.x
         - Node.js 20.x
         - Node.js 21.x
+        - Node.js 22.x
+        - Node.js 23.x
+        - Node.js 24.x
+        - Node.js 25.x
 
         include:
         - name: Node.js 0.8
@@ -124,10 +128,22 @@ jobs:
           node-version: "19.9"
 
         - name: Node.js 20.x
-          node-version: "20.11"
+          node-version: "20"
 
         - name: Node.js 21.x
-          node-version: "21.6"
+          node-version: "21"
+        
+        - name: Node.js 22.x
+          node-version: "22"
+
+        - name: Node.js 23.x
+          node-version: "23"
+
+        - name: Node.js 24.x
+          node-version: "24"
+
+        - name: Node.js 25.x
+          node-version: "25"
 
     steps:
     - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -139,7 +155,12 @@ jobs:
         if [[ "${{ matrix.node-version }}" == 0.* && "$(cut -d. -f2 <<< "${{ matrix.node-version }}")" -lt 10 ]]; then
           nvm install --alias=npm 0.10
           nvm use ${{ matrix.node-version }}
-          sed -i '1s;^.*$;'"$(printf '#!%q' "$(nvm which npm)")"';' "$(readlink -f "$(which npm)")"
+          if [[ "$(npm -v)" == 1.1.* ]]; then
+            nvm exec npm npm install -g npm@1.1
+            ln -fs "$(which npm)" "$(dirname "$(nvm which npm)")/npm"
+          else
+            sed -i '1s;^.*$;'"$(printf '#!%q' "$(nvm which npm)")"';' "$(readlink -f "$(which npm)")"
+          fi
           npm config set strict-ssl false
         fi
         dirname "$(nvm which ${{ matrix.node-version }})" >> "$GITHUB_PATH"
