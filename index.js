@@ -621,7 +621,7 @@ function hash(sess) {
 
   // hash
   return crypto
-    .createHash('sha1')
+    .createHash('sha256')
     .update(str, 'utf8')
     .digest('hex')
 }
