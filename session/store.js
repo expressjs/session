@@ -51,7 +51,7 @@ Store.prototype.regenerate = function(req, fn){
   var self = this;
   this.destroy(req.sessionID, function(err){
     self.generate(req);
-    fn(err);
+    fn(err, req.session);
   });
 };
 
