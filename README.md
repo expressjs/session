@@ -126,6 +126,12 @@ More information about can be found in [the proposal](https://github.com/privacy
 Specifies the value for the `Path` `Set-Cookie`. By default, this is set to `'/'`, which
 is the root path of the domain.
 
+Since 1.19.1, path matching follows [RFC 6265 section 5.1.4][rfc-6265-5.1.4]. This means
+the session middleware will only activate when the request path is an exact match or falls
+under a segment boundary of the cookie path. For example, a cookie path of `/admin` will
+match `/admin` and `/admin/users` but will **not** match `/administrator`. Prior versions
+used a simple prefix check that did not enforce segment boundaries.
+
 ##### cookie.priority
 
 Specifies the `string` to be the value for the [`Priority` `Set-Cookie` attribute][rfc-west-cookie-priority-00-4.1].
@@ -1048,6 +1054,7 @@ On Windows, use the corresponding command;
 
 [MIT](LICENSE)
 
+[rfc-6265-5.1.4]: https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.4
 [rfc-6265bis-03-4.1.2.7]: https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
 [rfc-cutler-httpbis-partitioned-cookies]: https://tools.ietf.org/html/draft-cutler-httpbis-partitioned-cookies/
 [rfc-west-cookie-priority-00-4.1]: https://tools.ietf.org/html/draft-west-cookie-priority-00#section-4.1
