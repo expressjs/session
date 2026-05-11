@@ -55,8 +55,15 @@ defineMethod(Session.prototype, 'touch', function touch() {
  * @api public
  */
 
-defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
+defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge(touched) {
+  var changed = this.cookie._isModified;
+
+  if (touched !== false) {
+    changed = true;
+  }
+
   this.cookie.maxAge = this.cookie.originalMaxAge;
+  this.cookie._isModified = changed;
   return this;
 });
 
