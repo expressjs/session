@@ -1133,6 +1133,38 @@ describe('session()', function(){
       });
     });
 
+    it('should apply current cookie options on existing session', function (done) {
+      var store = new session.MemoryStore()
+      var server = createServer({
+        cookie: { maxAge: 1000, sameSite: 'none' },
+        rolling: true,
+        store: store
+      }, function (req, res) {
+        req.session.user = 'bob'
+        res.end()
+      })
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function (err, res) {
+        if (err) return done(err)
+
+        var updatedServer = createServer({
+          cookie: { maxAge: 2000, sameSite: 'strict' },
+          rolling: true,
+          store: store
+        })
+
+        request(updatedServer)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'Strict'))
+        .expect(shouldSetCookieToExpireIn('connect.sid', 2000))
+        .expect(200, done)
+      })
+    })
+
     it('should not force cookie on uninitialized session if saveUninitialized option is set to false', function(done){
       var store = new session.MemoryStore()
       var server = createServer({ store: store, rolling: true, saveUninitialized: false })
