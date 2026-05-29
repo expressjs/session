@@ -733,7 +733,7 @@ and other multi-core embedded devices).
 [connect-session-knex-image]: https://badgen.net/github/stars/llambda/connect-session-knex?label=%E2%98%85
 
 [![★][connect-session-sequelize-image] connect-session-sequelize][connect-session-sequelize-url] A session store using
-[Sequelize.js](http://sequelizejs.com/), which is a Node.js / io.js ORM for PostgreSQL, MySQL, SQLite and MSSQL.
+[Sequelize.js](https://sequelize.org/), which is a Node.js / io.js ORM for PostgreSQL, MySQL, SQLite and MSSQL.
 
 [connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
 [connect-session-sequelize-image]: https://badgen.net/github/stars/mweibel/connect-session-sequelize?label=%E2%98%85
@@ -757,11 +757,6 @@ and other multi-core embedded devices).
 
 [dynamodb-store-url]: https://www.npmjs.com/package/dynamodb-store
 [dynamodb-store-image]: https://badgen.net/github/stars/rafaelrpinto/dynamodb-store?label=%E2%98%85
-
-[![★][dynamodb-store-v3-image] dynamodb-store-v3][dynamodb-store-v3-url] Implementation of a session store using DynamoDB backed by the [AWS SDK for JavaScript v3](https://github.com/aws/aws-sdk-js-v3).
-
-[dynamodb-store-v3-url]: https://www.npmjs.com/package/dynamodb-store-v3
-[dynamodb-store-v3-image]: https://badgen.net/github/stars/FryDay/dynamodb-store-v3?label=%E2%98%85
 
 [![★][express-etcd-image] express-etcd][express-etcd-url] An [etcd](https://github.com/stianeikeland/node-etcd) based session store.
 
@@ -868,7 +863,7 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 [restsession-url]: https://www.npmjs.com/package/restsession
 [restsession-image]: https://badgen.net/github/stars/jankal/restsession?label=%E2%98%85
 
-[![★][sequelstore-connect-image] sequelstore-connect][sequelstore-connect-url] A session store using [Sequelize.js](http://sequelizejs.com/).
+[![★][sequelstore-connect-image] sequelstore-connect][sequelstore-connect-url] A session store using [Sequelize.js](https://sequelize.org/).
 
 [sequelstore-connect-url]: https://www.npmjs.com/package/sequelstore-connect
 [sequelstore-connect-image]: https://badgen.net/github/stars/MattMcFarland/sequelstore-connect?label=%E2%98%85
@@ -882,11 +877,6 @@ based session store. Supports all backends supported by Fortune (MongoDB, Redis,
 
 [session-pouchdb-store-url]: https://www.npmjs.com/package/session-pouchdb-store
 [session-pouchdb-store-image]: https://badgen.net/github/stars/solzimer/session-pouchdb-store?label=%E2%98%85
-
-[![★][@cyclic.sh/session-store-image] @cyclic.sh/session-store][@cyclic.sh/session-store-url] A DynamoDB-based session store for [Cyclic.sh](https://www.cyclic.sh/) apps.
-
-[@cyclic.sh/session-store-url]: https://www.npmjs.com/package/@cyclic.sh/session-store
-[@cyclic.sh/session-store-image]: https://badgen.net/github/stars/cyclic-software/session-store?label=%E2%98%85
 
 [![★][@databunker/session-store-image] @databunker/session-store][@databunker/session-store-url] A [Databunker](https://databunker.org/)-based encrypted session store.
 
