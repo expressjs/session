@@ -681,6 +681,10 @@ function issecure(req, trustProxy) {
     return true;
   }
 
+  if (req.socket && req.socket.encrypted) {
+    return true;
+  }
+
   // do not trust proxy
   if (trustProxy === false) {
     return false;
