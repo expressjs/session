@@ -511,6 +511,30 @@ and **optional**.
   * Optional methods are ones this module does not call at all, but helps
     present uniform stores to users.
 
+Custom stores should inherit from `session.Store`, which provides the common
+session-store behavior used by this module. The base store is available from
+the main export so store implementations do not need to copy or require
+internal files from this module:
+
+```js
+var session = require('express-session')
+var util = require('util')
+
+function MyStore(options) {
+  session.Store.call(this)
+  // initialize store with options
+}
+
+util.inherits(MyStore, session.Store)
+```
+
+Stores that inherit from `session.Store` receive the shared implementations of
+`store.regenerate`, `store.load`, and `store.createSession`. These methods are
+used by `req.session.regenerate()` and `req.session.reload()` and are expected
+to create `Session` and `Cookie` instances correctly. A custom store typically
+only needs to implement the required persistence methods listed below, plus any
+recommended or optional methods it supports.
+
 For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
 
 ### store.all(callback)
