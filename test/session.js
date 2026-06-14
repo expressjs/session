@@ -854,6 +854,21 @@ describe('session()', function(){
           });
       });
     });
+
+    describe('when request socket is encrypted', function () {
+      it('should treat request as secure when connection is missing', function (done) {
+        function setup (req) {
+          req.connection = null
+          req.socket = { encrypted: true }
+        }
+
+        request(createServer(setup, { cookie: { secure: true } }))
+          .get('/')
+          .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
+          .expect(200, done)
+      })
+    })
+
     describe('when "sameSite" set to "auto"', function () {
       describe('basic functionality', function () {
         before(function () {
