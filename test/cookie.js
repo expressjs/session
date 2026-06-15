@@ -130,5 +130,31 @@ describe('new Cookie()', function () {
         assert.strictEqual(cookie.priority, 'high')
       })
     })
+
+    describe('sameSite', function () {
+      it('should set sameSite', function () {
+        var cookie = new Cookie({ sameSite: 'strict' })
+
+        assert.strictEqual(cookie.sameSite, 'strict')
+      })
+
+      it('should accept "lax" value', function () {
+        var cookie = new Cookie({ sameSite: 'lax' })
+
+        assert.strictEqual(cookie.sameSite, 'lax')
+      })
+
+      it('should accept "none" value', function () {
+        var cookie = new Cookie({ sameSite: 'none' })
+
+        assert.strictEqual(cookie.sameSite, 'none')
+      })
+
+      it('should default to undefined', function () {
+        var cookie = new Cookie()
+
+        assert.strictEqual(cookie.sameSite, undefined)
+      })
+    })
   })
 })
