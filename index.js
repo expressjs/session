@@ -200,11 +200,14 @@ function session(options) {
     // pathname mismatch
     var originalPath = parseUrl.original(req).pathname || '/'
     var resolvedCookieOptions = typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions
-    if (originalPath.indexOf(resolvedCookieOptions.path || '/') !== 0) {
+    var cfgPath = resolvedCookieOptions.path || '/'
+
+    if (!rfcPathMatch(originalPath, cfgPath)) {
       debug('pathname mismatch')
       next()
       return
     }
+
 
     // ensure a secret is available or bail
     if (!secret && !req.secret) {
@@ -522,6 +525,42 @@ function session(options) {
     });
   };
 };
+
+/**
+ * Check if the cookiePath matches the requestPath following the
+ * rules in RFC 6265 section 5.1.4.
+ *
+ * @param {String} requestPath
+ * @param {String} cookiePath
+ * @return {Boolean}
+ * @private
+ */
+
+function rfcPathMatch(requestPath, cookiePath) {
+  // Normalize inputs (Node 0.8-safe)
+  requestPath = (typeof requestPath === 'string' && requestPath.length) ? requestPath : '/';
+  cookiePath  = (typeof cookiePath  === 'string' && cookiePath.length)  ? cookiePath  : '/';
+
+  // Root cookie matches everything
+  if (cookiePath === '/') return true;
+
+  // Exact match
+  if (requestPath === cookiePath) return true;
+
+  // Prefix match
+  if (requestPath.indexOf(cookiePath) === 0) {
+    // If cookiePath ends with '/', any longer requestPath is OK
+    if (cookiePath.charAt(cookiePath.length - 1) === '/') return true;
+
+    // Otherwise the next char after the prefix must be '/'
+    var nextChar = requestPath.length > cookiePath.length
+      ? requestPath.charAt(cookiePath.length)
+      : '';
+    return nextChar === '/';
+  }
+
+  return false;
+}
 
 /**
  * Generate a session ID for a new session.

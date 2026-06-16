@@ -2620,6 +2620,115 @@ describe('session()', function(){
   })
 })
 
+describe('path matching (RFC 6265)', function () {
+  describe('when "path" is "/" (root path)', function () {
+    before(function () {
+      this.server = createServer({ cookie: { path: '/' } })
+    })
+
+    it('should set cookie when request-path is "/" (root path)', function (done) {
+      // RFC 6265 5.1.4: "The cookie-path and the request-path are identical."
+      request(this.server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, done)
+    })
+
+    it('should set cookie when request-path is any path ("/foo")', function (done) {
+      // RFC 6265 5.1.4: "The cookie-path is a prefix of the request-path, and the last
+      // character of the cookie-path is %x2F ("/")."
+      request(this.server)
+        .get('/foo')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, done)
+    })
+
+    it('should set cookie when request-path has multiple segments ("/foo/bar/baz")', function (done) {
+      // RFC 6265 5.1.4: "The cookie-path is a prefix of the request-path, and the last
+      // character of the cookie-path is %x2F ("/")."
+      request(this.server)
+        .get('/foo/bar/baz')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, done)
+    })
+  })
+
+  describe('when "path" is "/admin"', function () {
+    before(function () {
+      this.server = createServer({ cookie: { path: '/admin' } })
+    })
+
+    it('should set cookie when request-path and cookie-path are identical ("/admin")', function (done) {
+      // RFC 6265 5.1.4: "The cookie-path and the request-path are identical."
+      request(this.server)
+        .get('/admin')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, done)
+    })
+
+    it('should set cookie when cookie-path is prefix and last char is "/" ("/admin/")', function (done) {
+      // RFC 6265 5.1.4: "The cookie-path is a prefix of the request-path, and the last
+      // character of the cookie-path is %x2F ("/")."
+      request(this.server)
+        .get('/admin/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, done)
+    })
+
+    it('should set cookie when cookie-path is prefix and next char is "/" ("/admin/users")', function (done) {
+      // RFC 6265 5.1.4: "The cookie-path is a prefix of the request-path, and the first
+      // character of the request-path that is not included in the cookie-path is a %x2F ("/") character."
+      request(this.server)
+        .get('/admin/users')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, done)
+    })
+
+    it('should NOT set cookie when cookie-path is not a prefix ("/administrator")', function (done) {
+      // RFC 6265 5.1.4: None of the path-match conditions are met
+      request(this.server)
+        .get('/administrator')
+        .expect(shouldNotHaveHeader('Set-Cookie'))
+        .expect(200, done)
+    })
+  })
+
+  describe('when "path" is "/admin/" (trailing slash)', function () {
+    before(function () {
+      this.server = createServer({ cookie: { path: '/admin/' } })
+    })
+
+    it('should set cookie when cookie-path is prefix and last char is "/" ("/admin/x")', function (done) {
+      // RFC 6265 5.1.4: "The cookie-path is a prefix of the request-path, and the last
+      // character of the cookie-path is %x2F ("/")."
+      request(this.server)
+        .get('/admin/x')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, done)
+    })
+
+    it('should NOT set cookie when request-path is not prefixed by cookie-path ("/admin")', function (done) {
+      // RFC 6265 5.1.4: cookie-path "/admin/" is not a prefix of request-path "/admin"
+      request(this.server)
+        .get('/admin')
+        .expect(shouldNotHaveHeader('Set-Cookie'))
+        .expect(200, done)
+    })
+
+    it('should NOT set cookie when cookie-path is not a prefix ("/administrator")', function (done) {
+      // RFC 6265 5.1.4: None of the path-match conditions are met:
+      // 1. The paths are not identical
+      // 2. "/admin/" is not a prefix of "/administrator"
+      // 3. The prefix condition with next character "/" is not applicable
+      request(this.server)
+        .get('/administrator')
+        .expect(shouldNotHaveHeader('Set-Cookie'))
+        .expect(200, done)
+    })
+  })
+})
+
+
 function cookie(res) {
   var setCookie = res.headers['set-cookie'];
   return (setCookie && setCookie[0]) || undefined;
