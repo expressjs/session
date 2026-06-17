@@ -158,18 +158,24 @@ function session(options) {
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    req.session.cookie = new Cookie(typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions);
+    req.session.cookie = createCookie(req);
+  };
 
+  function createCookie(req) {
+    var options = typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions
+    var sessionCookie = new Cookie(options);
     var isSecure = issecure(req, trustProxy);
 
-    if (cookieOptions.secure === 'auto') {
-      req.session.cookie.secure = isSecure;
+    if (options.secure === 'auto') {
+      sessionCookie.secure = isSecure;
     }
 
-    if (cookieOptions.sameSite === 'auto') {
-      req.session.cookie.sameSite = isSecure ? 'none' : 'lax';
+    if (options.sameSite === 'auto') {
+      sessionCookie.sameSite = isSecure ? 'none' : 'lax';
     }
-  };
+
+    return sessionCookie
+  }
 
   var storeImplementsTouch = typeof store.touch === 'function';
 
@@ -385,6 +391,11 @@ function session(options) {
     // inflate the session
     function inflate (req, sess) {
       store.createSession(req, sess)
+
+      if (rollingSessions) {
+        req.session.cookie = createCookie(req)
+      }
+
       originalId = req.sessionID
       originalHash = hash(sess)
 
