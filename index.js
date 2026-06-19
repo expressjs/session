@@ -169,6 +169,8 @@ function session(options) {
     if (cookieOptions.sameSite === 'auto') {
       req.session.cookie.sameSite = isSecure ? 'none' : 'lax';
     }
+
+    req.session.cookie._isModified = false;
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
@@ -246,7 +248,7 @@ function session(options) {
 
       if (!touched) {
         // touch session
-        req.session.touch()
+        req.session.resetMaxAge(false)
         touched = true
       }
 
@@ -342,7 +344,7 @@ function session(options) {
 
       if (!touched) {
         // touch session
-        req.session.touch()
+        req.session.resetMaxAge(false)
         touched = true
       }
 
@@ -484,7 +486,7 @@ function session(options) {
 
       return cookieId !== req.sessionID
         ? saveUninitializedSession || isModified(req.session)
-        : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
+        : rollingSessions || req.session.cookie.expires != null && (req.session.cookie._isModified || isModified(req.session));
     }
 
     // generate a session if the browser doesn't send a sessionID

@@ -26,6 +26,7 @@ var Cookie = module.exports = function Cookie(options) {
   this.path = '/';
   this.maxAge = null;
   this.httpOnly = true;
+  this._isModified = false;
 
   if (options) {
     if (typeof options !== 'object') {
@@ -42,6 +43,8 @@ var Cookie = module.exports = function Cookie(options) {
   if (this.originalMaxAge === undefined || this.originalMaxAge === null) {
     this.originalMaxAge = this.maxAge
   }
+
+  this._isModified = false;
 };
 
 /*!
@@ -58,6 +61,7 @@ Cookie.prototype = {
    */
 
   set expires(date) {
+    this._isModified = true;
     this._expires = date;
     this.originalMaxAge = this.maxAge;
   },

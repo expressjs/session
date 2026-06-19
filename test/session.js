@@ -2015,6 +2015,36 @@ describe('session()', function(){
         })
       })
 
+      it('should set cookie when only cookie is modified', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store, resave: false }, function (req, res) {
+          if (!req.session.hit) {
+            req.session.hit = true
+            return res.end('created')
+          }
+
+          req.session.cookie.maxAge = 300000
+          req.session.touch()
+          req.session.save(function (err) {
+            if (err) return res.end(err.message)
+            res.end('saved')
+          })
+        })
+
+        request(server)
+          .get('/')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'created', function (err, res) {
+            if (err) return done(err)
+
+            request(server)
+              .get('/')
+              .set('Cookie', cookie(res))
+              .expect(shouldSetCookie('connect.sid'))
+              .expect(200, 'saved', done)
+          })
+      })
+
       it('should prevent end-of-request save on reloaded session', function (done) {
         var store = new session.MemoryStore()
         var server = createServer({ store: store }, function (req, res) {
