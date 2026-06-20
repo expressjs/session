@@ -322,7 +322,7 @@ function session(options) {
       if (shouldDestroy(req)) {
         // destroy session
         debug('destroying');
-        store.destroy(req.sessionID, function ondestroy(err) {
+        req.sessionStore.destroy(req.sessionID, function ondestroy(err) {
           if (err) {
             defer(next, err);
           }
@@ -497,7 +497,7 @@ function session(options) {
 
     // generate the session object
     debug('fetching %s', req.sessionID);
-    store.get(req.sessionID, function(err, sess){
+    req.sessionStore.get(req.sessionID, function(err, sess){
       // error handling
       if (err && err.code !== 'ENOENT') {
         debug('error %j', err);
