@@ -262,7 +262,7 @@ function session(options) {
     var _end = res.end;
     var _write = res.write;
     var ended = false;
-    res.end = function end(chunk, encoding) {
+    res.end = function end(chunk, encoding, callback) {
       if (ended) {
         return false;
       }
@@ -272,14 +272,42 @@ function session(options) {
       var ret;
       var sync = true;
 
+      // Keep a reference to the original arguments so we can preserve their
+      // order when passing them on to the original _end()
+      var endArgs = arguments;
+
+      // The callback argument is optional. If provided, it may be the
+      // first, second, or third argument, and must be the last argument.
+      var callbackArgumentIndex = typeof chunk === 'function'
+        ? 0
+        : typeof encoding === 'function'
+        ? 1
+        : 2;
+
+      if (callbackArgumentIndex === 0) {
+        callback = chunk;
+        chunk = null;
+        encoding = null;
+      } else if (callbackArgumentIndex === 1) {
+        callback = encoding;
+        encoding = null;
+      }
+
       function writeend() {
         if (sync) {
-          ret = _end.call(res, chunk, encoding);
+          ret = _end.apply(res, endArgs);
           sync = false;
           return;
         }
 
-        _end.call(res);
+        // This differs very slightly from (undocumented) Node behaviour in versions
+        // prior to 0.11.6 (which introduced callback support), because we explicitly
+        // call write() followed by end().
+        // The behaviour seems unintentional, as the callback is invoked immediately
+        // after write(), as opposed to after end().
+        var argumentsWithoutChunkOrEncoding = [null, null, null];
+        argumentsWithoutChunkOrEncoding[callbackArgumentIndex] = callback;
+        _end.apply(res, argumentsWithoutChunkOrEncoding);
       }
 
       function writetop() {
@@ -303,12 +331,17 @@ function session(options) {
           chunk = !Buffer.isBuffer(chunk)
             ? Buffer.from(chunk, encoding)
             : chunk;
+          endArgs[0] = chunk;
           encoding = undefined;
+          if (callbackArgumentIndex !== 1) {
+            endArgs[1] = encoding;
+          }
 
           if (chunk.length !== 0) {
             debug('split response');
             ret = _write.call(res, chunk.slice(0, chunk.length - 1));
             chunk = chunk.slice(chunk.length - 1, chunk.length);
+            endArgs[0] = chunk;
             return ret;
           }
         }
@@ -328,7 +361,11 @@ function session(options) {
           }
 
           debug('destroyed');
-          writeend();
+          try {
+            writeend();
+          } catch (err) {
+            next(err);
+          }
         });
 
         return writetop();
@@ -337,7 +374,7 @@ function session(options) {
       // no session to save
       if (!req.session) {
         debug('no session');
-        return _end.call(res, chunk, encoding);
+        return _end.apply(res, endArgs);
       }
 
       if (!touched) {
@@ -352,7 +389,11 @@ function session(options) {
             defer(next, err);
           }
 
-          writeend();
+          try {
+            writeend();
+          } catch (err) {
+            next(err);
+          }
         });
 
         return writetop();
@@ -365,13 +406,17 @@ function session(options) {
           }
 
           debug('touched');
-          writeend();
+          try {
+            writeend();
+          } catch (err) {
+            next(err);
+          }
         });
 
         return writetop();
       }
 
-      return _end.call(res, chunk, encoding);
+      return _end.apply(res, endArgs);
     };
 
     // generate the session
