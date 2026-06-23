@@ -239,7 +239,7 @@ function session(options) {
       }
 
       // only send secure cookies via https
-      if (req.session.cookie.secure && !issecure(req, trustProxy)) {
+      if (req.session.cookie.secure && !issecure(req, trustProxy) && !isRunningLocally()) {
         debug('not secured');
         return;
       }
@@ -659,6 +659,23 @@ function issecure(req, trustProxy) {
     : header.toLowerCase().trim()
 
   return proto === 'https';
+}
+
+/**
+ * Determine if application is running locally.
+ *
+ * @return {Boolean}
+ * @private
+ */
+
+function isRunningLocally() {
+  if (os.hostname() === 'localhost') {
+    return true;
+  }
+  var interfaces = os.networkInterfaces();
+  return Object.values(interfaces).flat().some(iface =>
+    iface.address === '127.0.0.1' || iface.address === '::1'
+  );
 }
 
 /**
