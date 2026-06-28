@@ -1944,7 +1944,7 @@ describe('session()', function(){
 
           server.on('error', function onerror (err) {
             assert.ok(err)
-            assert.strictEqual(err.message, 'option expires is invalid')
+            assert.strictEqual(err.message, 'option expires is invalid: Invalid Date')
             cb()
           })
 
@@ -1955,8 +1955,8 @@ describe('session()', function(){
 
         it('should preserve cookies set before writeHead is called', function(done){
           var server = createServer(null, function (req, res) {
-            var cookie = new Cookie()
-            res.setHeader('Set-Cookie', cookie.serialize('previous', 'cookieValue'))
+            var sessionCookie = new Cookie()
+            res.setHeader('Set-Cookie', sessionCookie.serialize('previous', 'cookieValue'))
             res.end()
           })
 
@@ -1968,9 +1968,9 @@ describe('session()', function(){
 
         it('should preserve cookies set in writeHead', function (done) {
           var server = createServer(null, function (req, res) {
-            var cookie = new Cookie()
+            var sessionCookie = new Cookie()
             res.writeHead(200, {
-              'Set-Cookie': cookie.serialize('previous', 'cookieValue')
+              'Set-Cookie': sessionCookie.serialize('previous', 'cookieValue')
             })
             res.end()
           })
