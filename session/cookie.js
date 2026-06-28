@@ -136,7 +136,7 @@ Cookie.prototype = {
    */
 
   serialize: function(name, val){
-    return cookie.serialize(name, val, this.data);
+    return cookie.stringifySetCookie(name, val, this.data);
   },
 
   /**
