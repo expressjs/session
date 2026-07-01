@@ -46,5 +46,9 @@
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc npm test",
     "version": "node scripts/version-history.js && git add HISTORY.md"
+  },
+  "homepage": "https://github.com/expressjs/session",
+  "bugs": {
+    "url": "https://github.com/expressjs/session/issues"
   }
 }
