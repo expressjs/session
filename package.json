@@ -47,8 +47,8 @@
     "test-cov": "nyc npm test",
     "version": "node scripts/version-history.js && git add HISTORY.md"
   },
-  "homepage": "https://github.com/expressjs/session",
+  "homepage": "https://github.com/koajs/session",
   "bugs": {
-    "url": "https://github.com/expressjs/session/issues"
+    "url": "https://github.com/koajs/session/issues"
   }
 }
