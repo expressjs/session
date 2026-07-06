@@ -384,13 +384,17 @@ function session(options) {
 
       function reload(callback) {
         debug('reloading %s', this.id)
-        _reload.call(this, rewrapmethods(this, callback))
+        if (typeof callback === 'function') {
+          return _reload.call(this, rewrapmethods(this, callback))
+        }
+
+        return _reload.call(this).finally(rewrapmethods(this, function () {}))
       }
 
       function save() {
         debug('saving %s', this.id);
         savedHash = hash(this);
-        _save.apply(this, arguments);
+        return _save.apply(this, arguments);
       }
 
       Object.defineProperty(sess, 'reload', {

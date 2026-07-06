@@ -1,6 +1,11 @@
 unreleased
 ==========
 
+  * Support promises in `session.save()`, `session.reload()`, `session.destroy()`
+    and `session.regenerate()` when called without a callback
+    - `save()` resolves to the session it was called on, `reload()` and
+      `regenerate()` resolve to the new `req.session`, and `destroy()`
+      resolves to `undefined`
   * Replace `uid-safe` dependency with built-in `crypto.randomBytes` for session ID generation
     - Session IDs keep the same format as before (32-character base64url strings)
 

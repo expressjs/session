@@ -1604,6 +1604,42 @@ describe('session()', function(){
         .expect(shouldNotHaveHeader('Set-Cookie'))
         .expect(200, 'undefined', done)
       })
+
+      it('session with promises should resolve to undefined', function (done) {
+        var server = createServer(null, function (req, res) {
+          req.session.destroy().then(function (value) {
+            res.end(String(value === undefined && req.session === undefined))
+          }).catch(function () {
+            res.statusCode = 500
+            res.end()
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(shouldNotHaveHeader('Set-Cookie'))
+        .expect(200, 'true', done)
+      })
+
+      it('session with promises should reject on destroy error', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.destroy().then(function () {
+            res.end('destroyed')
+          }).catch(function (err) {
+            res.statusCode = 500
+            res.end(err.message)
+          })
+        })
+
+        store.destroy = function destroy(sid, callback) {
+          callback(new Error('boom!'))
+        }
+
+        request(server)
+        .get('/')
+        .expect(500, 'boom!', done)
+      })
     })
 
     describe('.regenerate()', function(){
@@ -1628,6 +1664,43 @@ describe('session()', function(){
           .expect(shouldSetCookieToDifferentSessionId(sid(res)))
           .expect(200, 'false', done)
         });
+      })
+
+      it('session with promises should resolve to the new session', function (done) {
+        var server = createServer(null, function (req, res) {
+          var id = req.session.id
+          req.session.regenerate().then(function (sess) {
+            res.end(String(sess === req.session && sess.id !== id))
+          }).catch(function () {
+            res.statusCode = 500
+            res.end()
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'true', done)
+      })
+
+      it('session with promises should reject on regenerate error', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.regenerate().then(function () {
+            res.end('regenerated')
+          }).catch(function (err) {
+            res.statusCode = 500
+            res.end(err.message)
+          })
+        })
+
+        store.destroy = function destroy(sid, callback) {
+          callback(new Error('boom!'))
+        }
+
+        request(server)
+        .get('/')
+        .expect(500, 'boom!', done)
       })
     })
 
@@ -1672,7 +1745,7 @@ describe('session()', function(){
         })
       })
 
-      it('should error is session missing', function (done) {
+      it('should error if session missing', function (done) {
         var store = new session.MemoryStore()
         var server = createServer({ store: store }, function (req, res) {
           if (req.url === '/') {
@@ -1743,6 +1816,66 @@ describe('session()', function(){
               .expect(200, 'ok', done)
           })
       })
+
+      it('session with promises should error if session missing', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          store.clear(function (err) {
+            if (err) return done(err)
+            req.session.reload().then(function() {
+              res.statusCode = 200
+              res.end('')
+            }).catch(function(err) {
+              res.statusCode = 500
+              res.end(err.message)
+            })
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'session created', function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/foo')
+          .set('Cookie', cookie(res))
+          .expect(500, 'failed to load session', done)
+        })
+      })
+
+      it('session with promises should resolve to the reloaded session', function (done) {
+        var server = createServer(null, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          var prev = req.session
+          req.session.reload().then(function (sess) {
+            res.end(String(sess === req.session && sess !== prev && sess.id === prev.id))
+          }).catch(function (err) {
+            res.statusCode = 500
+            res.end(err.message)
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'session created', function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/foo')
+          .set('Cookie', cookie(res))
+          .expect(200, 'true', done)
+        })
+      })
     })
 
     describe('.save()', function () {
@@ -1762,6 +1895,77 @@ describe('session()', function(){
         request(server)
         .get('/')
         .expect(200, 'stored', done)
+      })
+
+      it('session with promises should save session to store', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.hit = true
+          req.session.save().then(function() {
+            // TODO: Make MemoryStore methods return promises
+            // so we don't have to wrap store.get around a promise
+            // here?
+            return new Promise(function(resolve, reject) {
+              store.get(req.session.id, function (err, sess) {
+                if (err) return reject(err)
+                resolve(sess ? 'stored' : 'empty')
+              })
+            })
+          }).then(function(message) {
+            res.end(message)
+          }).catch(function(err) {
+            res.end(err.message)
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'stored', done)
+      })
+
+      it('session with promises should resolve to the saved session', function (done) {
+        var server = createServer(null, function (req, res) {
+          var sess = req.session
+          sess.hit = true
+          // save first so reload can replace req.session with a new
+          // object, then save the old reference: the promise must
+          // resolve to that reference, not the current req.session
+          sess.save().then(function () {
+            return sess.reload()
+          }).then(function () {
+            return sess.save()
+          }).then(function (value) {
+            res.end(String(value === sess && value !== req.session))
+          }).catch(function (err) {
+            res.statusCode = 500
+            res.end(err.message)
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(200, 'true', done)
+      })
+
+      it('session with promises should reject on save error', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store, saveUninitialized: false }, function (req, res) {
+          req.session.hit = true
+          req.session.save().then(function () {
+            res.end('saved')
+          }).catch(function (err) {
+            res.statusCode = 500
+            res.end(err.message)
+          })
+        })
+
+        store.set = function set(sid, sess, callback) {
+          callback(new Error('boom!'))
+        }
+
+        request(server)
+        .get('/')
+        .expect(500, 'boom!', done)
       })
 
       it('should prevent end-of-request save', function (done) {
@@ -1787,6 +1991,30 @@ describe('session()', function(){
         })
       })
 
+      it('session with promises should prevent end-of-request save', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.hit = true
+          req.session.save().then(function() {
+            res.end('saved')
+          }).catch(function(err) {
+            res.end(err.message)
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(shouldSetSessionInStore(store))
+        .expect(200, 'saved', function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetSessionInStore(store))
+          .expect(200, 'saved', done)
+        })
+      })
+
       it('should prevent end-of-request save on reloaded session', function (done) {
         var store = new session.MemoryStore()
         var server = createServer({ store: store }, function (req, res) {
@@ -1796,6 +2024,36 @@ describe('session()', function(){
               if (err) return res.end(err.message)
               res.end('saved')
             })
+          })
+        })
+
+        request(server)
+        .get('/')
+        .expect(shouldSetSessionInStore(store))
+        .expect(200, 'saved', function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/')
+          .set('Cookie', cookie(res))
+          .expect(shouldSetSessionInStore(store))
+          .expect(200, 'saved', done)
+        })
+      })
+
+      it('session with promises should prevent end-of-request save on reloaded session', function (done) {
+        var store = new session.MemoryStore()
+        var server = createServer({ store: store }, function (req, res) {
+          req.session.hit = true
+          // NOTE: reload() rejects with a `failed to load session` error
+          // on the first request, since the session is not in the store
+          // yet. The previous test using callbacks ignores that error the
+          // same way, so ignore it here and always save for parity.
+          req.session.reload().catch(function () {}).then(function() {
+            return req.session.save()
+          }).then(function() {
+            res.end('saved')
+          }).catch(function(err) {
+            res.end(err.message)
           })
         })
 

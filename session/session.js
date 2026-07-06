@@ -63,14 +63,18 @@ defineMethod(Session.prototype, 'resetMaxAge', function resetMaxAge() {
 /**
  * Save the session data with optional callback `fn(err)`.
  *
- * @param {Function} fn
- * @return {Session} for chaining
+ * @param {Function} [fn]
+ * @return {Session|Promise} for chaining
  * @api public
  */
 
 defineMethod(Session.prototype, 'save', function save(fn) {
-  this.req.sessionStore.set(this.id, this, fn || function(){});
-  return this;
+  var self = this;
+  var store = this.req.sessionStore;
+
+  return callbackOrPromise(this, fn, function (done) {
+    store.set(self.id, self, done);
+  }, self);
 });
 
 /**
@@ -80,49 +84,60 @@ defineMethod(Session.prototype, 'save', function save(fn) {
  * `req.session` property will be a new `Session` object,
  * although representing the same session.
  *
- * @param {Function} fn
- * @return {Session} for chaining
+ * @param {Function} [fn]
+ * @return {Session|Promise} for chaining
  * @api public
  */
 
 defineMethod(Session.prototype, 'reload', function reload(fn) {
-  var req = this.req
-  var store = this.req.sessionStore
+  var req = this.req;
+  var store = this.req.sessionStore;
+  var id = this.id;
 
-  store.get(this.id, function(err, sess){
-    if (err) return fn(err);
-    if (!sess) return fn(new Error('failed to load session'));
-    store.createSession(req, sess);
-    fn();
+  return callbackOrPromise(this, fn, function (done) {
+    store.get(id, function (err, sess) {
+      if (err) return done(err);
+      if (!sess) return done(new Error('failed to load session'));
+      store.createSession(req, sess);
+      done();
+    });
   });
-  return this;
 });
 
 /**
  * Destroy `this` session.
  *
- * @param {Function} fn
- * @return {Session} for chaining
+ * @param {Function} [fn]
+ * @return {Session|Promise} for chaining
  * @api public
  */
 
 defineMethod(Session.prototype, 'destroy', function destroy(fn) {
+  var store = this.req.sessionStore;
+  var id = this.id;
+
   delete this.req.session;
-  this.req.sessionStore.destroy(this.id, fn);
-  return this;
+
+  return callbackOrPromise(this, fn, function (done) {
+    store.destroy(id, done);
+  });
 });
 
 /**
  * Regenerate this request's session.
  *
- * @param {Function} fn
- * @return {Session} for chaining
+ * @param {Function} [fn]
+ * @return {Session|Promise} for chaining
  * @api public
  */
 
 defineMethod(Session.prototype, 'regenerate', function regenerate(fn) {
-  this.req.sessionStore.regenerate(this.req, fn);
-  return this;
+  var req = this.req;
+  var store = this.req.sessionStore;
+
+  return callbackOrPromise(this, fn, function (done) {
+    store.regenerate(req, done);
+  });
 });
 
 /**
@@ -141,3 +156,25 @@ function defineMethod(obj, name, fn) {
     writable: true
   });
 };
+
+/**
+ * Run `executor(done)` in callback or promise style: with a callback,
+ * return `session` for chaining; without one, return a `Promise`
+ * resolving to `value`, or the request's current session by default.
+ *
+ * @private
+ */
+
+function callbackOrPromise(session, callback, executor, value) {
+  if (typeof callback === 'function') {
+    executor(callback)
+    return session
+  }
+
+  return new Promise(function (resolve, reject) {
+    executor(function (err) {
+      if (err) return reject(err)
+      resolve(value !== undefined ? value : session.req.session)
+    })
+  })
+}
