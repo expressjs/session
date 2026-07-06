@@ -337,7 +337,8 @@ etc.).
 
 The default value is `'keep'`.
 
-  - `'destroy'` The session will be destroyed (deleted) when the response ends.
+  - `'destroy'` The session will be destroyed (deleted) when the response ends,
+    and the response will set an expired cookie to remove it from the client.
   - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
 
@@ -381,7 +382,9 @@ req.session.regenerate(function(err) {
 #### Session.destroy(callback)
 
 Destroys the session and will unset the `req.session` property.
-Once complete, the `callback` will be invoked.
+Once complete, the `callback` will be invoked. If the request came
+in with a session cookie, the response will set an expired cookie
+to remove it from the client.
 
 ```js
 req.session.destroy(function(err) {
