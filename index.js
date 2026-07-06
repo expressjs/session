@@ -203,9 +203,20 @@ function session(options) {
       if (!req.session) {
         // expire the cookie when the session was destroyed
         if (destroyed && cookieId) {
-          debug('expire cookie')
           var expired = new Cookie(cookieOptions)
           expired.expires = new Date(0)
+
+          if (expired.secure === 'auto') {
+            expired.secure = issecure(req, trustProxy)
+          }
+
+          // only send secure cookies via https
+          if (expired.secure && !issecure(req, trustProxy)) {
+            debug('not secured, cannot expire cookie');
+            return;
+          }
+
+          debug('expire cookie')
 
           try {
             setcookie(res, name, '', secrets[0], expired.data)

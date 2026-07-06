@@ -1652,6 +1652,98 @@ describe('session()', function(){
           .expect(200, 'destroyed', done)
         })
       })
+
+      it('should not send expired secure cookie when insecure', function (done) {
+        function setup (req) {
+          req.secure = JSON.parse(req.headers['x-secure'])
+        }
+
+        var server = createServer(setup, { cookie: { secure: true, maxAge: min } }, function (req, res) {
+          if (req.url === '/') {
+            req.session.active = true
+            res.end('session created')
+            return
+          }
+
+          req.session.destroy(function (err) {
+            if (err) res.statusCode = 500
+            res.end('destroyed')
+          })
+        })
+
+        request(server)
+        .get('/')
+        .set('X-Secure', 'true')
+        .expect(shouldSetCookie('connect.sid'))
+        .expect(200, 'session created', function (err, res) {
+          if (err) return done(err)
+          request(server)
+          .get('/foo')
+          .set('Cookie', cookie(res))
+          .set('X-Secure', 'false')
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(200, 'destroyed', done)
+        })
+      })
+
+      describe('when cookie "secure" set to "auto"', function () {
+        function setup (req) {
+          req.secure = JSON.parse(req.headers['x-secure'])
+        }
+
+        function createDestroyServer () {
+          return createServer(setup, { cookie: { secure: 'auto', maxAge: min } }, function (req, res) {
+            if (req.url === '/') {
+              req.session.active = true
+              res.end('session created')
+              return
+            }
+
+            req.session.destroy(function (err) {
+              if (err) res.statusCode = 500
+              res.end('destroyed')
+            })
+          })
+        }
+
+        it('should expire cookie with Secure when connection is secure', function (done) {
+          var server = createDestroyServer()
+
+          request(server)
+          .get('/')
+          .set('X-Secure', 'true')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'session created', function (err, res) {
+            if (err) return done(err)
+            request(server)
+            .get('/foo')
+            .set('Cookie', cookie(res))
+            .set('X-Secure', 'true')
+            .expect(shouldSetCookieToExpired('connect.sid'))
+            .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
+            .expect(200, 'destroyed', done)
+          })
+        })
+
+        it('should expire cookie without Secure when connection is insecure', function (done) {
+          var server = createDestroyServer()
+
+          request(server)
+          .get('/')
+          .set('X-Secure', 'false')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'session created', function (err, res) {
+            if (err) return done(err)
+            request(server)
+            .get('/foo')
+            .set('Cookie', cookie(res))
+            .set('X-Secure', 'false')
+            .expect(shouldSetCookieToExpired('connect.sid'))
+            .expect(shouldSetCookieWithoutAttribute('connect.sid', 'Secure'))
+            .expect(200, 'destroyed', done)
+          })
+        })
+      })
     })
 
     describe('.regenerate()', function(){
