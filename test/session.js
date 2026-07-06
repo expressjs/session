@@ -800,6 +800,31 @@ describe('session()', function(){
           .expect(200, 'false', done)
         })
       })
+
+      describe('when request socket is encrypted', function () {
+        it('should set secure over TLS', function (done) {
+          var cert = fs.readFileSync(__dirname + '/fixtures/server.crt', 'ascii')
+          var server = https.createServer({
+            key: fs.readFileSync(__dirname + '/fixtures/server.key', 'ascii'),
+            cert: cert
+          })
+
+          server.on('request', createRequestListener({ secret: 'keyboard cat', cookie: { secure: 'auto' } }))
+
+          var agent = new https.Agent({ ca: cert })
+          var createConnection = agent.createConnection
+
+          agent.createConnection = function (options) {
+            options.servername = 'express-session.local'
+            return createConnection.call(this, options)
+          }
+
+          var req = request(server).get('/')
+          req.agent(agent)
+          req.expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
+          req.expect(200, done)
+        })
+      })
     })
 
     describe('when "cookie" is a function', function () {
@@ -889,19 +914,6 @@ describe('session()', function(){
       });
     });
 
-    describe('when request socket is encrypted', function () {
-      it('should treat request as secure when connection is missing', function (done) {
-        function setup (req) {
-          req.connection = null
-          req.socket = { encrypted: true }
-        }
-
-        request(createServer(setup, { cookie: { secure: true } }))
-          .get('/')
-          .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
-          .expect(200, done)
-      })
-    })
 
     describe('when "sameSite" set to "auto"', function () {
       describe('basic functionality', function () {
