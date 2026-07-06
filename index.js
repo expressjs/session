@@ -158,15 +158,16 @@ function session(options) {
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    req.session.cookie = new Cookie(typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions);
+    var resolvedCookieOptions = typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions;
+    req.session.cookie = new Cookie(resolvedCookieOptions);
 
     var isSecure = issecure(req, trustProxy);
 
-    if (cookieOptions.secure === 'auto') {
+    if (resolvedCookieOptions.secure === 'auto') {
       req.session.cookie.secure = isSecure;
     }
 
-    if (cookieOptions.sameSite === 'auto') {
+    if (resolvedCookieOptions.sameSite === 'auto') {
       req.session.cookie.sameSite = isSecure ? 'none' : 'lax';
     }
   };

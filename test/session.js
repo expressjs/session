@@ -853,6 +853,40 @@ describe('session()', function(){
             done();
           });
       });
+
+      it('should not set cookie when request-path does not match returned path', function (done) {
+        var cookieCallback = function () {
+          return { path: '/admin', httpOnly: true, secure: false };
+        };
+        var server = createServer({ cookie: cookieCallback });
+        request(server)
+          .get('/administrator')
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(200, done);
+      });
+
+      it('should resolve "secure" and "sameSite" set to "auto"', function (done) {
+        function setup (req) {
+          req.secure = JSON.parse(req.headers['x-secure'])
+        }
+
+        function respond (req, res) {
+          res.end(String(req.secure))
+        }
+
+        var cookieCallback = function () {
+          return { path: '/', secure: 'auto', sameSite: 'auto' };
+        };
+        var server = createServer(setup, { cookie: cookieCallback }, respond);
+        request(server)
+          .get('/')
+          .set('X-Secure', 'true')
+          .expect(shouldSetCookieWithAttribute('connect.sid', 'Secure'))
+          .expect(
+            shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'None')
+          )
+          .expect(200, 'true', done);
+      });
     });
     describe('when "sameSite" set to "auto"', function () {
       describe('basic functionality', function () {
