@@ -1,6 +1,15 @@
 unreleased
 ==========
 
+## ⚠️ BREAKING CHANGES
+
+  * Change `saveUninitialized` option default from `true` to `false`
+    - New sessions are no longer saved to the store (nor a cookie set) unless modified
+      during the request; pass `saveUninitialized: true` to restore the previous behavior
+    - The deprecation warning for omitting this option has been removed
+
+## Other changes
+
   * Replace `uid-safe` dependency with built-in `crypto.randomBytes` for session ID generation
     - Session IDs keep the same format as before (32-character base64url strings)
 

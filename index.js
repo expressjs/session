@@ -16,7 +16,6 @@
 var cookie = require('cookie');
 var crypto = require('crypto')
 var debug = require('debug')('express-session');
-var deprecate = require('depd')('express-session');
 var onHeaders = require('on-headers')
 var parseUrl = require('parseurl');
 var signature = require('cookie-signature')
@@ -111,8 +110,7 @@ function session(options) {
   }
 
   if (saveUninitializedSession === undefined) {
-    deprecate('undefined saveUninitialized option; provide saveUninitialized option');
-    saveUninitializedSession = true;
+    saveUninitializedSession = false;
   }
 
   if (opts.unset && opts.unset !== 'destroy' && opts.unset !== 'keep') {

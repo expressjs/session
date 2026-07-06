@@ -1091,15 +1091,15 @@ describe('session()', function(){
   });
 
   describe('saveUninitialized option', function(){
-    it('should default to true', function(done){
+    it('should default to false', function(done){
       var store = new session.MemoryStore()
-      var server = createServer({ store: store })
+      var server = createServer({ store: store, saveUninitialized: undefined })
 
       request(server)
       .get('/')
-      .expect(shouldSetSessionInStore(store))
-      .expect(shouldSetCookie('connect.sid'))
-      .expect(200, done);
+      .expect(shouldNotSetSessionInStore(store))
+      .expect(shouldNotHaveHeader('Set-Cookie'))
+      .expect(200, done)
     });
 
     it('should force save of uninitialized session', function(done){
@@ -2401,6 +2401,10 @@ function createSession(opts) {
 
   if (!('secret' in options)) {
     options.secret = 'keyboard cat'
+  }
+
+  if (!('saveUninitialized' in options)) {
+    options.saveUninitialized = true
   }
 
   return session(options)
