@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * Enforce RFC 6265 section 5.1.4 path matching for the session cookie path
+  * Fix `secure: 'auto'` and `sameSite: 'auto'` not being resolved when `cookie` is a function
+
 1.19.0 / 2026-01-22
 ==========
 
