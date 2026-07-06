@@ -1,6 +1,12 @@
 unreleased
 ==========
 
+## ⚠️ BREAKING CHANGES
+
+  * Change `unset` option default from `'keep'` to `'destroy'`
+    - Sessions unset via `req.session = null` (or `delete`) are now deleted from the store
+      when the response ends; pass `unset: 'keep'` to restore the previous behavior
+
   * Replace `uid-safe` dependency with built-in `crypto.randomBytes` for session ID generation
     - Session IDs keep the same format as before (32-character base64url strings)
 

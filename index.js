@@ -119,8 +119,7 @@ function session(options) {
     throw new TypeError('unset option must be "destroy" or "keep"');
   }
 
-  // TODO: switch to "destroy" on next major
-  var unsetDestroy = opts.unset === 'destroy'
+  var unsetDestroy = opts.unset !== 'keep'
 
   if (Array.isArray(secrets) && secrets.length === 0) {
     throw new TypeError('secret option array must contain one or more strings');

@@ -1301,7 +1301,7 @@ describe('session()', function(){
       assert.throws(session.bind(null, { unset: 'bogus!' }), /unset.*must/)
     });
 
-    it('should default to keep', function(done){
+    it('should default to destroy', function(done){
       var store = new session.MemoryStore();
       var server = createServer({ store: store }, function (req, res) {
         req.session.count = req.session.count || 0
@@ -1324,7 +1324,7 @@ describe('session()', function(){
             if (err) return done(err);
             store.length(function(err, len){
               if (err) return done(err);
-              assert.strictEqual(len, 1)
+              assert.strictEqual(len, 0)
               done();
             });
           });

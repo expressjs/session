@@ -335,7 +335,7 @@ The session store instance, defaults to a new `MemoryStore` instance.
 Control the result of unsetting `req.session` (through `delete`, setting to `null`,
 etc.).
 
-The default value is `'keep'`.
+The default value is `'destroy'`.
 
   - `'destroy'` The session will be destroyed (deleted) when the response ends.
   - `'keep'` The session in the store will be kept, but modifications made during
