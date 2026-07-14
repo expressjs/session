@@ -289,9 +289,9 @@ laws that require permission before setting a cookie. Choosing `false` will also
 help with race conditions where a client makes multiple parallel requests
 without a session.
 
-The default value is `true`, but using the default has been deprecated, as the
-default will change in the future. Please research into this setting and
-choose what is appropriate to your use-case.
+The default value is `false`. Set this to `true` if you need every new session
+to be saved to the store even when not modified, such as tracking anonymous
+visitors.
 
 **Note** if you are using Session in conjunction with PassportJS, Passport
 will add an empty Passport object to the session for use after a user is

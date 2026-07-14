@@ -1,9 +1,19 @@
 unreleased
 ==========
 
+  
+## ⚠️ BREAKING CHANGES
+
+  * Change `saveUninitialized` option default from `true` to `false`
+    - New sessions are no longer saved to the store (nor a cookie set) unless modified
+      during the request; pass `saveUninitialized: true` to restore the previous behavior
+    - The deprecation warning for omitting this option has been removed
   * Expire the session cookie on the response when the session is destroyed
     - Applies to `req.session.destroy()` and to `unset: 'destroy'`, when the request
       came in with a session cookie
+
+## Other changes
+
   * Replace `uid-safe` dependency with built-in `crypto.randomBytes` for session ID generation
     - Session IDs keep the same format as before (32-character base64url strings)
 
