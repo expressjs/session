@@ -289,9 +289,9 @@ laws that require permission before setting a cookie. Choosing `false` will also
 help with race conditions where a client makes multiple parallel requests
 without a session.
 
-The default value is `true`, but using the default has been deprecated, as the
-default will change in the future. Please research into this setting and
-choose what is appropriate to your use-case.
+The default value is `false`. Set this to `true` if you need every new session
+to be saved to the store even when not modified, such as tracking anonymous
+visitors.
 
 **Note** if you are using Session in conjunction with PassportJS, Passport
 will add an empty Passport object to the session for use after a user is
@@ -337,7 +337,8 @@ etc.).
 
 The default value is `'destroy'`.
 
-  - `'destroy'` The session will be destroyed (deleted) when the response ends.
+  - `'destroy'` The session will be destroyed (deleted) when the response ends,
+    and the response will set an expired cookie to remove it from the client.
   - `'keep'` The session in the store will be kept, but modifications made during
     the request are ignored and not saved.
 
@@ -381,7 +382,9 @@ req.session.regenerate(function(err) {
 #### Session.destroy(callback)
 
 Destroys the session and will unset the `req.session` property.
-Once complete, the `callback` will be invoked.
+Once complete, the `callback` will be invoked. If the request came
+in with a session cookie, the response will set an expired cookie
+to remove it from the client.
 
 ```js
 req.session.destroy(function(err) {

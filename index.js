@@ -16,7 +16,6 @@
 var cookie = require('cookie');
 var crypto = require('crypto')
 var debug = require('debug')('express-session');
-var deprecate = require('depd')('express-session');
 var onHeaders = require('on-headers')
 var parseUrl = require('parseurl');
 var signature = require('cookie-signature')
@@ -111,8 +110,7 @@ function session(options) {
   }
 
   if (saveUninitializedSession === undefined) {
-    deprecate('undefined saveUninitialized option; provide saveUninitialized option');
-    saveUninitializedSession = true;
+    saveUninitializedSession = false;
   }
 
   if (opts.unset && opts.unset !== 'destroy' && opts.unset !== 'keep') {
@@ -185,6 +183,7 @@ function session(options) {
       return
     }
 
+    var destroyed = false
     var originalHash;
     var originalId;
     var savedHash;
@@ -199,6 +198,31 @@ function session(options) {
     // set-cookie
     onHeaders(res, function(){
       if (!req.session) {
+        // expire the cookie when the session was destroyed
+        if (destroyed && cookieId) {
+          var expired = new Cookie(cookieOptions)
+          expired.expires = new Date(0)
+
+          if (expired.secure === 'auto') {
+            expired.secure = issecure(req, trustProxy)
+          }
+
+          // only send secure cookies via https
+          if (expired.secure && !issecure(req, trustProxy)) {
+            debug('not secured, cannot expire cookie');
+            return;
+          }
+
+          debug('expire cookie')
+
+          try {
+            setcookie(res, name, '', secrets[0], expired.data)
+          } catch (err) {
+            setImmediate(next, err)
+          }
+          return
+        }
+
         debug('no session');
         return;
       }
@@ -293,6 +317,7 @@ function session(options) {
       if (shouldDestroy(req)) {
         // destroy session
         debug('destroying');
+        destroyed = true
         store.destroy(req.sessionID, function ondestroy(err) {
           if (err) {
             setImmediate(next, err);
@@ -378,8 +403,15 @@ function session(options) {
 
     // wrap session methods
     function wrapmethods(sess) {
+      var _destroy = sess.destroy
       var _reload = sess.reload
       var _save = sess.save;
+
+      function destroy() {
+        debug('destroying %s', this.id)
+        destroyed = true
+        return _destroy.apply(this, arguments)
+      }
 
       function reload(callback) {
         debug('reloading %s', this.id)
@@ -391,6 +423,13 @@ function session(options) {
         savedHash = hash(this);
         _save.apply(this, arguments);
       }
+
+      Object.defineProperty(sess, 'destroy', {
+        configurable: true,
+        enumerable: false,
+        value: destroy,
+        writable: true
+      })
 
       Object.defineProperty(sess, 'reload', {
         configurable: true,
