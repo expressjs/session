@@ -111,7 +111,7 @@ defined in the object is what is used.
 
 ##### cookie.partitioned
 
-Specifies the `boolean` value for the [`Partitioned` `Set-Cookie`](rfc-cutler-httpbis-partitioned-cookies)
+Specifies the `boolean` value for the [`Partitioned` `Set-Cookie`][rfc-cutler-httpbis-partitioned-cookies]
 attribute. When truthy, the `Partitioned` attribute is set, otherwise it is not.
 By default, the `Partitioned` attribute is not set.
 
