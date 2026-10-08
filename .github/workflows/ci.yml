@@ -41,6 +41,7 @@ jobs:
         - Node.js 23.x
         - Node.js 24.x
         - Node.js 25.x
+        - Node.js 26.x
 
         include:
         - name: Node.js 0.8
@@ -94,45 +95,51 @@ jobs:
 
         - name: Node.js 10.x
           node-version: "10.24"
-          npm-i: mocha@8.4.0 supertest@6.1.6
+          npm-i: mocha@8.4.0 nyc@15.1.0 supertest@6.1.6
 
         - name: Node.js 11.x
           node-version: "11.15"
-          npm-i: mocha@8.4.0 supertest@6.1.6
+          npm-i: mocha@8.4.0 nyc@15.1.0 supertest@6.1.6
 
         - name: Node.js 12.x
           node-version: "12.22"
-          npm-i: mocha@9.2.2 supertest@6.1.6
+          npm-i: mocha@9.2.2 nyc@15.1.0 supertest@6.1.6
 
         - name: Node.js 13.x
           node-version: "13.14"
-          npm-i: mocha@9.2.2 supertest@6.1.6
+          npm-i: mocha@9.2.2 nyc@15.1.0 supertest@6.1.6
 
         - name: Node.js 14.x
           node-version: "14.21"
+          npm-i: mocha@10.8.2 nyc@15.1.0 supertest@6.1.6
 
         - name: Node.js 15.x
-          node-version: "15.14" 
-          npm-i: supertest@6.1.6
+          node-version: "15.14"
+          npm-i: mocha@10.8.2 nyc@15.1.0 supertest@6.1.6
 
         - name: Node.js 16.x
           node-version: "16.20"
+          npm-i: mocha@10.8.2 nyc@15.1.0 supertest@6.1.6
 
         - name: Node.js 17.x
           node-version: "17.9"
+          npm-i: mocha@10.8.2 nyc@15.1.0 supertest@6.1.6
 
         - name: Node.js 18.x
           node-version: "18.19"
+          npm-i: mocha@10.8.2 nyc@17.1.0
 
         - name: Node.js 19.x
           node-version: "19.9"
+          npm-i: mocha@10.8.2 nyc@17.1.0
 
         - name: Node.js 20.x
           node-version: "20"
 
         - name: Node.js 21.x
           node-version: "21"
-        
+          npm-i: mocha@10.8.2 nyc@17.1.0
+
         - name: Node.js 22.x
           node-version: "22"
 
@@ -144,6 +151,9 @@ jobs:
 
         - name: Node.js 25.x
           node-version: "25"
+
+        - name: Node.js 26.x
+          node-version: "26"
 
     steps:
     - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
