@@ -223,6 +223,7 @@ function session(options) {
     var originalHash;
     var originalId;
     var savedHash;
+    var savedId;
     var touched = false
 
     // expose store
@@ -383,6 +384,8 @@ function session(options) {
       store.generate(req);
       originalId = req.sessionID;
       originalHash = hash(req.session);
+      savedHash = undefined
+      savedId = undefined
       wrapmethods(req.session);
     }
 
@@ -394,6 +397,10 @@ function session(options) {
 
       if (!resaveSession) {
         savedHash = originalHash
+        savedId = req.sessionID
+      } else {
+        savedHash = undefined
+        savedId = undefined
       }
 
       wrapmethods(req.session)
@@ -411,8 +418,19 @@ function session(options) {
 
     // wrap session methods
     function wrapmethods(sess) {
+      var _regenerate = sess.regenerate
       var _reload = sess.reload
       var _save = sess.save;
+
+      function regenerate(callback) {
+        debug('regenerating %s', this.id)
+        var sess = this
+        _regenerate.call(this, function () {
+          savedHash = undefined
+          savedId = undefined
+          rewrapmethods(sess, callback).apply(this, arguments)
+        })
+      }
 
       function reload(callback) {
         debug('reloading %s', this.id)
@@ -422,8 +440,16 @@ function session(options) {
       function save() {
         debug('saving %s', this.id);
         savedHash = hash(this);
+        savedId = this.id;
         _save.apply(this, arguments);
       }
+
+      Object.defineProperty(sess, 'regenerate', {
+        configurable: true,
+        enumerable: false,
+        value: regenerate,
+        writable: true
+      })
 
       Object.defineProperty(sess, 'reload', {
         configurable: true,
@@ -447,7 +473,7 @@ function session(options) {
 
     // check if session has been saved
     function isSaved(sess) {
-      return originalId === sess.id && savedHash === hash(sess);
+      return savedId === sess.id && savedHash === hash(sess);
     }
 
     // determine if session should be destroyed

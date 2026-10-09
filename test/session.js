@@ -1918,6 +1918,70 @@ describe('session()', function(){
           .expect(200, 'false', done)
         });
       })
+
+      it('should prevent end-of-request save after manual save', function (done) {
+        var store = new session.MemoryStore()
+        var count = 0
+        var _set = store.set
+        var server = createServer({ store: store, resave: false, saveUninitialized: false }, function (req, res) {
+          req.session.regenerate(function (err) {
+            if (err) return res.end(err.message)
+            req.session.value = 'foo'
+            req.session.save(function (err) {
+              if (err) return res.end(err.message)
+              res.end('saved')
+            })
+          })
+        })
+
+        store.set = function set () {
+          count++
+          return _set.apply(this, arguments)
+        }
+
+        request(server)
+          .get('/')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, 'saved', function (err) {
+            if (err) return done(err)
+            assert.strictEqual(count, 1)
+            done()
+          })
+      })
+
+      it('should set cookie after manual save without data changes', function (done) {
+        var store = new session.MemoryStore()
+        var count = 0
+        var _set = store.set
+        var server = createServer({ store: store, resave: false, saveUninitialized: false }, function (req, res) {
+          var oldId = req.session.id
+
+          req.session.regenerate(function (err) {
+            if (err) return res.end(err.message)
+            req.session.save(function (err) {
+              if (err) return res.end(err.message)
+              res.end(oldId + ':' + req.session.id)
+            })
+          })
+        })
+
+        store.set = function set () {
+          count++
+          return _set.apply(this, arguments)
+        }
+
+        request(server)
+          .get('/')
+          .expect(shouldSetCookie('connect.sid'))
+          .expect(200, function (err, res) {
+            if (err) return done(err)
+            var ids = res.text.split(':')
+            assert.strictEqual(sid(res), ids[1])
+            assert.notStrictEqual(sid(res), ids[0])
+            assert.strictEqual(count, 1)
+            done()
+          })
+      })
     })
 
     describe('.reload()', function () {
