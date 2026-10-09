@@ -1,4 +1,4 @@
-unreleased
+1.19.1
 ==========
 
   * Enforce RFC 6265 section 5.1.4 path matching for the session cookie path
