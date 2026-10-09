@@ -190,6 +190,94 @@ describe('session()', function(){
     .expect(200, 'Hello, world!', done);
   })
 
+  describe('res.end() proxy', function () {
+    var nodeVersion = utils.getNodeVersion();
+
+    // Support for the callback argument was added in Node 0.11.6.
+    var nodeVersionSupportsResEndCallback = nodeVersion.major > 0 || nodeVersion.minor > 11 || (nodeVersion.minor === 11 && nodeVersion.patch >= 6);
+
+    it('should correctly handle callback as only argument', function (done) {
+      var callbackHasBeenCalled = false
+
+      var server = createServer(null, function (req, res) {
+        function callback() {
+          callbackHasBeenCalled = true
+        }
+
+        server.on('error', function onerror (err) {
+          assert.ok(err)
+          assert.strictEqual(err.message, 'first argument must be a string or Buffer')
+          done()
+        })
+
+        res.end(callback)
+      });
+
+      request(server)
+      .get('/')
+      .expect(200, '', function () {
+        if (nodeVersionSupportsResEndCallback) {
+          // If the Node version does not support the callback,
+          // the error listener will make the necessary assertions.
+          assert.ok(callbackHasBeenCalled)
+          done()
+        }
+      })
+    });
+
+    it('should correctly handle callback as second argument', function (done) {
+      var callbackHasBeenCalled = false
+
+      var server = createServer(null, function (req, res) {
+        function callback() {
+          callbackHasBeenCalled = true
+        }
+
+        res.end('hello', callback)
+      });
+
+      request(server).get('/').expect(200, 'hello', function () {
+        if (nodeVersionSupportsResEndCallback) {
+          assert.ok(callbackHasBeenCalled)
+        } else {
+          // This is (very slightly) different from the default Node behaviour,
+          // where the callback is invoked if `chunk` is a non-empty string or Buffer.
+          // This behaviour is undocumented, and seemingly happens unintentionally
+          // when the chunk and encoding are passed to write(), and in turn to
+          // afterWrite(), which considers the encoding argument to possibly be
+          // a function, and invokes it.
+          assert.strictEqual(callbackHasBeenCalled, false)
+        }
+
+        done()
+      })
+    })
+
+    it('should correctly handle callback as third argument', function (done) {
+      var callbackHasBeenCalled = false
+
+      var server = createServer(null, function (req, res) {
+        function callback() {
+          callbackHasBeenCalled = true
+        }
+
+        res.end('hello', 'utf8', callback)
+      });
+
+      request(server).get('/').expect(200, 'hello', function () {
+        // The third argument is completely ignored on Node versions
+        // that do not support the callback.
+        if (nodeVersionSupportsResEndCallback) {
+          assert.ok(callbackHasBeenCalled)
+        } else {
+          assert.strictEqual(callbackHasBeenCalled, false)
+        }
+
+        done()
+      })
+    })
+  })
+
   it('should handle res.end(null) calls', function (done) {
     var server = createServer(null, function (req, res) {
       res.end(null)
