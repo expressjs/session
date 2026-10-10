@@ -1229,6 +1229,68 @@ describe('session()', function(){
       .expect(shouldSetCookie('connect.sid'))
       .expect(200, done);
     });
+
+    it('should send updated cookie attributes on existing session', function (done) {
+      var store = new session.MemoryStore()
+      var server = createServer({
+        cookie: { maxAge: 60000, sameSite: 'none' },
+        rolling: true,
+        store: store
+      }, function (req, res) {
+        req.session.user = 'bob'
+        res.end()
+      })
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'None'))
+      .expect(200, function (err, res) {
+        if (err) return done(err)
+
+        var updatedServer = createServer({
+          cookie: { maxAge: 120000, sameSite: 'strict' },
+          rolling: true,
+          store: store
+        })
+
+        request(updatedServer)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'Strict'))
+        .expect(shouldSetCookieToExpireIn('connect.sid', 60000))
+        .expect(200, done)
+      })
+    })
+
+    it('should honor session cookie changes on existing session', function (done) {
+      var store = new session.MemoryStore()
+      var server = createServer({ rolling: true, store: store }, function (req, res) {
+        req.session.user = 'bob'
+        res.end()
+      })
+
+      request(server)
+      .get('/')
+      .expect(shouldSetCookie('connect.sid'))
+      .expect(200, function (err, res) {
+        if (err) return done(err)
+
+        var updatedServer = createServer({
+          cookie: { maxAge: 120000, sameSite: 'strict' },
+          rolling: true,
+          store: store
+        }, function (req, res) {
+          req.session.cookie.sameSite = 'lax'
+          res.end()
+        })
+
+        request(updatedServer)
+        .get('/')
+        .set('Cookie', cookie(res))
+        .expect(shouldSetCookieWithAttributeAndValue('connect.sid', 'SameSite', 'Lax'))
+        .expect(200, done)
+      })
+    })
   });
 
   describe('resave option', function(){

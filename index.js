@@ -158,19 +158,26 @@ function session(options) {
   store.generate = function(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
-    var resolvedCookieOptions = typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions;
-    req.session.cookie = new Cookie(resolvedCookieOptions);
+    req.session.cookie = createCookie(req);
+  };
 
+  // create a new cookie for the request from
+  // the resolved cookie options
+  function createCookie(req) {
+    var resolvedCookieOptions = typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions;
+    var sessionCookie = new Cookie(resolvedCookieOptions);
     var isSecure = issecure(req, trustProxy);
 
     if (resolvedCookieOptions.secure === 'auto') {
-      req.session.cookie.secure = isSecure;
+      sessionCookie.secure = isSecure;
     }
 
     if (resolvedCookieOptions.sameSite === 'auto') {
-      req.session.cookie.sameSite = isSecure ? 'none' : 'lax';
+      sessionCookie.sameSite = isSecure ? 'none' : 'lax';
     }
-  };
+
+    return sessionCookie;
+  }
 
   var storeImplementsTouch = typeof store.touch === 'function';
 
@@ -389,6 +396,18 @@ function session(options) {
     // inflate the session
     function inflate (req, sess) {
       store.createSession(req, sess)
+
+      if (rollingSessions) {
+        // refresh the cookie attributes from the current
+        // options, keeping the session's own expiration
+        var expires = req.session.cookie.expires
+        var originalMaxAge = req.session.cookie.originalMaxAge
+
+        req.session.cookie = createCookie(req)
+        req.session.cookie.expires = expires
+        req.session.cookie.originalMaxAge = originalMaxAge
+      }
+
       originalId = req.sessionID
       originalHash = hash(sess)
 
