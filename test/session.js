@@ -2445,6 +2445,49 @@ describe('session()', function(){
         })
       })
 
+      describe('.maxAge changed without modifying the session', function () {
+        before(function (done) {
+          var ctx = this
+
+          ctx.cookie = ''
+          ctx.server = createServer({ cookie: { maxAge: 2000 } }, function (req, res) {
+            if (req.url === '/set') {
+              req.session.count = 1
+              res.end('set')
+            } else if (req.url === '/extend') {
+              req.session.cookie.maxAge = 5000
+              req.session.touch()
+              req.session.save(function () { res.end('extended') })
+            } else {
+              res.end('plain')
+            }
+          })
+
+          request(ctx.server)
+          .get('/set')
+          .end(function (err, res) {
+            ctx.cookie = res && cookie(res)
+            done(err)
+          })
+        })
+
+        it('should not set-cookie when nothing changed', function (done) {
+          request(this.server)
+          .get('/')
+          .set('Cookie', this.cookie)
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(200, 'plain', done)
+        })
+
+        it('should set-cookie when only the cookie is extended and saved', function (done) {
+          request(this.server)
+          .get('/extend')
+          .set('Cookie', this.cookie)
+          .expect(shouldSetCookieToExpireIn('connect.sid', 5000))
+          .expect(200, 'extended', done)
+        })
+      })
+
       describe('.expires', function(){
         describe('when given a Date', function(){
           it('should set absolute', function(done){

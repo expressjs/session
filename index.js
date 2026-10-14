@@ -220,6 +220,7 @@ function session(options) {
     // req.secret is passed from the cookie parser middleware
     var secrets = secret || [req.secret];
 
+    var originalCookieHash;
     var originalHash;
     var originalId;
     var savedHash;
@@ -383,6 +384,7 @@ function session(options) {
       store.generate(req);
       originalId = req.sessionID;
       originalHash = hash(req.session);
+      originalCookieHash = cookieHash(req.session.cookie);
       wrapmethods(req.session);
     }
 
@@ -391,6 +393,7 @@ function session(options) {
       store.createSession(req, sess)
       originalId = req.sessionID
       originalHash = hash(sess)
+      originalCookieHash = cookieHash(req.session.cookie)
 
       if (!resaveSession) {
         savedHash = originalHash
@@ -450,6 +453,11 @@ function session(options) {
       return originalId === sess.id && savedHash === hash(sess);
     }
 
+    // check if session cookie has been modified
+    function isCookieModified(sess) {
+      return originalCookieHash !== cookieHash(sess.cookie);
+    }
+
     // determine if session should be destroyed
     function shouldDestroy(req) {
       return req.sessionID && unsetDestroy && req.session == null;
@@ -488,7 +496,7 @@ function session(options) {
 
       return cookieId !== req.sessionID
         ? saveUninitializedSession || isModified(req.session)
-        : rollingSessions || req.session.cookie.expires != null && isModified(req.session);
+        : rollingSessions || req.session.cookie.expires != null && isModified(req.session) || isCookieModified(req.session);
     }
 
     // generate a session if the browser doesn't send a sessionID
@@ -653,6 +661,35 @@ function hash(sess) {
   var str = JSON.stringify(sess, function (key, val) {
     // ignore sess.cookie property
     if (this === sess && key === 'cookie') {
+      return
+    }
+
+    return val
+  })
+
+  // hash
+  return crypto
+    .createHash('sha1')
+    .update(str, 'utf8')
+    .digest('hex')
+}
+
+/**
+ * Hash the given session `cookie` object omitting changes to `.expires`.
+ *
+ * The expiry is refreshed every time the session is touched, so it
+ * cannot take part in detecting changes to the cookie.
+ *
+ * @param {Object} cookie
+ * @return {String}
+ * @private
+ */
+
+function cookieHash(cookie) {
+  // serialize
+  var str = JSON.stringify(cookie.data, function (key, val) {
+    // ignore expires property
+    if (key === 'expires') {
       return
     }
 
