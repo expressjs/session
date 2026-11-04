@@ -1121,6 +1121,43 @@ describe('session()', function(){
       .expect(shouldSetCookieToValue('connect.sid', 's%3A%2Ffoo.paEKBtAHbV5s1IB8B2zPnzAgYmmnRPIqObW4VRYj%2FMQ'))
       .expect(200, done)
     });
+
+    describe('when the store is shared', function () {
+      before(function () {
+        var store = new session.MemoryStore()
+        var sessions = {
+          '/apple': createSession({ genid: function () { return 'apple' }, name: 'apple.sid', store: store }),
+          '/banana': createSession({ genid: function () { return 'banana' }, name: 'banana.sid', store: store })
+        }
+
+        this.server = http.createServer(function (req, res) {
+          var path = req.url.split('?')[0]
+          sessions[path](req, res, function () {
+            if (req.url.indexOf('?regenerate') === -1) {
+              res.end(req.sessionID)
+              return
+            }
+
+            req.session.regenerate(function (err) {
+              res.end(err ? err.message : req.sessionID)
+            })
+          })
+        })
+      })
+
+      it('should use the genid of the middleware that handled the request', function (done) {
+        request(this.server)
+        .get('/apple')
+        .expect(shouldSetCookieToValue('apple.sid', 's%3Aapple.D8Y%2BpkTAmeR0PobOhY4G97PRW%2Bj7bUnP%2F5m6%2FOn1MCU'))
+        .expect(200, 'apple', done)
+      })
+
+      it('should use the genid of the middleware that handled the request on regenerate', function (done) {
+        request(this.server)
+        .get('/apple?regenerate')
+        .expect(200, 'apple', done)
+      })
+    })
   });
 
   describe('key option', function(){

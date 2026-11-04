@@ -33,6 +33,14 @@ var Store = require('./session/store')
 var env = process.env.NODE_ENV;
 
 /**
+ * Request property holding the session generator of the middleware
+ * that handled the request.
+ * @private
+ */
+
+var GENERATE_KEY = '__expressSessionGenerate'
+
+/**
  * Expose the middleware.
  */
 
@@ -155,7 +163,7 @@ function session(options) {
   }
 
   // generates the new session
-  store.generate = function(req){
+  function generateSession(req){
     req.sessionID = generateId(req);
     req.session = new Session(req);
     var resolvedCookieOptions = typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions;
@@ -170,6 +178,13 @@ function session(options) {
     if (resolvedCookieOptions.sameSite === 'auto') {
       req.session.cookie.sameSite = isSecure ? 'none' : 'lax';
     }
+  }
+
+  // the store may be shared by several session middlewares, so generate
+  // with the options of the middleware that handled this request
+  store.generate = function(req){
+    var generate = (req && req[GENERATE_KEY]) || generateSession
+    generate(req)
   };
 
   var storeImplementsTouch = typeof store.touch === 'function';
@@ -227,6 +242,12 @@ function session(options) {
 
     // expose store
     req.sessionStore = store;
+    Object.defineProperty(req, GENERATE_KEY, {
+      configurable: true,
+      enumerable: false,
+      value: generateSession,
+      writable: true
+    })
 
     // get the session ID from the cookie
     var cookieId = req.sessionID = getcookie(req, name, secrets);
