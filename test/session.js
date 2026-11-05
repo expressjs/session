@@ -879,6 +879,24 @@ describe('session()', function(){
           });
       });
 
+      it('should respond with the error when the returned options are invalid', function (done) {
+        var app = express()
+        app.use(session({
+          cookie: function () { return { maxAge: '1000' } },
+          resave: false,
+          saveUninitialized: true,
+          secret: 'keyboard cat'
+        }))
+        app.use(function (err, req, res, next) {
+          res.status(500).end(err.message)
+        })
+
+        request(app)
+          .get('/')
+          .expect(shouldNotHaveHeader('Set-Cookie'))
+          .expect(500, 'maxAge must be a number or Date', done)
+      })
+
       it('should not set cookie when request-path does not match returned path', function (done) {
         var cookieCallback = function () {
           return { path: '/admin', httpOnly: true, secure: false };

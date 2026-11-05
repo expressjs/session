@@ -159,7 +159,15 @@ function session(options) {
     req.sessionID = generateId(req);
     req.session = new Session(req);
     var resolvedCookieOptions = typeof cookieOptions === 'function' ? cookieOptions(req) : cookieOptions;
-    req.session.cookie = new Cookie(resolvedCookieOptions);
+
+    try {
+      req.session.cookie = new Cookie(resolvedCookieOptions);
+    } catch (err) {
+      // a session without a cookie makes res.end() throw while this error is
+      // being handled, so the response never completes
+      delete req.session;
+      throw err;
+    }
 
     var isSecure = issecure(req, trustProxy);
 
