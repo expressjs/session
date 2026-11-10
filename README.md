@@ -517,7 +517,7 @@ and **optional**.
   * Optional methods are ones this module does not call at all, but helps
     present uniform stores to users.
 
-For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
+For an example implementation view the [connect-redis](https://github.com/tj/connect-redis) repo.
 
 ### store.all(callback)
 
@@ -584,7 +584,7 @@ potentially resetting the idle timer.
 The following modules implement a session store that is compatible with this
 module. Please make a PR to add additional modules :)
 
-[![★][aerospike-session-store-image] aerospike-session-store][aerospike-session-store-url] A session store using [Aerospike](http://www.aerospike.com/).
+[![★][aerospike-session-store-image] aerospike-session-store][aerospike-session-store-url] A session store using [Aerospike](https://aerospike.com/).
 
 [aerospike-session-store-url]: https://www.npmjs.com/package/aerospike-session-store
 [aerospike-session-store-image]: https://badgen.net/github/stars/aerospike/aerospike-session-store-expressjs?label=%E2%98%85
@@ -626,12 +626,12 @@ and other multi-core embedded devices).
 [connect-cosmosdb-url]: https://www.npmjs.com/package/connect-cosmosdb
 [connect-cosmosdb-image]: https://badgen.net/github/stars/thekillingspree/connect-cosmosdb?label=%E2%98%85
 
-[![★][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](http://www.couchbase.com/)-based session store.
+[![★][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](https://www.couchbase.com/)-based session store.
 
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
 [connect-couchbase-image]: https://badgen.net/github/stars/christophermina/connect-couchbase?label=%E2%98%85
 
-[![★][connect-datacache-image] connect-datacache][connect-datacache-url] An [IBM Bluemix Data Cache](http://www.ibm.com/cloud-computing/bluemix/)-based session store.
+[![★][connect-datacache-image] connect-datacache][connect-datacache-url] An [IBM Bluemix Data Cache](https://www.ibm.com/cloud)-based session store.
 
 [connect-datacache-url]: https://www.npmjs.com/package/connect-datacache
 [connect-datacache-image]: https://badgen.net/github/stars/adriantanasa/connect-datacache?label=%E2%98%85
@@ -712,7 +712,7 @@ and other multi-core embedded devices).
 [connect-neo4j-url]: https://www.npmjs.com/package/connect-neo4j
 [connect-neo4j-image]: https://badgen.net/github/stars/MaxAndersson/connect-neo4j?label=%E2%98%85
 
-[![★][connect-ottoman-image] connect-ottoman][connect-ottoman-url] A [couchbase ottoman](http://www.couchbase.com/)-based session store.
+[![★][connect-ottoman-image] connect-ottoman][connect-ottoman-url] A [couchbase ottoman](https://www.couchbase.com/)-based session store.
 
 [connect-ottoman-url]: https://www.npmjs.com/package/connect-ottoman
 [connect-ottoman-image]: https://badgen.net/github/stars/noiissyboy/connect-ottoman?label=%E2%98%85
@@ -733,7 +733,7 @@ and other multi-core embedded devices).
 [connect-session-firebase-image]: https://badgen.net/github/stars/benweier/connect-session-firebase?label=%E2%98%85
 
 [![★][connect-session-knex-image] connect-session-knex][connect-session-knex-url] A session store using
-[Knex.js](http://knexjs.org/), which is a SQL query builder for PostgreSQL, MySQL, MariaDB, SQLite3, and Oracle.
+[Knex.js](https://knexjs.org/), which is a SQL query builder for PostgreSQL, MySQL, MariaDB, SQLite3, and Oracle.
 
 [connect-session-knex-url]: https://www.npmjs.com/package/connect-session-knex
 [connect-session-knex-image]: https://badgen.net/github/stars/llambda/connect-session-knex?label=%E2%98%85
