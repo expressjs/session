@@ -164,7 +164,7 @@ More information about the different enforcement levels can be found in
 **Note** This is an attribute that has not yet been fully standardized, and may change in
 the future. This also means many clients may ignore this attribute until they understand it.
 
-**Note** There is a [draft spec](https://tools.ietf.org/html/draft-west-cookie-incrementalism-01)
+**Note** There is a [draft spec](https://datatracker.ietf.org/doc/html/draft-west-cookie-incrementalism-01)
 that requires that the `Secure` attribute be set to `true` when the `SameSite` attribute has been
 set to `'none'`. Some web browsers or other clients may be adopting this specification.
 
@@ -1045,14 +1045,14 @@ On Windows, use the corresponding command;
 [MIT](LICENSE)
 
 [rfc-6265-5.1.4]: https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.4
-[rfc-6265bis-03-4.1.2.7]: https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
-[rfc-cutler-httpbis-partitioned-cookies]: https://tools.ietf.org/html/draft-cutler-httpbis-partitioned-cookies/
-[rfc-west-cookie-priority-00-4.1]: https://tools.ietf.org/html/draft-west-cookie-priority-00#section-4.1
+[rfc-6265bis-03-4.1.2.7]: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+[rfc-cutler-httpbis-partitioned-cookies]: https://datatracker.ietf.org/doc/html/draft-cutler-httpbis-partitioned-cookies/
+[rfc-west-cookie-priority-00-4.1]: https://datatracker.ietf.org/doc/html/draft-west-cookie-priority-00#section-4.1
 [ci-image]: https://badgen.net/github/checks/expressjs/session/master?label=ci
 [ci-url]: https://github.com/expressjs/session/actions?query=workflow%3Aci
 [coveralls-image]: https://badgen.net/coveralls/c/github/expressjs/session/master
 [coveralls-url]: https://coveralls.io/r/expressjs/session?branch=master
 [node-url]: https://nodejs.org/en/download
 [npm-downloads-image]: https://badgen.net/npm/dm/express-session
-[npm-url]: https://npmjs.org/package/express-session
+[npm-url]: https://www.npmjs.com/package/express-session
 [npm-version-image]: https://badgen.net/npm/v/express-session
