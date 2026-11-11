@@ -403,16 +403,29 @@ function session(options) {
       return function () {
         if (req.session !== sess) {
           wrapmethods(req.session)
+          originalId = req.session.id
+          originalHash = hash(req.session)
+          if (sess.id !== req.session.id) {
+            savedHash = undefined
+          }
         }
 
-        callback.apply(this, arguments)
+        if (callback) {
+          callback.apply(this, arguments)
+        }
       }
     }
 
     // wrap session methods
     function wrapmethods(sess) {
+      var _regenerate = sess.regenerate
       var _reload = sess.reload
       var _save = sess.save;
+
+      function regenerate(callback) {
+        debug('regenerating %s', this.id)
+        _regenerate.call(this, rewrapmethods(this, callback))
+      }
 
       function reload(callback) {
         debug('reloading %s', this.id)
@@ -424,6 +437,13 @@ function session(options) {
         savedHash = hash(this);
         _save.apply(this, arguments);
       }
+
+      Object.defineProperty(sess, 'regenerate', {
+        configurable: true,
+        enumerable: false,
+        value: regenerate,
+        writable: true
+      })
 
       Object.defineProperty(sess, 'reload', {
         configurable: true,
