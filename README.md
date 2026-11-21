@@ -517,7 +517,7 @@ and **optional**.
   * Optional methods are ones this module does not call at all, but helps
     present uniform stores to users.
 
-For an example implementation view the [connect-redis](http://github.com/visionmedia/connect-redis) repo.
+For an example implementation view the [connect-redis](https://github.com/tj/connect-redis) repo.
 
 ### store.all(callback)
 
@@ -584,12 +584,12 @@ potentially resetting the idle timer.
 The following modules implement a session store that is compatible with this
 module. Please make a PR to add additional modules :)
 
-[![★][aerospike-session-store-image] aerospike-session-store][aerospike-session-store-url] A session store using [Aerospike](http://www.aerospike.com/).
+[![★][aerospike-session-store-image] aerospike-session-store][aerospike-session-store-url] A session store using [Aerospike](https://aerospike.com/).
 
 [aerospike-session-store-url]: https://www.npmjs.com/package/aerospike-session-store
 [aerospike-session-store-image]: https://badgen.net/github/stars/aerospike/aerospike-session-store-expressjs?label=%E2%98%85
 
-[![★][better-sqlite3-session-store-image] better-sqlite3-session-store][better-sqlite3-session-store-url] A session store based on [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3).
+[![★][better-sqlite3-session-store-image] better-sqlite3-session-store][better-sqlite3-session-store-url] A session store based on [better-sqlite3](https://github.com/WiseLibs/better-sqlite3).
 
 [better-sqlite3-session-store-url]: https://www.npmjs.com/package/better-sqlite3-session-store
 [better-sqlite3-session-store-image]: https://badgen.net/github/stars/timdaub/better-sqlite3-session-store?label=%E2%98%85
@@ -616,7 +616,7 @@ and other multi-core embedded devices).
 [connect-azuretables-url]: https://www.npmjs.com/package/connect-azuretables
 [connect-azuretables-image]: https://badgen.net/github/stars/mike-goodwin/connect-azuretables?label=%E2%98%85
 
-[![★][connect-cloudant-store-image] connect-cloudant-store][connect-cloudant-store-url] An [IBM Cloudant](https://cloudant.com/)-based session store.
+[![★][connect-cloudant-store-image] connect-cloudant-store][connect-cloudant-store-url] An [IBM Cloudant](https://www.ibm.com/products/cloudant)-based session store.
 
 [connect-cloudant-store-url]: https://www.npmjs.com/package/connect-cloudant-store
 [connect-cloudant-store-image]: https://badgen.net/github/stars/adriantanasa/connect-cloudant-store?label=%E2%98%85
@@ -626,12 +626,12 @@ and other multi-core embedded devices).
 [connect-cosmosdb-url]: https://www.npmjs.com/package/connect-cosmosdb
 [connect-cosmosdb-image]: https://badgen.net/github/stars/thekillingspree/connect-cosmosdb?label=%E2%98%85
 
-[![★][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](http://www.couchbase.com/)-based session store.
+[![★][connect-couchbase-image] connect-couchbase][connect-couchbase-url] A [couchbase](https://www.couchbase.com/)-based session store.
 
 [connect-couchbase-url]: https://www.npmjs.com/package/connect-couchbase
 [connect-couchbase-image]: https://badgen.net/github/stars/christophermina/connect-couchbase?label=%E2%98%85
 
-[![★][connect-datacache-image] connect-datacache][connect-datacache-url] An [IBM Bluemix Data Cache](http://www.ibm.com/cloud-computing/bluemix/)-based session store.
+[![★][connect-datacache-image] connect-datacache][connect-datacache-url] An [IBM Bluemix Data Cache](https://www.ibm.com/products/cloud)-based session store.
 
 [connect-datacache-url]: https://www.npmjs.com/package/connect-datacache
 [connect-datacache-image]: https://badgen.net/github/stars/adriantanasa/connect-datacache?label=%E2%98%85
@@ -712,7 +712,7 @@ and other multi-core embedded devices).
 [connect-neo4j-url]: https://www.npmjs.com/package/connect-neo4j
 [connect-neo4j-image]: https://badgen.net/github/stars/MaxAndersson/connect-neo4j?label=%E2%98%85
 
-[![★][connect-ottoman-image] connect-ottoman][connect-ottoman-url] A [couchbase ottoman](http://www.couchbase.com/)-based session store.
+[![★][connect-ottoman-image] connect-ottoman][connect-ottoman-url] A [couchbase ottoman](https://www.couchbase.com/)-based session store.
 
 [connect-ottoman-url]: https://www.npmjs.com/package/connect-ottoman
 [connect-ottoman-image]: https://badgen.net/github/stars/noiissyboy/connect-ottoman?label=%E2%98%85
@@ -733,7 +733,7 @@ and other multi-core embedded devices).
 [connect-session-firebase-image]: https://badgen.net/github/stars/benweier/connect-session-firebase?label=%E2%98%85
 
 [![★][connect-session-knex-image] connect-session-knex][connect-session-knex-url] A session store using
-[Knex.js](http://knexjs.org/), which is a SQL query builder for PostgreSQL, MySQL, MariaDB, SQLite3, and Oracle.
+[Knex.js](https://knexjs.org/), which is a SQL query builder for PostgreSQL, MySQL, MariaDB, SQLite3, and Oracle.
 
 [connect-session-knex-url]: https://www.npmjs.com/package/connect-session-knex
 [connect-session-knex-image]: https://badgen.net/github/stars/llambda/connect-session-knex?label=%E2%98%85
@@ -744,7 +744,7 @@ and other multi-core embedded devices).
 [connect-session-sequelize-url]: https://www.npmjs.com/package/connect-session-sequelize
 [connect-session-sequelize-image]: https://badgen.net/github/stars/mweibel/connect-session-sequelize?label=%E2%98%85
 
-[![★][connect-sqlite3-image] connect-sqlite3][connect-sqlite3-url] A [SQLite3](https://github.com/mapbox/node-sqlite3) session store modeled after the TJ's `connect-redis` store.
+[![★][connect-sqlite3-image] connect-sqlite3][connect-sqlite3-url] A [SQLite3](https://github.com/TryGhost/node-sqlite3) session store modeled after the TJ's `connect-redis` store.
 
 [connect-sqlite3-url]: https://www.npmjs.com/package/connect-sqlite3
 [connect-sqlite3-image]: https://badgen.net/github/stars/rawberg/connect-sqlite3?label=%E2%98%85
@@ -770,7 +770,7 @@ and other multi-core embedded devices).
 [express-etcd-image]: https://badgen.net/github/stars/gildean/express-etcd?label=%E2%98%85
 
 [![★][express-mysql-session-image] express-mysql-session][express-mysql-session-url] A session store using native
-[MySQL](https://www.mysql.com/) via the [node-mysql](https://github.com/felixge/node-mysql) module.
+[MySQL](https://www.mysql.com/) via the [node-mysql](https://github.com/mysqljs/mysql) module.
 
 [express-mysql-session-url]: https://www.npmjs.com/package/express-mysql-session
 [express-mysql-session-image]: https://badgen.net/github/stars/chill117/express-mysql-session?label=%E2%98%85
@@ -793,7 +793,7 @@ a [variety of storage types](https://www.npmjs.com/package/cache-manager#store-e
 [express-session-cache-manager-url]: https://www.npmjs.com/package/express-session-cache-manager
 [express-session-cache-manager-image]: https://badgen.net/github/stars/theogravity/express-session-cache-manager?label=%E2%98%85
 
-[![★][express-session-etcd3-image] express-session-etcd3][express-session-etcd3-url] An [etcd3](https://github.com/mixer/etcd3) based session store.
+[![★][express-session-etcd3-image] express-session-etcd3][express-session-etcd3-url] An [etcd3](https://github.com/microsoft/etcd3) based session store.
 
 [express-session-etcd3-url]: https://www.npmjs.com/package/express-session-etcd3
 [express-session-etcd3-image]: https://badgen.net/github/stars/willgm/express-session-etcd3?label=%E2%98%85
